@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
 
   // Only proxy requests that start with /api/proxy/ to the Laravel backend
   if (pathname.startsWith('/api/proxy/')) {
-    const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+    const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
     const apiPath = pathname.replace('/api/proxy', '')
     const targetUrl = `${backendBase}${apiPath}`
 
