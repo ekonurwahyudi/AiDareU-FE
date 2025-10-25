@@ -8,18 +8,36 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Build-time environment variables
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build icons and application
 RUN npm run build:icons && npm run build
 
 FROM node:18-alpine AS runner
 WORKDIR /app
+
+# Runtime environment
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-COPY package*.json ./
-RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-COPY --from=builder /app/.next ./.next
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy built application
 COPY --from=builder /app/public ./public
-# Jika menggunakan next.config.js/ts, copy juga jika diperlukan
-COPY --from=builder /app/next.config.* ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]

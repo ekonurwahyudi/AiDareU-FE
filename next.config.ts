@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
+  // Enable standalone output for Docker
+  output: 'standalone',
   // swcMinify deprecated in Next.js 15
   // App Router (src/app) sudah diaktifkan secara default di Next.js 15
   experimental: {
@@ -10,10 +12,11 @@ const nextConfig: NextConfig = {
   },
   // Proxy API requests to Laravel backend - only for /api/proxy/** to avoid conflicts with Next API routes
   async rewrites() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
     return [
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:8000/api/:path*'
+        destination: `${apiUrl}/:path*`
       }
     ]
   },
