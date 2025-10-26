@@ -63,7 +63,7 @@ const Faq = () => {
     try {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
-      const response = await fetch(`http://localhost:8000/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
+      const response = await fetch(`http://localhost:8080/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
         cache: 'no-store'
       })
       const data = await response.json()
@@ -130,8 +130,8 @@ const Faq = () => {
 
     try {
       const url = editingFaq
-        ? `http://localhost:8000/api/theme-settings/faq/${editingFaq.uuid}`
-        : 'http://localhost:8000/api/theme-settings/faq'
+        ? `http://localhost:8080/api/theme-settings/faq/${editingFaq.uuid}`
+        : 'http://localhost:8080/api/theme-settings/faq'
 
       const method = editingFaq ? 'PUT' : 'POST'
 
@@ -184,7 +184,7 @@ const Faq = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch(`http://localhost:8000/api/theme-settings/faq/${uuid}`, {
+      const response = await fetch(`http://localhost:8080/api/theme-settings/faq/${uuid}`, {
         method: 'DELETE',
         credentials: 'include',
         headers: {

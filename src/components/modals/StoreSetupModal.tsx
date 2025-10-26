@@ -111,7 +111,7 @@ const StoreSetupModal = ({ open, onClose, onSuccess }: StoreSetupModalProps) => 
 
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/api/stores', {
+      const response = await fetch('http://localhost:8080/api/stores', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

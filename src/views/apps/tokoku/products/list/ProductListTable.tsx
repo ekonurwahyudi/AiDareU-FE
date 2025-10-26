@@ -73,7 +73,7 @@ import { ProductPlaceholder } from '@/components/ProductPlaceholder'
 
 // Utility function to generate proper image URLs
 const getImageUrl = (imagePath: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
   return `${baseUrl}/storage/${imagePath}`
 }
 
@@ -260,7 +260,7 @@ const ProductListTable = () => {
         }
       })
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
       // Get auth headers
       const storedUserData = localStorage.getItem('user_data')
@@ -322,7 +322,7 @@ const ProductListTable = () => {
     }
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
       const response = await fetch(`${apiUrl}/public/categories`, {
         credentials: 'include',
         cache: 'default', // Allow browser caching for categories
@@ -432,7 +432,7 @@ const ProductListTable = () => {
     try {
       setDeleting(true)
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
       const response = await fetch(`${apiUrl}/public/products/${productToDelete.uuid}`, {
         method: 'DELETE',
         credentials: 'include'

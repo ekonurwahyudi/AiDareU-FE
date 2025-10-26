@@ -210,7 +210,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       const url = isEdit && productUuid ? `/api/public/products/${productUuid}` : '/api/public/products'
       const method = 'POST' // Always POST for FormData, Laravel will handle _method
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
       const fullUrl = url.startsWith('/api/') ? `${apiUrl.replace('/api', '')}${url}` : url
       
       const response = await fetch(fullUrl, {
@@ -255,7 +255,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       const loadProductData = async () => {
         setIsLoading(true)
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
           const response = await fetch(`${apiUrl}/public/products/${productUuid}`, {
             credentials: 'include'
           })

@@ -37,7 +37,7 @@ export default function InvoicePage() {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
           cache: 'no-store'
         })
@@ -218,7 +218,7 @@ export default function InvoicePage() {
             {storeData?.settings?.logo ? (
               <Box sx={{ mb: 1 }}>
                 <img
-                  src={`http://localhost:8000/storage/${storeData.settings.logo}`}
+                  src={`http://localhost:8080/storage/${storeData.settings.logo}`}
                   alt={storeData?.store?.name || 'Store Logo'}
                   style={{ height: 50, width: 'auto', objectFit: 'contain' }}
                 />

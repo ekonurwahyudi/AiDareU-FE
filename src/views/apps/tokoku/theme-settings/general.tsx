@@ -79,7 +79,7 @@ const General = () => {
     try {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
-      const response = await fetch(`http://localhost:8000/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
+      const response = await fetch(`http://localhost:8080/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
         cache: 'no-store'
       })
       const data = await response.json()
@@ -97,10 +97,10 @@ const General = () => {
         })
 
         if (settings.logo) {
-          setLogoPreview(`http://localhost:8000/storage/${settings.logo}`)
+          setLogoPreview(`http://localhost:8080/storage/${settings.logo}`)
         }
         if (settings.favicon) {
-          setFaviconPreview(`http://localhost:8000/storage/${settings.favicon}`)
+          setFaviconPreview(`http://localhost:8080/storage/${settings.favicon}`)
         }
       } else {
         console.log('No settings found or request failed')
@@ -139,7 +139,7 @@ const General = () => {
 
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('http://localhost:8000/api/theme-settings/general', {
+      const response = await fetch('http://localhost:8080/api/theme-settings/general', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -205,7 +205,7 @@ const General = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('http://localhost:8000/api/theme-settings/general', {
+      const response = await fetch('http://localhost:8080/api/theme-settings/general', {
         method: 'POST',
         credentials: 'include',
         headers: {

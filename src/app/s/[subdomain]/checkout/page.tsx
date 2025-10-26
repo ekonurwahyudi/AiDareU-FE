@@ -40,7 +40,7 @@ const CheckoutPage = () => {
     const fetchStoreData = async () => {
       try {
         setStoreLoading(true)
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
           cache: 'no-store' // Prevent caching issues
         })
@@ -205,7 +205,7 @@ const CheckoutPage = () => {
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateCartQuantity}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8000/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
       />
 

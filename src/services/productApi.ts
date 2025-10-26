@@ -1,7 +1,7 @@
 // Product API Service
 import type { Product, Category, ProductFilters, ProductFormData, PaginatedProducts, ApiResponse } from '@/types/product'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
 class ProductApiService {
   private async fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {

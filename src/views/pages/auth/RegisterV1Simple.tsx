@@ -131,7 +131,7 @@ const RegisterV1Simple = ({ mode }: { mode: SystemMode }) => {
     setIsLoading(true)
     try {
       // Call registration API
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
       const response = await fetch(`${backendUrl}/api/auth/register`, {
         method: 'POST',
         headers: {

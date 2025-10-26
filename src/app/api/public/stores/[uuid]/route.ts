@@ -21,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     // Call Laravel backend API directly
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
     const response = await fetch(`${backendUrl}/api/public/stores/${uuid}`, {
       method: 'PUT',
       headers: {
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const { uuid } = await params
     // Call Laravel backend API directly
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
     const response = await fetch(`${backendUrl}/api/public/stores/${uuid}`, {
       method: 'GET',
       headers: {

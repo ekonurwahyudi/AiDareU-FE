@@ -335,7 +335,7 @@ const DynamicStorePage = () => {
       try {
         setStoreLoading(true)
         setLoading(true)
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
           cache: 'no-store' // Prevent caching issues
         })
@@ -553,7 +553,7 @@ const DynamicStorePage = () => {
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={addToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8000/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
       />
 

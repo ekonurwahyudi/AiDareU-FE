@@ -11,7 +11,7 @@ export async function GET(
     console.log('Fetching product with slug:', slug)
 
     // Make request to Laravel backend to get all products
-    const backendUrl = 'http://localhost:8000'
+    const backendUrl = 'http://localhost:8080'
 
     console.log('Making request to:', `${backendUrl}/api/public/products?per_page=1000`)
 

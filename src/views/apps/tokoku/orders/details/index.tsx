@@ -101,7 +101,7 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
         setLoading(true)
         setError(null)
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
         const response = await fetch(`${apiUrl}/order/${orderId}`, {
           credentials: 'include',
           headers: {
@@ -142,7 +142,7 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
   // Handle status update
   const handleStatusUpdate = async (newStatus: Order['status']) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
       console.log('Updating order status:', {
         orderId,

@@ -239,7 +239,7 @@ const renderHtmlDescription = (htmlString: string, descriptionRef: React.RefObje
     console.log('Processing href:', href) // Debug log
 
     // Remove any localhost prefixes (more comprehensive)
-    if (href.includes('localhost:8080') || href.includes('localhost:8000') || href.includes('127.0.0.1')) {
+    if (href.includes('localhost:8080') || href.includes('localhost:8080') || href.includes('127.0.0.1')) {
       // Extract the actual URL after /store/ or similar patterns
       const patterns = ['/store/', '/api/', '/_next/']
       for (const pattern of patterns) {
@@ -586,7 +586,7 @@ function ProductDetailPage() {
       try {
         setStoreLoading(true)
         const subdomain = params.subdomain as string
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
           cache: 'no-store' // Prevent caching issues
         })
@@ -641,7 +641,7 @@ function ProductDetailPage() {
         console.log('Fetching product with slug:', slug)
 
         // Fetch directly from backend instead of using Next.js API route
-        const backendUrl = 'http://localhost:8000'
+        const backendUrl = 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/public/products?per_page=1000`, {
           method: 'GET',
           headers: {
@@ -684,10 +684,10 @@ function ProductDetailPage() {
             rating: 4.5,
             reviews: Math.floor(Math.random() * 100) + 10,
             image: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
-              ? `http://localhost:8000/storage/${product.upload_gambar_produk[0]}`
+              ? `http://localhost:8080/storage/${product.upload_gambar_produk[0]}`
               : '/placeholder.jpg',
             images: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
-              ? product.upload_gambar_produk.map((img: string) => `http://localhost:8000/storage/${img}`)
+              ? product.upload_gambar_produk.map((img: string) => `http://localhost:8080/storage/${img}`)
               : ['/placeholder.jpg'],
             colors: null,
             isNew: product.status_produk === 'active' && new Date(product.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -951,7 +951,7 @@ function ProductDetailPage() {
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={handleAddToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8000/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
       />
 

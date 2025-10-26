@@ -93,7 +93,7 @@ const UserDropdown = () => {
       
       // Backend API logout to clear Laravel session/token (non-blocking)
       if (authToken) {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
         fetch(`${backendUrl}/api/auth/logout`, {
           method: 'POST',
           headers: { 

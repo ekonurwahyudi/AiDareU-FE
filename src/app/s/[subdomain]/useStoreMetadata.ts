@@ -16,7 +16,7 @@ export function useStoreMetadata(options: MetadataOptions) {
   useEffect(() => {
     // Defer metadata updates to avoid blocking navigation
     const timeoutId = setTimeout(() => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
 
       // Update document title
       if (options.title) {

@@ -37,7 +37,7 @@ export default function InvoicePage({ params }: { params: Promise<{ uuid: string
   const fetchInvoiceData = async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
       const response = await fetch(`${apiUrl}/order/${uuid}`, {
         credentials: 'include'
       })

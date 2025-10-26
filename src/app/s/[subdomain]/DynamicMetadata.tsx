@@ -13,7 +13,7 @@ export default function DynamicMetadata({ subdomain }: DynamicMetadataProps) {
   useEffect(() => {
     const fetchStoreData = async () => {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
           cache: 'no-store'
         })

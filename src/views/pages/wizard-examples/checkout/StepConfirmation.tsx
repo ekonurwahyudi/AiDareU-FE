@@ -260,7 +260,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
             const product = detail.product || {}
             const productName = product.nama_produk || product.name || 'Product'
             const productImage = product.upload_gambar_produk?.[0] || product.image
-            const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+            const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
             const imageUrl = productImage ? `${backendUrl}/storage/${productImage}` : null
 
             return (

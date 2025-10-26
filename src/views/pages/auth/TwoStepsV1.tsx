@@ -95,7 +95,7 @@ const TwoStepsV1 = () => {
 
     setIsLoading(true)
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
       const response = await fetch(`${backendUrl}/api/auth/verify-email`, {
         method: 'POST',
         headers: {
@@ -124,7 +124,7 @@ const TwoStepsV1 = () => {
               localStorage.removeItem('unverified_user')
               
               // Login using the verified credentials with direct API
-              const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+              const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
               const loginResponse = await fetch(`${backendUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -182,7 +182,7 @@ const TwoStepsV1 = () => {
     setIsResending(true)
     try {
       const targetEmail = emailParam || email
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
       const response = await fetch(`${backendUrl}/api/auth/resend-verification`, {
         method: 'POST',
         headers: {

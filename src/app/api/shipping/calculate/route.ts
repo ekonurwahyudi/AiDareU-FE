@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Call Laravel backend API to calculate shipping
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
     const response = await fetch(`${backendUrl}/api/shipping/calculate`, {
       method: 'POST',
       headers: {

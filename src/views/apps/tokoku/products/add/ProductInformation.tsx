@@ -316,7 +316,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
         const formData = new FormData()
         formData.append('image', file)
 
-        const backendUrl = 'http://localhost:8000'
+        const backendUrl = 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/upload-editor-image`, {
           method: 'POST',
           body: formData,

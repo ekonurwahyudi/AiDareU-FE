@@ -204,7 +204,7 @@ const OrderListTable = () => {
       setLoading(true)
       setError(null)
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
 
       // Build query params
       const queryParams = new URLSearchParams()
@@ -316,7 +316,7 @@ const OrderListTable = () => {
   // Handle status update
   const handleStatusUpdate = async (order: Order, newStatus: Order['status']) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
       const response = await fetch(`${apiUrl}/order/${order.uuid}/status`, {
         method: 'PUT',
         credentials: 'include',

@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   console.log('Test login called with:', { email })
   
   try {
-    const apiUrl = process.env.API_URL || 'http://localhost:8000/api'
+    const apiUrl = process.env.API_URL || 'http://localhost:8080/api'
     const url = `${apiUrl}/auth/login`
     console.log('Making request to:', url)
     

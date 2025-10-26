@@ -66,7 +66,7 @@ const LoginV1Simple = () => {
 
     try {
       // Direct API call to backend
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
       const response = await fetch(`${backendUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
