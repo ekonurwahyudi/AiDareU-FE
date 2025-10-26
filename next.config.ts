@@ -21,16 +21,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // appDir: true, // Hapus ini karena tidak valid lagi
   },
-  // Proxy API requests to Laravel backend - only for /api/proxy/** to avoid conflicts with Next API routes
-  async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiUrl}/:path*`
-      }
-    ]
-  },
+  // No rewrites needed - frontend calls backend API directly via NEXT_PUBLIC_API_URL
+  // Middleware handles /api/proxy/* if specific proxying is needed
   // Anda bisa menggunakan Pages Router (pages) bersamaan dengan App Router
   // pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 };

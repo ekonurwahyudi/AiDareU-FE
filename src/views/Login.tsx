@@ -133,9 +133,13 @@ const Login = ({ mode }: { mode: SystemMode }) => {
     setErrorState(null)
 
     try {
-      // Direct API call bypass NextAuth temporarily for debugging
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
-      const response = await fetch(`${backendUrl}/api/auth/login`, {
+      // Use NEXT_PUBLIC_BACKEND_URL (without /api) and append path
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const loginUrl = `${backendUrl}/api/auth/login`
+
+      console.log('Login URL:', loginUrl) // Debug log
+
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
