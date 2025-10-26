@@ -22,7 +22,7 @@ export default function TestLogin() {
       setResult(res)
     } catch (error) {
       console.error('SignIn error:', error)
-      setResult({ error: error.message })
+      setResult({ error: error instanceof Error ? error.message : String(error) })
     }
   }
 
