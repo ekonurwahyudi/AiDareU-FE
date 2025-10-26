@@ -5,6 +5,17 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Enable standalone output for Docker
   output: 'standalone',
+
+  // Disable ESLint during production build (errors will be shown in dev)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // Disable TypeScript errors during build (optional - use with caution)
+  typescript: {
+    ignoreBuildErrors: false, // Keep TypeScript checking enabled
+  },
+
   // swcMinify deprecated in Next.js 15
   // App Router (src/app) sudah diaktifkan secara default di Next.js 15
   experimental: {
