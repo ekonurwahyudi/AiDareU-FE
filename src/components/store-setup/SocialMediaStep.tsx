@@ -83,7 +83,7 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
 
       // Submit to backend
       const authToken = localStorage.getItem('auth_token')
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       
       // Ensure subdomain field is correctly named
       const dataToSubmit = {

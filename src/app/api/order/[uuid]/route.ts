@@ -8,7 +8,7 @@ export async function GET(
     const { uuid } = await params
 
     // Forward request to Laravel backend
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
     const response = await fetch(`${backendUrl}/api/order/${uuid}`, {
       method: 'GET',
       headers: {

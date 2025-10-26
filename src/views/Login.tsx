@@ -137,18 +137,35 @@ const Login = ({ mode }: { mode: SystemMode }) => {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const loginUrl = `${backendUrl}/api/auth/login`
 
-      console.log('Login URL:', loginUrl) // Debug log
+      console.log('=== LOGIN DEBUG ===')
+      console.log('NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
+      console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
+      console.log('Backend URL:', backendUrl)
+      console.log('Login URL:', loginUrl)
+      console.log('==================')
 
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: data.email,
-          password: data.password 
+          password: data.password
         })
       })
+
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text()
+        console.error('Non-JSON response:', text)
+        throw new Error(`Expected JSON response but got ${contentType}. Response: ${text.substring(0, 200)}`)
+      }
 
       const result = await response.json()
       

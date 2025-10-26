@@ -36,7 +36,7 @@ const StoreSetupChecker = ({ children }: StoreSetupCheckerProps) => {
         }
 
         // Check with backend to make sure
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8080'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         
         const response = await fetch(`${backendUrl}/api/user/store-status`, {
           method: 'GET',

@@ -22,7 +22,9 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Only match /api/proxy/* paths, not all /api/*
+  // This prevents middleware from intercepting direct API calls to backend
   matcher: [
-    '/api/:path*'
+    '/api/proxy/:path*'
   ]
 }
