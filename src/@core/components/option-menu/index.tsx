@@ -34,7 +34,7 @@ const IconButtonWrapper = (props: Pick<OptionsMenuType, 'tooltipProps'> & { chil
 
   if (!tooltipProps?.title) return children
 
-  const isDisabledChild = React.isValidElement(children) && (children.props.disabled || children.props['aria-disabled'])
+  const isDisabledChild = React.isValidElement(children) && ((children.props as any).disabled || (children.props as any)['aria-disabled'])
 
   return (
     <Tooltip {...tooltipProps}>
