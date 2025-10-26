@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uuid: string } }
+  { params }: { params: Promise<{ uuid: string }> }
 ) {
   try {
-    const { uuid } = params
+    const { uuid } = await params
 
     // Forward request to Laravel backend
     const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'

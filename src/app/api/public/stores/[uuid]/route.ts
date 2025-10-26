@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function PUT(request: NextRequest, { params }: { params: { uuid: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ uuid: string }> }) {
   try {
+    const { uuid } = await params
     const body = await request.json()
     const {
       nama_toko,
@@ -15,13 +16,13 @@ export async function PUT(request: NextRequest, { params }: { params: { uuid: st
     } = body
 
     console.log('Frontend API - Update store:', {
-      uuid: params.uuid,
+      uuid: uuid,
       body: body
     })
 
     // Call Laravel backend API directly
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const response = await fetch(`${backendUrl}/api/public/stores/${params.uuid}`, {
+    const response = await fetch(`${backendUrl}/api/public/stores/${uuid}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -67,11 +68,12 @@ export async function PUT(request: NextRequest, { params }: { params: { uuid: st
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { uuid: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ uuid: string }> }) {
   try {
+    const { uuid } = await params
     // Call Laravel backend API directly
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const response = await fetch(`${backendUrl}/api/public/stores/${params.uuid}`, {
+    const response = await fetch(`${backendUrl}/api/public/stores/${uuid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
