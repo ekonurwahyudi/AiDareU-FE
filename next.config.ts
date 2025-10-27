@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Skip trailing slash to match middleware routes correctly
+  skipTrailingSlashRedirect: true,
+
   // swcMinify deprecated in Next.js 15
   // App Router (src/app) sudah diaktifkan secara default di Next.js 15
   experimental: {

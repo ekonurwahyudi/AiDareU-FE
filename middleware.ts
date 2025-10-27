@@ -4,12 +4,20 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
+  // Log for debugging
+  console.log('=== MIDDLEWARE DEBUG ===')
+  console.log('Hostname:', hostname)
+  console.log('Pathname:', pathname)
+
   // Extract subdomain from hostname
   // Example: tokobunga.aidareu.com -> tokobunga
   const subdomain = getSubdomain(hostname)
+  console.log('Detected subdomain:', subdomain)
 
   // Handle subdomain routing
   if (subdomain && !isReservedSubdomain(subdomain)) {
+    console.log('Subdomain is valid and not reserved')
+
     // If accessing subdomain, rewrite to /s/[subdomain] route
     // Example: tokobunga.aidareu.com/ -> aidareu.com/s/tokobunga
     // Example: tokobunga.aidareu.com/products -> aidareu.com/s/tokobunga/products
@@ -18,7 +26,10 @@ export function middleware(request: NextRequest) {
 
     // Rewrite to /s/[subdomain] path
     if (pathname === '/' || !pathname.startsWith('/s/')) {
-      newUrl.pathname = `/s/${subdomain}${pathname === '/' ? '' : pathname}`
+      const newPath = `/s/${subdomain}${pathname === '/' ? '' : pathname}`
+      newUrl.pathname = newPath
+
+      console.log('Rewriting to:', newPath)
 
       // Pass subdomain info via header for the page to use
       const response = NextResponse.rewrite(newUrl)
@@ -27,6 +38,8 @@ export function middleware(request: NextRequest) {
 
       return response
     }
+  } else {
+    console.log('No subdomain detected or subdomain is reserved')
   }
 
   // Handle custom domain routing
@@ -130,9 +143,15 @@ function isCustomDomain(hostname: string): boolean {
 }
 
 export const config = {
-  // Match all paths except static files and API routes
+  // Match all requests except Next.js internals and static files
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/(?!proxy)).*)',
-    '/api/proxy/:path*'
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files with extensions (.png, .jpg, .svg, etc.)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ]
 }
