@@ -129,7 +129,7 @@ const Slide = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('${apiUrl}/api/theme-settings/slides', {
+      const response = await fetch(`${apiUrl}/api/theme-settings/slides`, {
         method: 'POST',
         credentials: 'include',
         headers: {

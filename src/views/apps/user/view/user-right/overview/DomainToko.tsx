@@ -84,7 +84,8 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
 
       // Prefer storeUuid prop if provided
       if (storeUuid) {
-        const res = await fetch(`${backendUrl}/api/public/stores/${storeUuid}`, {
+        const timestamp = Date.now()
+        const res = await fetch(`${backendUrl}/api/public/stores/${storeUuid}?_t=${timestamp}`, {
           headers,
           credentials: 'include',
           cache: 'no-store'

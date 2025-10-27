@@ -158,9 +158,11 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
 
       // Use provided storeUuid if available
       if (storeUuid) {
-        const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${storeUuid}`, {
+        const timestamp = Date.now()
+        const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${storeUuid}&_t=${timestamp}`, {
           headers,
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-store'
         })
         const json = await res.json()
 
@@ -181,9 +183,11 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
 
         if (userJson.status === 'success' && userJson.data?.store) {
           const theStoreUuid = userJson.data.store.uuid
-          const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${theStoreUuid}`, {
+          const timestamp = Date.now()
+          const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${theStoreUuid}&_t=${timestamp}`, {
             headers,
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'no-store'
           })
           const json = await res.json()
 

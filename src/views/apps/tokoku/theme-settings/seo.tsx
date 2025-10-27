@@ -134,7 +134,7 @@ const Seo = () => {
 
       console.log('Submitting SEO settings:', { storeUuid, authToken: authToken?.substring(0, 20) + '...' })
 
-      const response = await fetch('${apiUrl}/api/theme-settings/seo', {
+      const response = await fetch(`${apiUrl}/api/theme-settings/seo`, {
         method: 'POST',
         credentials: 'include',
         headers: {

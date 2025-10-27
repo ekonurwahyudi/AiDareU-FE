@@ -33,7 +33,8 @@ const ProductOrganize = () => {
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true)
-        const response = await fetch('/api/public/categories', {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+        const response = await fetch(`${backendUrl}/api/public/categories`, {
           credentials: 'include'
         })
         

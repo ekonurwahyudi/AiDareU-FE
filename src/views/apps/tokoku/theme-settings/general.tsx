@@ -142,7 +142,7 @@ const General = () => {
 
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('${apiUrl}/api/theme-settings/general', {
+      const response = await fetch(`${apiUrl}/api/theme-settings/general`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -208,7 +208,7 @@ const General = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('${apiUrl}/api/theme-settings/general', {
+      const response = await fetch(`${apiUrl}/api/theme-settings/general`, {
         method: 'POST',
         credentials: 'include',
         headers: {

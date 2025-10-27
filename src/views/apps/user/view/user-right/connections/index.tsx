@@ -238,9 +238,10 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
         store_uuid: finalStoreUuid
       }
 
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const apiUrl = existingAccount
-        ? `/api/public/social-media/${existingAccount.uuid}`
-        : '/api/public/social-media'
+        ? `${backendUrl}/api/public/social-media/${existingAccount.uuid}`
+        : `${backendUrl}/api/public/social-media`
 
       const method = existingAccount ? 'PUT' : 'POST'
 

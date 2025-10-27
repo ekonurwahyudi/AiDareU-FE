@@ -86,7 +86,8 @@ const EditUserInfo = ({ open, setOpen, data, onSuccess }: EditUserInfoProps) => 
   // Fetch provinces on component mount
   const fetchProvinces = async () => {
     try {
-      const response = await fetch('/api/locations/provinces', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const response = await fetch(`${backendUrl}/api/locations/provinces`, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -119,7 +120,8 @@ const EditUserInfo = ({ open, setOpen, data, onSuccess }: EditUserInfoProps) => 
       if (provinceCode) params.append('province_code', provinceCode)
       params.append('limit', '50')
       
-      const response = await fetch(`/api/locations/cities?${params.toString()}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const response = await fetch(`${backendUrl}/api/locations/cities?${params.toString()}`, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -243,8 +245,9 @@ const EditUserInfo = ({ open, setOpen, data, onSuccess }: EditUserInfoProps) => 
       
       // Get user UUID from data or current user context
       const userUuid = data?.uuid || 'me' // fallback to 'me' endpoint if no UUID
-      
-      const response = await fetch(`/api/users/${userUuid}`, {
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const response = await fetch(`${backendUrl}/api/users/${userUuid}`, {
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
