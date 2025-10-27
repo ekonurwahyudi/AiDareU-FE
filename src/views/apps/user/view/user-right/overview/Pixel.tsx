@@ -127,6 +127,9 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
     try {
       setLoading(true)
 
+      // Use backend URL from environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
       // Get user data from localStorage
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -155,7 +158,7 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
 
       // Use provided storeUuid if available
       if (storeUuid) {
-        const res = await fetch(`/api/public/pixel-stores?store_uuid=${storeUuid}`, {
+        const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${storeUuid}`, {
           headers,
           credentials: 'include'
         })
@@ -168,7 +171,7 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
         }
       } else {
         // Fallback: get store via /api/users/me
-        const userRes = await fetch('/api/users/me', {
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -178,7 +181,7 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
 
         if (userJson.status === 'success' && userJson.data?.store) {
           const theStoreUuid = userJson.data.store.uuid
-          const res = await fetch(`/api/public/pixel-stores?store_uuid=${theStoreUuid}`, {
+          const res = await fetch(`${backendUrl}/api/public/pixel-stores?store_uuid=${theStoreUuid}`, {
             headers,
             credentials: 'include'
           })
@@ -286,7 +289,8 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
       // Tentukan storeUuid: pakai prop dulu, kalau tidak ada fallback ke /api/users/me
       let finalStoreUuid = storeUuid || null
       if (!finalStoreUuid) {
-        const userRes = await fetch('/api/users/me', {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include'
         })
@@ -302,9 +306,10 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
 
       const isUpdate = editingPixel.data !== undefined
 
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const url = isUpdate
-        ? `/api/public/pixel-stores/${editingPixel.data!.uuid}`
-        : '/api/public/pixel-stores'
+        ? `${backendUrl}/api/public/pixel-stores/${editingPixel.data!.uuid}`
+        : `${backendUrl}/api/public/pixel-stores`
 
       const method = isUpdate ? 'PUT' : 'POST'
 
@@ -388,7 +393,8 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
         headers['X-User-UUID'] = user.uuid
       }
 
-      const res = await fetch(`/api/public/pixel-stores/${pixelToDelete.data.uuid}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const res = await fetch(`${backendUrl}/api/public/pixel-stores/${pixelToDelete.data.uuid}`, {
         method: 'DELETE',
         headers,
         credentials: 'include'

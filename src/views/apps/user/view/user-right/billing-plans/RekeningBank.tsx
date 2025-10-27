@@ -54,6 +54,9 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
     try {
       setLoading(true)
 
+      // Use backend URL from environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
       // Get user data from localStorage
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -82,7 +85,7 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
       // Prioritas: gunakan storeUuid dari props
       if (storeUuid) {
-        const response = await fetch(`/api/public/bank-accounts?store_uuid=${storeUuid}`, {
+        const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${storeUuid}`, {
           headers,
           credentials: 'include'
         })
@@ -100,7 +103,7 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         }
       } else {
         // Fallback ambil via /api/users/me
-        const userRes = await fetch('/api/users/me', {
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -111,7 +114,7 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         if (userJson.status === 'success' && userJson.data?.store) {
           const resolvedStoreUuid = userJson.data.store.uuid
 
-          const response = await fetch(`/api/public/bank-accounts?store_uuid=${resolvedStoreUuid}`, {
+          const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${resolvedStoreUuid}`, {
             headers,
             credentials: 'include'
           })

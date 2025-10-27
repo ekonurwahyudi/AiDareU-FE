@@ -53,6 +53,9 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
     try {
       setLoading(true)
 
+      // Use backend URL from environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
       // Get user data from localStorage
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -81,7 +84,7 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
 
       // Prefer storeUuid prop if provided
       if (storeUuid) {
-        const res = await fetch(`/api/public/stores/${storeUuid}`, {
+        const res = await fetch(`${backendUrl}/api/public/stores/${storeUuid}`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -108,7 +111,7 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         }
       } else {
         // Fallback to fetching via /api/users/me
-        const res = await fetch('/api/users/me', {
+        const res = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -193,7 +196,8 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         domain: domain.trim()
       }
 
-      const res = await fetch(`/api/public/stores/${selectedStoreUuid}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const res = await fetch(`${backendUrl}/api/public/stores/${selectedStoreUuid}`, {
         method: 'PUT',
         headers,
         credentials: 'include',
@@ -266,7 +270,8 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         domain: ''
       }
 
-      const res = await fetch(`/api/public/stores/${selectedStoreUuid}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const res = await fetch(`${backendUrl}/api/public/stores/${selectedStoreUuid}`, {
         method: 'PUT',
         headers,
         credentials: 'include',

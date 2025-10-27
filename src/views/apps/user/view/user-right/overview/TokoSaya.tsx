@@ -291,6 +291,9 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       try {
         setLoadingStore(true)
 
+        // Use backend URL from environment variable
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
         // Get user data from localStorage to fetch their store
         const storedUserData = localStorage.getItem('user_data')
         const authToken = localStorage.getItem('auth_token')
@@ -319,7 +322,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
         if (storeUuid) {
           // Fetch store detail directly using provided storeUuid
-          const res = await fetch(`/api/public/stores/${storeUuid}`, {
+          const res = await fetch(`${backendUrl}/api/public/stores/${storeUuid}`, {
             headers,
             credentials: 'include',
             cache: 'no-store'
@@ -371,7 +374,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
           }
         } else {
           // Fallback: existing flow via `/api/users/me`
-          const res = await fetch('/api/users/me', {
+          const res = await fetch(`${backendUrl}/api/users/me`, {
             headers,
             credentials: 'include',
             cache: 'no-store'
@@ -453,7 +456,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
     setSubdomainChecking(true)
     try {
-      const res = await fetch(`/api/stores/check-subdomain?subdomain=${encodeURIComponent(subdomain)}`)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const res = await fetch(`${backendUrl}/api/stores/check-subdomain?subdomain=${encodeURIComponent(subdomain)}`)
       const data = await res.json()
       setSubdomainAvailable(res.ok ? data.available : null)
     } catch (err) {
@@ -519,7 +523,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
         kecamatan: values.district
       }
 
-      const res = await fetch(`/api/public/stores/${selectedStoreUuid}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const res = await fetch(`${backendUrl}/api/public/stores/${selectedStoreUuid}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

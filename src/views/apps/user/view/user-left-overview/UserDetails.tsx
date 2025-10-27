@@ -47,8 +47,12 @@ const UserDetails = () => {
     try {
       setLoading(true)
       setError(null)
-      
-      console.log('Fetching user data from:', '/api/users/me')
+
+      // Use backend URL from environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const apiUrl = `${backendUrl}/api/users/me`
+
+      console.log('Fetching user data from:', apiUrl)
 
       // Get stored user data for authentication
       const storedUserData = localStorage.getItem('user_data')
@@ -76,7 +80,7 @@ const UserDetails = () => {
         }
       }
 
-      const response = await fetch('/api/users/me', {
+      const response = await fetch(apiUrl, {
         headers,
         credentials: 'include' // for session-based auth
       })

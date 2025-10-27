@@ -71,6 +71,9 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
     try {
       setLoading(true)
 
+      // Use backend URL from environment variable
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
       // Get user data from localStorage
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -100,7 +103,7 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
       // Prefer provided storeUuid
       if (storeUuid) {
         setHasStore(true)
-        const response = await fetch(`/api/public/social-media?store_uuid=${storeUuid}`, {
+        const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${storeUuid}`, {
           headers,
           credentials: 'include'
         })
@@ -122,7 +125,7 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
         }
       } else {
         // Fallback to fetching via /api/users/me
-        const userRes = await fetch('/api/users/me', {
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -134,7 +137,7 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
           setHasStore(true)
           const fallbackStoreUuid = userJson.data.store.uuid
 
-          const response = await fetch(`/api/public/social-media?store_uuid=${fallbackStoreUuid}`, {
+          const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${fallbackStoreUuid}`, {
             headers,
             credentials: 'include'
           })
@@ -210,7 +213,8 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
       // Resolve store UUID: prefer prop, else fallback
       let finalStoreUuid: string | null = storeUuid ?? null
       if (!finalStoreUuid) {
-        const userRes = await fetch('/api/users/me', {
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
           headers,
           credentials: 'include'
         })
