@@ -33,6 +33,9 @@ const ButtonStyled = styled(Button)(({ theme }) => ({
 }))
 
 const Seo = () => {
+  // API Base URL
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
   // RBAC Context
   const { currentStore } = useRBAC()
 
@@ -59,7 +62,7 @@ const Seo = () => {
     try {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
-      const response = await fetch(`http://localhost:8080/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
+      const response = await fetch(`${apiUrl}/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
         cache: 'no-store'
       })
       const data = await response.json()
@@ -79,7 +82,7 @@ const Seo = () => {
         })
 
         if (seo.og_image) {
-          setOgImagePreview(`http://localhost:8080/storage/${seo.og_image}`)
+          setOgImagePreview(`${apiUrl}/storage/${seo.og_image}`)
         }
       } else {
         console.log('No SEO settings found')
@@ -131,7 +134,7 @@ const Seo = () => {
 
       console.log('Submitting SEO settings:', { storeUuid, authToken: authToken?.substring(0, 20) + '...' })
 
-      const response = await fetch('http://localhost:8080/api/theme-settings/seo', {
+      const response = await fetch('${apiUrl}/api/theme-settings/seo', {
         method: 'POST',
         credentials: 'include',
         headers: {

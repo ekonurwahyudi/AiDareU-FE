@@ -39,6 +39,9 @@ const ButtonStyled = styled(Button)(({ theme }) => ({
 }))
 
 const General = () => {
+  // API Base URL
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
   // RBAC Context - same as Products
   const { currentStore, isLoading: rbacLoading } = useRBAC()
 
@@ -79,7 +82,7 @@ const General = () => {
     try {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
-      const response = await fetch(`http://localhost:8080/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
+      const response = await fetch(`${apiUrl}/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
         cache: 'no-store'
       })
       const data = await response.json()
@@ -97,10 +100,10 @@ const General = () => {
         })
 
         if (settings.logo) {
-          setLogoPreview(`http://localhost:8080/storage/${settings.logo}`)
+          setLogoPreview(`${apiUrl}/storage/${settings.logo}`)
         }
         if (settings.favicon) {
-          setFaviconPreview(`http://localhost:8080/storage/${settings.favicon}`)
+          setFaviconPreview(`${apiUrl}/storage/${settings.favicon}`)
         }
       } else {
         console.log('No settings found or request failed')
@@ -139,7 +142,7 @@ const General = () => {
 
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('http://localhost:8080/api/theme-settings/general', {
+      const response = await fetch('${apiUrl}/api/theme-settings/general', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -205,7 +208,7 @@ const General = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      const response = await fetch('http://localhost:8080/api/theme-settings/general', {
+      const response = await fetch('${apiUrl}/api/theme-settings/general', {
         method: 'POST',
         credentials: 'include',
         headers: {

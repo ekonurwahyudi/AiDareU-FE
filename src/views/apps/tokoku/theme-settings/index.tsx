@@ -37,14 +37,17 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
   }
 
   const handleViewWebsite = () => {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
     // Get subdomain from RBAC context first
     const subdomain = currentStore?.subdomain || currentStore?.nama_toko?.toLowerCase().replace(/\s+/g, '-')
 
     console.log('Opening store with subdomain:', subdomain)
+    console.log('Base URL:', baseUrl)
 
     if (subdomain) {
       // Open store with subdomain
-      window.open(`http://localhost:8080/s/${subdomain}`, '_blank')
+      window.open(`${baseUrl}/s/${subdomain}`, '_blank')
     } else {
       // If no subdomain, try to get from localStorage
       const user = localStorage.getItem('user')
@@ -55,20 +58,20 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
         console.log('Fallback subdomain from localStorage:', fallbackSubdomain)
 
         if (fallbackSubdomain) {
-          window.open(`http://localhost:8080/s/${fallbackSubdomain}`, '_blank')
+          window.open(`${baseUrl}/s/${fallbackSubdomain}`, '_blank')
         } else {
           // Last resort - use store name as slug
           const storeName = userData.store?.nama_toko
           if (storeName) {
             const storeSlug = storeName.toLowerCase().replace(/\s+/g, '-')
             console.log('Using store name as slug:', storeSlug)
-            window.open(`http://localhost:8080/s/${storeSlug}`, '_blank')
+            window.open(`${baseUrl}/s/${storeSlug}`, '_blank')
           } else {
-            window.open(`http://localhost:8080/store`, '_blank')
+            window.open(`${baseUrl}/store`, '_blank')
           }
         }
       } else {
-        window.open(`http://localhost:8080/store`, '_blank')
+        window.open(`${baseUrl}/store`, '_blank')
       }
     }
   }
