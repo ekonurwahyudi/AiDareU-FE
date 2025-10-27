@@ -37,31 +37,36 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
   }
 
   const handleViewWebsite = () => {
-    // Use FRONTEND_URL for public storefront, not BACKEND_URL
-    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'
-
     // Get subdomain from RBAC context first
     const subdomain = currentStore?.subdomain || currentStore?.nama_toko?.toLowerCase().replace(/\s+/g, '-')
+    const customDomain = currentStore?.domain
 
     console.log('Opening store with subdomain:', subdomain)
-    console.log('Frontend Base URL:', baseUrl)
+    console.log('Custom domain:', customDomain)
 
-    if (subdomain) {
-      // Open store with subdomain
-      window.open(`${baseUrl}/s/${subdomain}`, '_blank')
+    if (customDomain) {
+      // If store has custom domain, use it
+      window.open(`https://${customDomain}`, '_blank')
+    } else if (subdomain) {
+      // Otherwise use subdomain.aidareu.com
+      window.open(`https://${subdomain}.aidareu.com`, '_blank')
     } else {
       // If no subdomain, try to get from localStorage
       const user = localStorage.getItem('user')
       if (user) {
         const userData = JSON.parse(user)
         const fallbackSubdomain = userData.store?.subdomain
+        const fallbackDomain = userData.store?.domain
 
         console.log('Fallback subdomain from localStorage:', fallbackSubdomain)
 
-        if (fallbackSubdomain) {
-          window.open(`${baseUrl}/s/${fallbackSubdomain}`, '_blank')
+        if (fallbackDomain) {
+          window.open(`https://${fallbackDomain}`, '_blank')
+        } else if (fallbackSubdomain) {
+          window.open(`https://${fallbackSubdomain}.aidareu.com`, '_blank')
         } else {
-          // Last resort - use store name as slug
+          // Fallback to path-based URL
+          const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'
           const storeName = userData.store?.nama_toko
           if (storeName) {
             const storeSlug = storeName.toLowerCase().replace(/\s+/g, '-')
@@ -72,6 +77,7 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
           }
         }
       } else {
+        const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'
         window.open(`${baseUrl}/store`, '_blank')
       }
     }
