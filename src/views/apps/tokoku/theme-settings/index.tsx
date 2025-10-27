@@ -37,13 +37,14 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
   }
 
   const handleViewWebsite = () => {
-    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+    // Use FRONTEND_URL for public storefront, not BACKEND_URL
+    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'
 
     // Get subdomain from RBAC context first
     const subdomain = currentStore?.subdomain || currentStore?.nama_toko?.toLowerCase().replace(/\s+/g, '-')
 
     console.log('Opening store with subdomain:', subdomain)
-    console.log('Base URL:', baseUrl)
+    console.log('Frontend Base URL:', baseUrl)
 
     if (subdomain) {
       // Open store with subdomain
