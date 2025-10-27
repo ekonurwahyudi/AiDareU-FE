@@ -84,10 +84,11 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
         is_primary: cardData.is_primary || false
       }
 
-      const url = data?.uuid 
-        ? `/api/public/bank-accounts/${data.uuid}` 
-        : '/api/public/bank-accounts'
-      
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const url = data?.uuid
+        ? `${backendUrl}/api/public/bank-accounts/${data.uuid}`
+        : `${backendUrl}/api/public/bank-accounts`
+
       const method = data?.uuid ? 'PUT' : 'POST'
 
       // Saat membuat rekening baru, sertakan store_uuid dari props atau fallback ke /api/users/me
@@ -95,7 +96,7 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
         let finalStoreUuid = storeUuid || null
 
         if (!finalStoreUuid) {
-          const userRes = await fetch('/api/users/me', {
+          const userRes = await fetch(`${backendUrl}/api/users/me`, {
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
