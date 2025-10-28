@@ -369,9 +369,14 @@ const DynamicStorePage = () => {
           if (data.data.faqs && data.data.faqs.length > 0) {
             setDynamicFaqs(data.data.faqs)
           }
+        } else {
+          // Store not found - set null to trigger 404 UI
+          setStoreData(null)
+          setStoreLoading(false)
         }
       } catch (error) {
         console.error('Error fetching store data:', error)
+        setStoreData(null)
         setStoreLoading(false)
       } finally {
         setLoading(false)
@@ -475,6 +480,32 @@ const DynamicStorePage = () => {
             50% { opacity: 0.5; }
           }
         `}</style>
+      </Box>
+    )
+  }
+
+  // Show 404 if store not found and loading is complete
+  if (!storeLoading && !loading && !storeData) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 4, backgroundColor: '#f5f5f5' }}>
+        <Typography variant="h1" sx={{ fontSize: '8rem', fontWeight: 'bold', color: '#e0e0e0', marginBottom: 2 }}>
+          404
+        </Typography>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: 2, color: '#424242' }}>
+          Toko Tidak Ditemukan
+        </Typography>
+        <Typography variant="body1" sx={{ marginBottom: 4, color: '#757575', maxWidth: 500 }}>
+          Maaf, toko dengan subdomain <strong>{subdomain}</strong> tidak terdaftar atau tidak aktif.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          href="https://aidareu.com"
+          sx={{ textTransform: 'none', paddingX: 4 }}
+        >
+          Kembali ke Beranda
+        </Button>
       </Box>
     )
   }
