@@ -9,7 +9,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/static/') ||
-    pathname.includes('/favicon')
+    pathname.includes('/favicon') ||
+    pathname.startsWith('/s/') ||  // Skip if already rewritten by Cloudflare Worker
+    pathname.startsWith('/d/')     // Skip if custom domain route
   ) {
     return NextResponse.next()
   }
