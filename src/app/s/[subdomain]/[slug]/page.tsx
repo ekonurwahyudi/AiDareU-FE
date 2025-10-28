@@ -46,6 +46,9 @@ import CartDrawer from '@/components/store/CartDrawer'
 // Custom Hook
 import { useStoreMetadata } from '../useStoreMetadata'
 
+// API Config
+import { getStorageUrl, BACKEND_BASE_URL } from "@/utils/apiConfig"
+
 // Types
 interface Product {
   id: string
@@ -641,7 +644,7 @@ function ProductDetailPage() {
         console.log('Fetching product with slug:', slug)
 
         // Fetch directly from backend instead of using Next.js API route
-        const backendUrl = 'http://localhost:8080'
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
         const response = await fetch(`${backendUrl}/api/public/products?per_page=1000`, {
           method: 'GET',
           headers: {
@@ -684,10 +687,10 @@ function ProductDetailPage() {
             rating: 4.5,
             reviews: Math.floor(Math.random() * 100) + 10,
             image: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
-              ? `http://localhost:8080/storage/${product.upload_gambar_produk[0]}`
+              ? getStorageUrl(product.upload_gambar_produk[0])
               : '/placeholder.jpg',
             images: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
-              ? product.upload_gambar_produk.map((img: string) => `http://localhost:8080/storage/${img}`)
+              ? product.upload_gambar_produk.map((img: string) => getStorageUrl(img))
               : ['/placeholder.jpg'],
             colors: null,
             isNew: product.status_produk === 'active' && new Date(product.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -951,7 +954,7 @@ function ProductDetailPage() {
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={handleAddToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? getStorageUrl(storeData.settings.logo) : undefined}
         primaryColor={primaryColor}
       />
 
