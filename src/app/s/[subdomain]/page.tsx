@@ -10,6 +10,9 @@ import { useCart } from '@/contexts/CartContext'
 // Custom Hook
 import { useStoreMetadata } from './useStoreMetadata'
 
+// API Config
+import { getStorageUrl } from '@/utils/apiConfig'
+
 // MUI Imports
 import { Box, Container, Grid, Typography, Card, CardContent, Button, IconButton, Chip, Rating, Collapse } from '@mui/material'
 import { styled } from '@mui/material/styles'
@@ -584,7 +587,7 @@ const DynamicStorePage = () => {
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={addToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? getStorageUrl(storeData.settings.logo) : undefined}
         primaryColor={primaryColor}
       />
 
