@@ -4,7 +4,17 @@ export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Log for debugging
+  // Skip middleware for API routes, static files, and internal routes
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/') ||
+    pathname.includes('/favicon')
+  ) {
+    return NextResponse.next()
+  }
+
+  // Log for debugging (shows in server logs, not browser)
   console.log('=== MIDDLEWARE DEBUG ===')
   console.log('Hostname:', hostname)
   console.log('Pathname:', pathname)
