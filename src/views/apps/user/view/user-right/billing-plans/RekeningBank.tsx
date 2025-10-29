@@ -216,9 +216,18 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         toast.success('Rekening berhasil dihapus')
         await fetchBankAccounts() // Refresh data
       } else {
-        const errorMsg = result?.message || 'Gagal menghapus rekening'
-        toast.error(errorMsg)
-        console.error('Delete error:', result)
+        // Handle specific error cases
+        if (response.status === 400 && result?.message) {
+          // Bank account is in use - show helpful message
+          toast.error(result.message, {
+            autoClose: 8000,
+            position: 'top-center'
+          })
+        } else {
+          const errorMsg = result?.message || 'Gagal menghapus rekening'
+          toast.error(errorMsg)
+        }
+        console.warn('Delete failed:', result)
       }
     } catch (error) {
       console.error('Error deleting bank account:', error)
