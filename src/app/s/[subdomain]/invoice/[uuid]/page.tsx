@@ -69,15 +69,16 @@ export default function InvoicePage() {
     try {
       setLoading(true)
 
-      // Detect if we're on a subdomain and need to use absolute URL
-      const isSubdomain = typeof window !== 'undefined' &&
-        window.location.hostname.split('.').length > 2 &&
-        window.location.hostname !== 'www.aidareu.com'
+      // Always use absolute URL to main domain for API calls from store pages
+      // This ensures API routes work correctly whether accessed via subdomain or path-based route
+      const hostname = typeof window !== 'undefined' ? window.location.hostname : ''
+      const isSubdomain = hostname.split('.').length > 2 && hostname !== 'www.aidareu.com'
 
-      const apiUrl = isSubdomain
-        ? (process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/order/' + params.uuid
-        : '/api/order/' + params.uuid
+      // Force absolute URL to main domain
+      const apiUrl = 'https://aidareu.com/api/order/' + params.uuid
 
+      console.log('Hostname:', hostname)
+      console.log('Is subdomain:', isSubdomain)
       console.log('Fetching order from:', apiUrl)
       const response = await fetch(apiUrl)
 
