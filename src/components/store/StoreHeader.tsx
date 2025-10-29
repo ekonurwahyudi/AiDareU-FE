@@ -2,6 +2,7 @@
 
 // React Imports
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import {
@@ -107,6 +108,7 @@ const StoreHeader = ({
   onAddToCart,
   primaryColor = '#E91E63'
 }: StoreHeaderProps) => {
+  const router = useRouter()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -126,7 +128,9 @@ const StoreHeader = ({
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' })
       }
-    }
+    } else {
+    router.push(href)  // <-- ADD THIS
+  }
     setMobileMenuOpen(false)
   }
 
@@ -148,10 +152,13 @@ const StoreHeader = ({
                   component="img"
                   src={storeLogo}
                   alt={storeName}
-                  sx={{ height: 40, width: 'auto', objectFit: 'contain' }}
+                   onClick={() => router.push('/')} 
+                  sx={{ height: 40, width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
                 />
               ) : (
-                <Logo variant="h6" sx={{ color: primaryColor }}>
+                <Logo variant="h6" sx={{ color: primaryColor, cursor: 'pointer' }}
+                  onClick={() => router.push('/')}
+                >
                   ❤️ {storeName}
                 </Logo>
               )}
