@@ -103,6 +103,7 @@
     "react-use": "17.6.0",
     "recharts": "2.15.0",
     "server-only": "0.0.1",
+    "swiper": "^12.0.3",
     "tiptap-extension-font-size": "^1.2.0",
     "valibot": "0.42.1",
     "xlsx": "^0.18.5",

@@ -28,6 +28,13 @@ import StarIcon from '@mui/icons-material/Star'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 
+// Swiper Imports
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Pagination, Autoplay, Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+
 // Store Components
 import StoreHeader from '@/components/store/StoreHeader'
 import StoreFooter from '@/components/store/StoreFooter'
@@ -562,6 +569,17 @@ const DynamicStorePage = () => {
           color: ${primaryColor} !important;
         }
 
+        /* Swiper pagination styling */
+        .swiper-pagination-bullet {
+          background-color: ${primaryColor} !important;
+          opacity: 0.3;
+        }
+
+        .swiper-pagination-bullet-active {
+          opacity: 1;
+          background-color: ${primaryColor} !important;
+        }
+
         /* Product card shadow with primary color */
         .MuiCard-root:hover {
           box-shadow: 0 8px 24px rgba(var(--primary-color-rgb), 0.25) !important;
@@ -607,55 +625,81 @@ const DynamicStorePage = () => {
         id="home"
         sx={{
           background: 'white',
-          // color: 'inherit',
           py: { xs: 3, md: 5 },
           position: 'relative',
           overflow: 'hidden',
-          // borderRadius: '0 0 50px 50px',
-          // margin: { xs: 1, md: 2 },
           marginTop: { xs: 1, md: 2 }
         }}
       >
         <Container maxWidth="lg">
-          <Grid container spacing={3}>
-            {/* Banner kiri (gambar saja) */}
-            <Grid item xs={12} md={8}>
-              <Box sx={{ position: 'relative', height: { xs: 280, md: 420 }, borderRadius: 3, overflow: 'hidden' }}>
-                <Box
-                  component="img"
-                  src={activeSlides.length > 0 ? activeSlides[0].gambar_slide || activeSlides[0].image || '/images/slide/slide1.png' : '/images/slide/slide1.png'}
-                  alt="Banner 1"
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </Box>
-            </Grid>
+          {/* Desktop Layout - Grid */}
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Grid container spacing={3}>
+              {/* Banner kiri (gambar saja) */}
+              <Grid item xs={12} md={8}>
+                <Box sx={{ position: 'relative', height: 420, borderRadius: 3, overflow: 'hidden' }}>
+                  <Box
+                    component="img"
+                    src={activeSlides.length > 0 ? activeSlides[0].gambar_slide || activeSlides[0].image || '/images/slide/slide1.png' : '/images/slide/slide1.png'}
+                    alt="Banner 1"
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </Box>
+              </Grid>
 
-            {/* Banner kanan (dua gambar) */}
-            <Grid item xs={12} md={4}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={12}>
-                  <Box sx={{ position: 'relative', height: { xs: 180, md: 200 }, borderRadius: 3, overflow: 'hidden' }}>
-                    <Box
-                      component="img"
-                      src={activeSlides.length > 1 ? activeSlides[1].gambar_slide || activeSlides[1].image || '/images/slide/slide2.png' : '/images/slide/slide2.png'}
-                      alt="Banner 2"
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} md={12}>
-                  <Box sx={{ position: 'relative', height: { xs: 180, md: 200 }, borderRadius: 3, overflow: 'hidden' }}>
-                    <Box
-                      component="img"
-                      src={activeSlides.length > 2 ? activeSlides[2].gambar_slide || activeSlides[2].image || '/images/slide/slide3.png' : '/images/slide/slide3.png'}
-                      alt="Banner 3"
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </Box>
+              {/* Banner kanan (dua gambar) */}
+              <Grid item xs={12} md={4}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
+                      <Box
+                        component="img"
+                        src={activeSlides.length > 1 ? activeSlides[1].gambar_slide || activeSlides[1].image || '/images/slide/slide2.png' : '/images/slide/slide2.png'}
+                        alt="Banner 2"
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
+                      <Box
+                        component="img"
+                        src={activeSlides.length > 2 ? activeSlides[2].gambar_slide || activeSlides[2].image || '/images/slide/slide3.png' : '/images/slide/slide3.png'}
+                        alt="Banner 3"
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
+
+          {/* Mobile Layout - Swiper */}
+          <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+            <Swiper
+              modules={[Pagination, Autoplay, Navigation]}
+              spaceBetween={16}
+              slidesPerView={1}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 5000, disableOnInteraction: false }}
+              loop={activeSlides.length > 1}
+              style={{ paddingBottom: '40px' }}
+            >
+              {activeSlides.map((slide, index) => (
+                <SwiperSlide key={index}>
+                  <Box sx={{ position: 'relative', height: 280, borderRadius: 3, overflow: 'hidden' }}>
+                    <Box
+                      component="img"
+                      src={slide.gambar_slide || slide.image || '/images/slide/slide' + (index + 1) + '.png'}
+                      alt={'Banner ' + (index + 1)}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </Box>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </Box>
         </Container>
       </Box>
 
