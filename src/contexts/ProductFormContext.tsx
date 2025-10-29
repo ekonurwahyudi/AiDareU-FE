@@ -245,13 +245,25 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         method,
         headers,
         body: submitData,
-        credentials: 'include'
+        credentials: 'include',
+        mode: 'cors'
       })
+
+      console.log('Submit response status:', response.status)
+      console.log('Submit response type:', response.type)
+
+      // Handle opaque or failed responses
+      if (!response.ok && (response.type === 'opaque' || response.type === 'opaqueredirect')) {
+        throw new Error('Network error: Unable to submit product. Please check your connection.')
+      }
 
       let result
       try {
         const responseText = await response.text()
         console.log('Raw response:', responseText)
+        if (!responseText) {
+          throw new Error('Empty response from server')
+        }
         result = JSON.parse(responseText)
       } catch (parseError) {
         console.error('JSON parse error:', parseError)
@@ -284,9 +296,33 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       const loadProductData = async () => {
         setIsLoading(true)
         try {
+          // Get auth credentials
+          const authToken = localStorage.getItem('auth_token')
+          const userData = localStorage.getItem('user_data')
+          let userUuid = null
+          if (userData) {
+            try {
+              const user = JSON.parse(userData)
+              userUuid = user.uuid
+            } catch (e) {}
+          }
+
+          const headers: HeadersInit = {
+            'Accept': 'application/json',
+          }
+          if (authToken) {
+            headers['Authorization'] = `Bearer ${authToken}`
+          }
+          if (userUuid) {
+            headers['X-User-UUID'] = userUuid
+          }
+
           const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
           const response = await fetch(`${backendUrl}/api/public/products/${productUuid}`, {
-            credentials: 'include'
+            headers,
+            credentials: 'include',
+            cache: 'no-store',
+            mode: 'cors'
           })
           
           if (response.ok) {
