@@ -49,6 +49,7 @@ const Seo = () => {
   const [ogImage, setOgImage] = useState<File | null>(null)
   const [ogImagePreview, setOgImagePreview] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const [deleteOgImage, setDeleteOgImage] = useState(false)
 
   const storeUuid = currentStore?.uuid || currentStore?.id
 
@@ -100,12 +101,19 @@ const Seo = () => {
     const file = e.target.files?.[0]
     if (file) {
       setOgImage(file)
+      setDeleteOgImage(false)
       const reader = new FileReader()
       reader.onloadend = () => {
         setOgImagePreview(reader.result as string)
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  const handleDeleteOgImage = () => {
+    setOgImage(null)
+    setOgImagePreview('')
+    setDeleteOgImage(true)
   }
 
   const handleSubmit = async () => {
@@ -127,6 +135,10 @@ const Seo = () => {
 
       if (ogImage) {
         formDataToSend.append('og_image', ogImage)
+      }
+
+      if (deleteOgImage) {
+        formDataToSend.append('delete_og_image', '1')
       }
 
       // Get auth token from localStorage
@@ -278,22 +290,106 @@ const Seo = () => {
                 </Box>
               )}
               <div className='flex flex-col gap-4'>
-                <label htmlFor='og-image-upload' style={{ cursor: 'pointer' }}>
-                  <Button variant='contained'>
-                    Upload OG Image
-                  </Button>
-                  <input
-                    hidden
-                    type='file'
-                    accept='image/png, image/jpeg, image/jpg, image/gif'
-                    onChange={handleOgImageChange}
-                    id='og-image-upload'
-                  />
-                </label>
+                <div className='flex gap-2'>
+                  <label htmlFor='og-image-upload' style={{ cursor: 'pointer' }}>
+                    <Button variant='contained' component='span'>
+                      {ogImagePreview ? 'Change Image' : 'Upload OG Image'}
+                    </Button>
+                    <input
+                      hidden
+                      type='file'
+                      accept='image/png, image/jpeg, image/jpg, image/gif'
+                      onChange={handleOgImageChange}
+                      id='og-image-upload'
+                    />
+                  </label>
+                  {ogImagePreview && (
+                    <Button variant='outlined' color='error' onClick={handleDeleteOgImage}>
+                      Delete
+                    </Button>
+                  )}
+                </div>
                 <Typography variant='caption' color='text.secondary'>
                   Allowed PNG, JPG or GIF. Max size of 2MB
                 </Typography>
               </div>
+            </Box>
+          </Grid>
+
+          {/* Live Preview Open Graph */}
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 2,
+                p: 3,
+                bgcolor: 'background.paper'
+              }}
+            >
+              <Typography variant='h6' sx={{ mb: 2 }}>
+                Social Media Preview
+              </Typography>
+              <Typography variant='caption' color='text.secondary' sx={{ mb: 3, display: 'block' }}>
+                This is how your store will appear when shared on WhatsApp, Facebook, Twitter, etc.
+              </Typography>
+
+              {/* WhatsApp/Facebook Style Preview */}
+              <Box
+                sx={{
+                  maxWidth: 500,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  bgcolor: 'background.default'
+                }}
+              >
+                {ogImagePreview && (
+                  <Box
+                    component='img'
+                    src={ogImagePreview}
+                    alt='OG Preview'
+                    sx={{
+                      width: '100%',
+                      height: 250,
+                      objectFit: 'cover'
+                    }}
+                  />
+                )}
+                <Box sx={{ p: 2 }}>
+                  <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{ fontSize: '0.75rem', mb: 0.5 }}
+                  >
+                    {typeof window !== 'undefined' ? window.location.hostname : 'aidareu.com'}
+                  </Typography>
+                  <Typography
+                    variant='subtitle1'
+                    sx={{
+                      fontWeight: 600,
+                      mb: 0.5,
+                      color: '#1877f2'
+                    }}
+                  >
+                    {formData.og_title || formData.meta_title || 'Your Store Title'}
+                  </Typography>
+                  <Typography
+                    variant='body2'
+                    color='text.secondary'
+                    sx={{
+                      fontSize: '0.875rem',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {formData.og_deskripsi || formData.deskripsi || 'Your store description will appear here...'}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           </Grid>
 

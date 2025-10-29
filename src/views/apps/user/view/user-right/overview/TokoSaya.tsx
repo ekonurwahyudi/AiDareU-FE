@@ -550,6 +550,70 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
         // Update initial subdomain if changed
         if (values.subdomain) setInitialSubdomain(values.subdomain)
         setIsEditing(false) // Disable edit mode after successful update
+
+        // Refetch store data to show updated values
+        if (selectedStoreUuid) {
+          // Fetch updated store data
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+          const authToken = localStorage.getItem('auth_token')
+          const storedUserData = localStorage.getItem('user_data')
+          const user = storedUserData ? JSON.parse(storedUserData) : null
+
+          const headers: HeadersInit = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+
+          if (authToken) {
+            headers['Authorization'] = 'Bearer ' + authToken
+          }
+
+          if (user?.uuid) {
+            headers['X-User-UUID'] = user.uuid
+          }
+
+          try {
+            const refreshRes = await fetch(backendUrl + '/api/public/stores/' + selectedStoreUuid, {
+              headers,
+              credentials: 'include',
+              cache: 'no-store'
+            })
+
+            const refreshJson = await refreshRes.json()
+
+            if (refreshRes.ok && refreshJson.data) {
+              const updatedStore = refreshJson.data
+
+              // Update form values with refreshed data
+              setValue('storeName', updatedStore.name || '')
+              setValue('subdomain', updatedStore.subdomain || '')
+              setValue('phoneNumber', updatedStore.phone || '')
+              setValue('category', CATEGORY_SLUG_TO_LABEL[updatedStore.category as string] || '')
+              setValue('description', updatedStore.description || '')
+
+              const provinceValue = updatedStore.province || updatedStore.provinsi || ''
+              const cityValue = updatedStore.city || updatedStore.kota || ''
+              const districtValue = updatedStore.district || updatedStore.kecamatan || ''
+
+              setValue('province', provinceValue)
+              setValue('city', cityValue)
+              setValue('district', districtValue)
+
+              // Reload address dropdowns if needed
+              if (provinceValue || cityValue || districtValue) {
+                window.pendingAddressData = {
+                  province: provinceValue,
+                  city: cityValue,
+                  district: districtValue
+                }
+              }
+
+              console.log('Store data refreshed successfully')
+            }
+          } catch (refreshError) {
+            console.error('Error refreshing store data:', refreshError)
+          }
+        }
       }
     } catch (e) {
       console.error(e)
