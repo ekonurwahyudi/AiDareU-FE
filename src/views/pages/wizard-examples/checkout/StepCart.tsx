@@ -310,7 +310,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       console.log('Order Data:', orderData)
 
       // Send to API
-      const response = await fetch('/api/checkout', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'}/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

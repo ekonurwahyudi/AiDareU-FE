@@ -17,6 +17,9 @@ import { useCart } from '@/contexts/CartContext'
 // Custom Hook
 import { useStoreMetadata } from '../useStoreMetadata'
 
+// API Config
+import { getStorageUrl } from "@/utils/apiConfig"
+
 const CheckoutPage = () => {
   const params = useParams()
   const subdomain = params.subdomain as string
@@ -205,7 +208,7 @@ const CheckoutPage = () => {
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateCartQuantity}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8080/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? getStorageUrl(storeData.settings.logo) : undefined}
         primaryColor={primaryColor}
       />
 
