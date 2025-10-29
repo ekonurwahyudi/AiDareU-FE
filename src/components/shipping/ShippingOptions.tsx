@@ -106,7 +106,16 @@ const ShippingOptions = ({
     setError('')
 
     try {
-      const response = await fetch('/api/shipping/calculate', {
+      // Detect if we're on a subdomain and need to use absolute URL
+      const isSubdomain = typeof window !== 'undefined' &&
+        window.location.hostname.split('.').length > 2 &&
+        window.location.hostname !== 'www.aidareu.com'
+
+      const apiUrl = isSubdomain
+        ? (process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/shipping/calculate'
+        : '/api/shipping/calculate'
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

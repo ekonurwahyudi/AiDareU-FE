@@ -76,7 +76,16 @@ const PaymentMethods = ({
     setError('')
 
     try {
-      const response = await fetch('/api/stores/' + storeUuid + '/bank-accounts')
+      // Detect if we're on a subdomain and need to use absolute URL
+      const isSubdomain = typeof window !== 'undefined' &&
+        window.location.hostname.split('.').length > 2 &&
+        window.location.hostname !== 'www.aidareu.com'
+
+      const apiUrl = isSubdomain
+        ? (process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/stores/' + storeUuid + '/bank-accounts'
+        : '/api/stores/' + storeUuid + '/bank-accounts'
+
+      const response = await fetch(apiUrl)
       const data: PaymentMethodsResponse = await response.json()
 
       if (!response.ok) {
