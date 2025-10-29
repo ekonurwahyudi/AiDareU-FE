@@ -80,7 +80,16 @@ export default function InvoicePage() {
       console.log('Hostname:', hostname)
       console.log('Is subdomain:', isSubdomain)
       console.log('Fetching order from:', apiUrl)
-      const response = await fetch(apiUrl)
+      console.log('UUID:', params.uuid)
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store'
+      })
 
       console.log('Response status:', response.status)
       console.log('Response content-type:', response.headers.get('content-type'))
