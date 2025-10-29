@@ -9,9 +9,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 // Custom Hook
 import { useStoreMetadata } from '../../useStoreMetadata'
 
+// API Config
+import { getStorageUrl } from '@/utils/apiConfig'
+
 // Helper functions
 const formatRupiah = (amount: number): string => {
-  return `Rp ${Math.round(amount).toLocaleString('id-ID')}`
+  return 'Rp ' + Math.round(amount).toLocaleString('id-ID')
 }
 
 const formatDate = (dateString: string): string => {
@@ -38,7 +41,7 @@ export default function InvoicePage() {
     const fetchStoreData = async () => {
       try {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-        const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
+        const response = await fetch(backendUrl + '/api/store/' + subdomain, {
           cache: 'no-store'
         })
         const data = await response.json()
@@ -65,7 +68,17 @@ export default function InvoicePage() {
   const fetchInvoiceData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/order/${params.uuid}`)
+
+      // Detect if we're on a subdomain and need to use absolute URL
+      const isSubdomain = typeof window !== 'undefined' &&
+        window.location.hostname.split('.').length > 2 &&
+        window.location.hostname !== 'www.aidareu.com'
+
+      const apiUrl = isSubdomain
+        ? (process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/order/' + params.uuid
+        : '/api/order/' + params.uuid
+
+      const response = await fetch(apiUrl)
       const result = await response.json()
 
       if (result.success) {
@@ -88,17 +101,17 @@ export default function InvoicePage() {
   // Update metadata untuk halaman invoice
   useStoreMetadata({
     title: orderData && storeData
-      ? `${storeData.settings?.site_title || storeData.store?.name} - Invoice #${orderData.nomor_order || orderData.id}`
+      ? (storeData.settings?.site_title || storeData.store?.name) + ' - Invoice #' + (orderData.nomor_order || orderData.id)
       : 'Invoice',
     description: orderData
-      ? `Invoice untuk order #${orderData.nomor_order || orderData.id} - Total: ${formatRupiah(orderData.total_harga)}`
+      ? 'Invoice untuk order #' + (orderData.nomor_order || orderData.id) + ' - Total: ' + formatRupiah(orderData.total_harga)
       : 'Invoice pembelian',
     keywords: 'invoice, nota, pembelian',
     ogTitle: orderData && storeData
-      ? `Invoice #${orderData.nomor_order || orderData.id} - ${storeData.settings?.site_title || storeData.store?.name}`
+      ? 'Invoice #' + (orderData.nomor_order || orderData.id) + ' - ' + (storeData.settings?.site_title || storeData.store?.name)
       : 'Invoice',
     ogDescription: orderData
-      ? `Lihat detail invoice untuk order #${orderData.nomor_order || orderData.id}`
+      ? 'Lihat detail invoice untuk order #' + (orderData.nomor_order || orderData.id)
       : '',
     ogImage: storeData?.settings?.logo,
     favicon: storeData?.settings?.favicon
@@ -162,7 +175,7 @@ export default function InvoicePage() {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
         <Typography color="error" variant="h6">{error || 'Invoice tidak ditemukan'}</Typography>
-        <Button onClick={() => router.push(subdomain === 'store' ? '/store' : `/s/${subdomain}`)} sx={{ mt: 2 }}>Kembali ke Store</Button>
+        <Button onClick={() => router.push(subdomain === 'store' ? '/store' : '/s/' + subdomain)} sx={{ mt: 2 }}>Kembali ke Store</Button>
       </Container>
     )
   }
@@ -196,7 +209,7 @@ export default function InvoicePage() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => router.push(subdomain === 'store' ? '/store' : `/s/${subdomain}`)}
+          onClick={() => router.push(subdomain === 'store' ? '/store' : '/s/' + subdomain)}
         >
           Kembali
         </Button>
@@ -218,7 +231,7 @@ export default function InvoicePage() {
             {storeData?.settings?.logo ? (
               <Box sx={{ mb: 1 }}>
                 <img
-                  src={`http://localhost:8080/storage/${storeData.settings.logo}`}
+                  src={getStorageUrl(storeData.settings.logo)}
                   alt={storeData?.store?.name || 'Store Logo'}
                   style={{ height: 50, width: 'auto', objectFit: 'contain' }}
                 />
