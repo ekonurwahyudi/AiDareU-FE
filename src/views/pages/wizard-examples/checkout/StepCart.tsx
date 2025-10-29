@@ -344,7 +344,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
 
         if (result.errors) {
           const errorDetails = Object.entries(result.errors)
-            .map(([field, messages]: [string, any]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+            .map(([field, messages]: [string, any]) => field + ": " + (Array.isArray(messages) ? messages.join(', ') : messages))
             .join('\n')
           errorMessage += '\n\nDetail Error:\n' + errorDetails
         }
