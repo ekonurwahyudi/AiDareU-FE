@@ -106,7 +106,7 @@ const ShippingOptions = ({
     setError('')
 
     try {
-      const response = await fetch((process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/shipping/calculate', {
+      const response = await fetch('/api/shipping/calculate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
