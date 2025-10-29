@@ -38,7 +38,7 @@ import type { CartItem } from '@/contexts/CartContext' // impor tipe untuk anota
 
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
-  return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
+  return 'Rp. ' + Math.round(amount).toLocaleString('id-ID')
 }
 
 interface StepCartProps {
@@ -138,7 +138,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   const loadCities = async (provinceId: string) => {
     setLoadingCities(true)
     try {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+      const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/regencies/' + provinceId + '.json')
       const data = await response.json()
       setCities(data)
     } catch (error) {
@@ -151,7 +151,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   const loadDistricts = async (cityId: string) => {
     setLoadingDistricts(true)
     try {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${cityId}.json`)
+      const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/districts/' + cityId + '.json')
       const data = await response.json()
       setDistricts(data)
     } catch (error) {
@@ -289,7 +289,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         uuidStore: storeUuid,
         voucher: null,
         totalHarga: getTotalWithShipping(),
-        ekspedisi: selectedShipping ? `${selectedShipping.courier} - ${selectedShipping.service_name}` : 'Digital Product',
+        ekspedisi: selectedShipping ? selectedShipping.courier + ' - ' + selectedShipping.service_name : 'Digital Product',
         estimasiTiba: estimasi,
         uuidBankAccount: selectedPayment.uuid
       }
@@ -310,7 +310,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       console.log('Order Data:', orderData)
 
       // Send to API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'}/api/checkout', {
+      const response = await fetch((process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -411,8 +411,8 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             <Button
               variant="contained"
               component={Link}
-              href={subdomain === 'store' ? '/store' : `/s/${subdomain}`}
-              sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: `${primaryColor}dd` } }}
+              href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
+              sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' } }}
             >
               Lanjut Belanja
             </Button>
@@ -554,12 +554,12 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                   onClick={() => removeFromCart(product.id)}
                   sx={{
                     color: primaryColor,
-                    border: `1px solid ${primaryColor}`,
+                    border: '1px solid ' + primaryColor,
                     borderRadius: '8px',
                     padding: { xs: '6px', sm: '8px' },
                     '&:hover': {
-                      bgcolor: `${primaryColor}15`,
-                      borderColor: `${primaryColor}dd`
+                      bgcolor: primaryColor + '15',
+                      borderColor: primaryColor + 'dd'
                     }
                   }}
                 >
@@ -571,7 +571,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         )}
         {cartItems.length > 0 && (
           <Typography
-            href={subdomain === 'store' ? '/store' : `/s/${subdomain}`}
+            href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
             component={Link}
             className='flex items-center justify-between gap-4 plb-2 pli-5 border rounded'
             sx={{ borderColor: primaryColor, color: primaryColor }}
@@ -851,7 +851,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             disabled={!isFormValid() || !selectedPayment || isProcessing}
             sx={{
               bgcolor: primaryColor,
-              '&:hover': { bgcolor: `${primaryColor}dd` },
+              '&:hover': { bgcolor: primaryColor + 'dd' },
               '&:disabled': { bgcolor: '#ccc' },
               boxShadow: 'none !important'
             }}
@@ -868,7 +868,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             ) : !selectedPayment ? (
               'Pilih Metode Pembayaran'
             ) : (
-              `Bayar Sekarang - ${formatRupiah(getTotalWithShipping())}`
+              'Bayar Sekarang - ' + formatRupiah(getTotalWithShipping())
             )}
           </Button>
         </div>
