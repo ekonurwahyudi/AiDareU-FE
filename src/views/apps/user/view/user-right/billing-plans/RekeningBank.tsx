@@ -85,9 +85,11 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
       // Prioritas: gunakan storeUuid dari props
       if (storeUuid) {
-        const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${storeUuid}`, {
+        const timestamp = Date.now()
+        const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${storeUuid}&_t=${timestamp}`, {
           headers,
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-store'
         })
 
         if (response.ok) {
@@ -114,9 +116,11 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         if (userJson.status === 'success' && userJson.data?.store) {
           const resolvedStoreUuid = userJson.data.store.uuid
 
-          const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${resolvedStoreUuid}`, {
+          const timestamp2 = Date.now()
+          const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${resolvedStoreUuid}&_t=${timestamp2}`, {
             headers,
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'no-store'
           })
 
           if (response.ok) {
@@ -192,7 +196,7 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
   useEffect(() => {
     fetchBankAccounts()
-  }, [])
+  }, [storeUuid])
 
   const handleAddCard = () => {
     setSelectedAccount(null)

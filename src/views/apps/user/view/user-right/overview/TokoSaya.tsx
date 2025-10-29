@@ -340,15 +340,18 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
               subdomain: storeFromUser.subdomain || '',
               phone: storeFromUser.phone || user.phone || '',
               category: storeFromUser.category || '',
-              description: storeFromUser.description || ''
+              description: storeFromUser.description || '',
+              province: storeFromUser.province || storeFromUser.provinsi || '',
+              city: storeFromUser.city || storeFromUser.kota || '',
+              district: storeFromUser.district || storeFromUser.kecamatan || ''
             }
             setStoreData(s)
             setSelectedStoreUuid(s.uuid || null)
             setInitialSubdomain(s.subdomain || '')
 
-            const provinceValue = (s as any).province || (s as any).provinsi || ''
-            const cityValue = (s as any).city || (s as any).kota || ''
-            const districtValue = (s as any).district || (s as any).kecamatan || ''
+            const provinceValue = s.province || ''
+            const cityValue = s.city || ''
+            const districtValue = s.district || ''
 
             setValue('storeName', s.name || '')
             setValue('subdomain', s.subdomain || '')
@@ -397,17 +400,20 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
               uuid: storeFromUser.uuid,
               name: storeFromUser.name || '',
               subdomain: storeFromUser.subdomain || '',
-              phone: userData.phone || userData.no_hp || '',
-              category: '',
-              description: storeFromUser.description || ''
+              phone: storeFromUser.phone || userData.phone || userData.no_hp || '',
+              category: storeFromUser.category || storeFromUser.kategori_toko || '',
+              description: storeFromUser.description || '',
+              province: storeFromUser.province || storeFromUser.provinsi || '',
+              city: storeFromUser.city || storeFromUser.kota || '',
+              district: storeFromUser.district || storeFromUser.kecamatan || ''
             }
             setStoreData(s)
-            if ((s as any).uuid) setSelectedStoreUuid((s as any).uuid as string)
+            if (s.uuid) setSelectedStoreUuid(s.uuid as string)
             setInitialSubdomain(s.subdomain)
 
-            const provinceValue = (s as any).province || (s as any).provinsi || ''
-            const cityValue = (s as any).city || (s as any).kota || ''
-            const districtValue = (s as any).district || (s as any).kecamatan || ''
+            const provinceValue = s.province || ''
+            const cityValue = s.city || ''
+            const districtValue = s.district || ''
 
             setValue('storeName', s.name || '')
             setValue('subdomain', s.subdomain || '')

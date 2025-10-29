@@ -433,8 +433,8 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
     <>
       <Card>
         <CardHeader
-          title="Setting Keterangan"
-          subheader="Tambahkan Keterangan untuk Iklan yang Maximal."
+          title="Setting Pixel"
+          subheader="Tambahkan Pixel untuk Iklan yang Maximal."
           sx={{ pb: 1 }}
           action={
             <Button

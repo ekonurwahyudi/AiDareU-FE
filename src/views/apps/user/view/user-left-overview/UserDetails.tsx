@@ -235,7 +235,7 @@ const UserDetails = () => {
             </div>
           </div>
           <div>
-            <Typography variant='h5'>Details</Typography>
+            <Typography variant='h5'>Informasi User</Typography>
             <Divider className='mlb-4' />
             <div className='flex flex-col gap-2'>
               <div className='flex items-center flex-wrap gap-x-1.5'>

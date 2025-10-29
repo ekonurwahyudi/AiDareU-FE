@@ -209,12 +209,8 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
 
       if (res.ok) {
         toast.success('Domain berhasil diperbarui!')
-        // Update local state
-        setStores(stores.map(store =>
-          store.uuid === selectedStoreUuid
-            ? { ...store, domain: domain.trim() }
-            : store
-        ))
+        // Refetch to get latest data
+        await fetchStores()
       } else {
         toast.error(data.message || 'Gagal memperbarui domain')
       }
@@ -283,12 +279,8 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
 
       if (res.ok) {
         toast.success('Domain berhasil dihapus!')
-        // Update local state
-        setStores(stores.map(store =>
-          store.uuid === selectedStoreUuid
-            ? { ...store, domain: '' }
-            : store
-        ))
+        // Refetch to get latest data
+        await fetchStores()
         setDomain('')
         setDeleteDialogOpen(false)
       } else {
