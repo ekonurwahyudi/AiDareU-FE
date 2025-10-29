@@ -217,12 +217,16 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         await fetchBankAccounts() // Refresh data
       } else {
         // Handle specific error cases
-        if (response.status === 400 && result?.message) {
-          // Bank account is in use - show helpful message
-          toast.error(result.message, {
-            autoClose: 8000,
-            position: 'top-center'
-          })
+        if (response.status === 400 && result?.message?.includes('used in')) {
+          // Bank account is in use - show as warning, not error
+          toast.warning(
+            '⚠️ Rekening tidak dapat dihapus karena sedang digunakan di order aktif. Silakan ubah metode pembayaran di order terkait terlebih dahulu.',
+            {
+              autoClose: 10000,
+              position: 'top-center',
+              style: { fontSize: '14px' }
+            }
+          )
         } else {
           const errorMsg = result?.message || 'Gagal menghapus rekening'
           toast.error(errorMsg)
