@@ -112,7 +112,7 @@ const CartDropdown = ({
     if (isSubdomainRoute && subdomain) {
       router.push(`/s/${subdomain}/checkout`)
     } else {
-      router.push('/store/checkout')
+      router.push('/checkout')
     }
   }
 

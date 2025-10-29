@@ -743,7 +743,7 @@ function ProductDetailPage() {
     handleAddToCart()
     // Redirect to checkout page
     console.log('Navigating to checkout...')
-    router.push('/store/checkout')
+    router.push('/checkout')
   }
 
   if (loading) {

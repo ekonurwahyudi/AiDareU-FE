@@ -77,9 +77,14 @@ const CartDrawerComponent = ({
   const params = useParams()
   const pathname = usePathname()
 
-  // Detect if we're in subdomain route or store route
+  // Detect if we're on a real subdomain or path-based route
   const subdomain = params?.subdomain as string | undefined
-  const isSubdomainRoute = pathname?.startsWith('/s/')
+  const isPathBasedRoute = pathname?.startsWith('/s/')
+
+  // Check if on real subdomain (e.g., serbaadaku.aidareu.com)
+  const isRealSubdomain = typeof window !== 'undefined' &&
+    window.location.hostname.split('.').length > 2 &&
+    window.location.hostname !== 'www.aidareu.com'
 
   const totalPrice = cartItems.reduce((total, item) => {
     const price = item.salePrice || item.price
@@ -93,11 +98,16 @@ const CartDrawerComponent = ({
     onClose()
     console.log('Navigating to checkout from drawer...')
 
-    // Route based on current path
-    if (isSubdomainRoute && subdomain) {
+    // Smart routing based on current context
+    if (isRealSubdomain) {
+      // On real subdomain: just /checkout
+      router.push('/checkout')
+    } else if (isPathBasedRoute && subdomain) {
+      // On path-based route: /s/{subdomain}/checkout
       router.push(`/s/${subdomain}/checkout`)
     } else {
-      router.push('/store/checkout')
+      // Fallback
+      router.push('/checkout')
     }
   }
 
