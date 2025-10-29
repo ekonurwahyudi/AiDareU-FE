@@ -82,7 +82,8 @@ const UserDetails = () => {
 
       const response = await fetch(apiUrl, {
         headers,
-        credentials: 'include' // for session-based auth
+        credentials: 'include', // for session-based auth
+        cache: 'no-store' // prevent caching
       })
       
       console.log('Response status:', response.status)

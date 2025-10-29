@@ -103,9 +103,11 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
       // Prefer provided storeUuid
       if (storeUuid) {
         setHasStore(true)
-        const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${storeUuid}`, {
+        const timestamp = Date.now()
+        const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${storeUuid}&_t=${timestamp}`, {
           headers,
-          credentials: 'include'
+          credentials: 'include',
+          cache: 'no-store'
         })
 
         if (response.ok) {
@@ -137,9 +139,11 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
           setHasStore(true)
           const fallbackStoreUuid = userJson.data.store.uuid
 
-          const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${fallbackStoreUuid}`, {
+          const timestamp2 = Date.now()
+          const response = await fetch(`${backendUrl}/api/public/social-media?store_uuid=${fallbackStoreUuid}&_t=${timestamp2}`, {
             headers,
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'no-store'
           })
 
           if (response.ok) {

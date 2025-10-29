@@ -145,8 +145,8 @@ const Testimoni = () => {
 
     try {
       const url = editingTestimoni
-        ? `${apiUrl}/api/theme-settings/testimonial/${editingTestimoni.uuid}`
-        : '${apiUrl}/api/theme-settings/testimonial'
+        ? apiUrl + '/api/theme-settings/testimonial/' + editingTestimoni.uuid
+        : apiUrl + '/api/theme-settings/testimonial'
 
       const method = editingTestimoni ? 'PUT' : 'POST'
 

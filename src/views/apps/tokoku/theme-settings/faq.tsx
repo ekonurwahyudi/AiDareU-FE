@@ -133,8 +133,8 @@ const Faq = () => {
 
     try {
       const url = editingFaq
-        ? `${apiUrl}/api/theme-settings/faq/${editingFaq.uuid}`
-        : '${apiUrl}/api/theme-settings/faq'
+        ? apiUrl + '/api/theme-settings/faq/' + editingFaq.uuid
+        : apiUrl + '/api/theme-settings/faq'
 
       const method = editingFaq ? 'PUT' : 'POST'
 
