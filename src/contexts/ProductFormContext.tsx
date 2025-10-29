@@ -207,6 +207,34 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         submitData.append('_method', 'PUT')
       }
       
+      // Get auth credentials
+      const authToken = localStorage.getItem('auth_token')
+      const userData = localStorage.getItem('user_data')
+      let userUuid = null
+      if (userData) {
+        try {
+          const user = JSON.parse(userData)
+          userUuid = user.uuid
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+
+      // Build headers with authentication
+      const headers: HeadersInit = {}
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+      if (userUuid) {
+        headers['X-User-UUID'] = userUuid
+      }
+
+      console.log('=== Product Submit ===')
+      console.log('Mode:', isEdit ? 'UPDATE' : 'CREATE')
+      console.log('Store UUID:', storeUuid)
+      console.log('User UUID:', userUuid)
+      console.log('Auth Token:', authToken ? 'Present' : 'Missing')
+
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const url = isEdit && productUuid
         ? `${backendUrl}/api/public/products/${productUuid}`
@@ -215,6 +243,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
 
       const response = await fetch(url, {
         method,
+        headers,
         body: submitData,
         credentials: 'include'
       })

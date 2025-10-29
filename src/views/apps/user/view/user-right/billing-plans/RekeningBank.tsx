@@ -167,6 +167,10 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
       const user = JSON.parse(storedUserData)
 
+      console.log('=== Delete Bank Account ===')
+      console.log('Bank Account UUID:', uuid)
+      console.log('User UUID:', user.uuid)
+
       const headers: HeadersInit = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -187,11 +191,18 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         credentials: 'include'
       })
 
+      console.log('Delete response status:', response.status)
+
+      const result = await response.json().catch(() => null)
+      console.log('Delete response:', result)
+
       if (response.ok) {
         toast.success('Rekening berhasil dihapus')
         fetchBankAccounts() // Refresh data
       } else {
-        toast.error('Gagal menghapus rekening')
+        const errorMsg = result?.message || 'Gagal menghapus rekening'
+        toast.error(errorMsg)
+        console.error('Delete error:', result)
       }
     } catch (error) {
       console.error('Error deleting bank account:', error)
