@@ -205,15 +205,29 @@ const General = () => {
         formDataToSend.append('favicon', favicon)
       }
 
-      // Get auth token from localStorage
+      // Get auth credentials from localStorage
       const authToken = localStorage.getItem('auth_token')
+      const userData = localStorage.getItem('user_data')
+      let userUuid = null
+      if (userData) {
+        try {
+          const user = JSON.parse(userData)
+          userUuid = user.uuid
+        } catch (e) {}
+      }
+
+      const headers: HeadersInit = {}
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+      if (userUuid) {
+        headers['X-User-UUID'] = userUuid
+      }
 
       const response = await fetch(`${apiUrl}/api/theme-settings/general`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: formDataToSend
       })
 
@@ -225,7 +239,8 @@ const General = () => {
 
       if (data.success) {
         toast.success('General settings updated successfully')
-        fetchSettings(storeUuid)
+        // Refetch to update with server response, but keep preview
+        await fetchSettings(storeUuid)
       } else {
         toast.error(data.message || 'Failed to update settings')
       }

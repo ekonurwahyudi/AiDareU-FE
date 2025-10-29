@@ -126,15 +126,19 @@ const Slide = () => {
       if (slides.slide_2) formData.append('slide_2', slides.slide_2)
       if (slides.slide_3) formData.append('slide_3', slides.slide_3)
 
-      // Get auth token from localStorage
+      // Get auth credentials
       const authToken = localStorage.getItem('auth_token')
+      const userData = localStorage.getItem('user_data')
+      const userUuid = userData ? JSON.parse(userData).uuid : null
+
+      const headers: HeadersInit = {}
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+      if (userUuid) headers['X-User-UUID'] = userUuid
 
       const response = await fetch(`${apiUrl}/api/theme-settings/slides`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: formData
       })
 

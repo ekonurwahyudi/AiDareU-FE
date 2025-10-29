@@ -141,17 +141,19 @@ const Seo = () => {
         formDataToSend.append('delete_og_image', '1')
       }
 
-      // Get auth token from localStorage
+      // Get auth credentials
       const authToken = localStorage.getItem('auth_token')
+      const userData = localStorage.getItem('user_data')
+      const userUuid = userData ? JSON.parse(userData).uuid : null
 
-      console.log('Submitting SEO settings:', { storeUuid, authToken: authToken?.substring(0, 20) + '...' })
+      const headers: HeadersInit = {}
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`
+      if (userUuid) headers['X-User-UUID'] = userUuid
 
       const response = await fetch(`${apiUrl}/api/theme-settings/seo`, {
         method: 'POST',
         credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: formDataToSend
       })
 
