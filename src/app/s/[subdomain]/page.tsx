@@ -416,8 +416,19 @@ const DynamicStorePage = () => {
   }
 
   const handleProductClick = (product: Product) => {
-    // Use slug for routing with subdomain
-    router.push(`/s/${subdomain}/${product.slug}`)
+    // Check if user is on subdomain (e.g., serbaadaku.aidareu.com)
+    // or on path-based route (e.g., aidareu.com/s/serbaadaku)
+    const isSubdomainRoute = typeof window !== 'undefined' &&
+      window.location.hostname.split('.').length > 2 &&
+      window.location.hostname !== 'www.aidareu.com'
+
+    if (isSubdomainRoute) {
+      // On subdomain: just use slug (e.g., /product-slug)
+      router.push(`/${product.slug}`)
+    } else {
+      // On path-based: use full path (e.g., /s/serbaadaku/product-slug)
+      router.push(`/s/${subdomain}/${product.slug}`)
+    }
   }
 
   const handleFaqClick = (index: number) => {

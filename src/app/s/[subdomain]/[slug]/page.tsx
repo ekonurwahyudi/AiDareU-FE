@@ -643,9 +643,15 @@ function ProductDetailPage() {
 
         console.log('Fetching product with slug:', slug)
 
+        // Wait for store data to be available
+        if (!storeData?.store?.uuid) {
+          console.log('Waiting for store data...')
+          return
+        }
+
         // Fetch directly from backend instead of using Next.js API route
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-        const response = await fetch(`${backendUrl}/api/public/products?per_page=1000`, {
+        const response = await fetch(`${backendUrl}/api/public/products?uuid_store=${storeData.store.uuid}&per_page=1000`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -746,7 +752,7 @@ function ProductDetailPage() {
     if (slug) {
       fetchProduct()
     }
-  }, [slug])
+  }, [slug, storeData])
 
   const handleAddToCart = () => {
     if (!product) {
