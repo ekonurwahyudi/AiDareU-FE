@@ -188,17 +188,33 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
       const response = await fetch(`${backendUrl}/api/public/bank-accounts/${uuid}`, {
         method: 'DELETE',
         headers,
-        credentials: 'include'
+        credentials: 'include',
+        mode: 'cors'
       })
 
       console.log('Delete response status:', response.status)
+      console.log('Delete response type:', response.type)
 
-      const result = await response.json().catch(() => null)
-      console.log('Delete response:', result)
+      // Handle opaque response
+      if (response.type === 'opaque' || response.type === 'opaqueredirect') {
+        toast.error('CORS error: Unable to delete bank account. Please check server configuration.')
+        return
+      }
+
+      let result = null
+      try {
+        const text = await response.text()
+        console.log('Delete response text:', text)
+        result = text ? JSON.parse(text) : null
+      } catch (e) {
+        console.error('Failed to parse response:', e)
+      }
+
+      console.log('Delete response parsed:', result)
 
       if (response.ok) {
         toast.success('Rekening berhasil dihapus')
-        fetchBankAccounts() // Refresh data
+        await fetchBankAccounts() // Refresh data
       } else {
         const errorMsg = result?.message || 'Gagal menghapus rekening'
         toast.error(errorMsg)
