@@ -44,7 +44,7 @@ const CheckoutPage = () => {
       try {
         setStoreLoading(true)
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-        const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
+        const response = await fetch(backendUrl + '/api/store/' + subdomain, {
           cache: 'no-store' // Prevent caching issues
         })
         const data = await response.json()
@@ -67,14 +67,14 @@ const CheckoutPage = () => {
   // Update metadata untuk halaman checkout
   useStoreMetadata({
     title: storeData
-      ? `${storeData.settings?.site_title || storeData.store?.name} - Checkout`
+      ? (storeData.settings?.site_title || storeData.store?.name) + ' - Checkout'
       : 'Checkout',
-    description: `Selesaikan pembelian Anda di ${storeData?.settings?.site_title || storeData?.store?.name || 'toko kami'}`,
+    description: 'Selesaikan pembelian Anda di ' + (storeData?.settings?.site_title || storeData?.store?.name || 'toko kami'),
     keywords: 'checkout, pembayaran, belanja online',
     ogTitle: storeData
-      ? `Checkout - ${storeData.settings?.site_title || storeData.store?.name}`
+      ? 'Checkout - ' + (storeData.settings?.site_title || storeData.store?.name)
       : 'Checkout',
-    ogDescription: `Selesaikan pembelian Anda dengan aman dan mudah`,
+    ogDescription: 'Selesaikan pembelian Anda dengan aman dan mudah',
     ogImage: storeData?.settings?.logo,
     favicon: storeData?.settings?.favicon
   })

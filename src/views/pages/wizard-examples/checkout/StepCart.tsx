@@ -49,7 +49,30 @@ interface StepCartProps {
 
 const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: StepCartProps) => {
   const params = useParams()
-  const subdomain = (params?.subdomain as string) || 'store'
+
+  // Get subdomain from params or detect from hostname
+  const getSubdomain = (): string => {
+    // First try to get from params (path-based route like /s/serbaadaku)
+    if (params?.subdomain) {
+      return params.subdomain as string
+    }
+
+    // Detect from hostname (real subdomain like serbaadaku.aidareu.com)
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const parts = hostname.split('.')
+
+      // If subdomain exists (e.g., serbaadaku.aidareu.com)
+      if (parts.length > 2 && parts[0] !== 'www') {
+        return parts[0]
+      }
+    }
+
+    // Fallback
+    return 'store'
+  }
+
+  const subdomain = getSubdomain()
   // States
   const [openCollapse, setOpenCollapse] = useState<boolean>(true)
   const [openFade, setOpenFade] = useState<boolean>(true)
