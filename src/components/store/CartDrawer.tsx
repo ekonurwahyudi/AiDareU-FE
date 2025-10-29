@@ -32,7 +32,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
-  return `Rp. ${amount.toLocaleString('id-ID')}`
+  return 'Rp. ' + amount.toLocaleString('id-ID')
 }
 
 const CartDrawer = styled(Drawer)(({ theme }) => ({
@@ -104,7 +104,7 @@ const CartDrawerComponent = ({
       router.push('/checkout')
     } else if (isPathBasedRoute && subdomain) {
       // On path-based route: /s/{subdomain}/checkout
-      router.push(`/s/${subdomain}/checkout`)
+      router.push('/s/' + subdomain + '/checkout')
     } else {
       // Fallback
       router.push('/checkout')

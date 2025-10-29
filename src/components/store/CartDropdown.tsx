@@ -32,7 +32,7 @@ import AddIcon from '@mui/icons-material/Add'
 
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
-  return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
+  return 'Rp. ' + Math.round(amount).toLocaleString('id-ID')
 }
 
 interface CartItem {
@@ -110,7 +110,7 @@ const CartDropdown = ({
 
     // Route based on current path
     if (isSubdomainRoute && subdomain) {
-      router.push(`/s/${subdomain}/checkout`)
+      router.push('/s/' + subdomain + '/checkout')
     } else {
       router.push('/checkout')
     }

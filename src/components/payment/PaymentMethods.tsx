@@ -76,7 +76,7 @@ const PaymentMethods = ({
     setError('')
 
     try {
-      const response = await fetch(`/api/stores/${storeUuid}/bank-accounts`)
+      const response = await fetch('/api/stores/' + storeUuid + '/bank-accounts')
       const data: PaymentMethodsResponse = await response.json()
 
       if (!response.ok) {

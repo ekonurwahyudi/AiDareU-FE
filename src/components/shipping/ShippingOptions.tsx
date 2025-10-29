@@ -15,7 +15,7 @@ import Chip from '@mui/material/Chip'
 
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
-  return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
+  return 'Rp. ' + Math.round(amount).toLocaleString('id-ID')
 }
 
 // Helper function to format estimated delivery date
@@ -34,11 +34,11 @@ const formatEstimatedDelivery = (dateString: string): string => {
   const formattedDate = date.toLocaleDateString('id-ID', options)
 
   if (diffDays === 0) {
-    return `Hari ini - ${formattedDate}`
+    return 'Hari ini - ' + formattedDate
   } else if (diffDays === 1) {
-    return `Besok - ${formattedDate}`
+    return 'Besok - ' + formattedDate
   } else {
-    return `${diffDays} hari - ${formattedDate}`
+    return diffDays + ' hari - ' + formattedDate
   }
 }
 
@@ -106,7 +106,7 @@ const ShippingOptions = ({
     setError('')
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'}/api/shipping/calculate', {
+      const response = await fetch((process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/shipping/calculate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -187,7 +187,7 @@ const ShippingOptions = ({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {shippingOptions.map((option, index) => (
               <Box
-                key={`${option.courier}-${option.service}-${index}`}
+                key={option.courier + '-' + option.service + '-' + index}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
