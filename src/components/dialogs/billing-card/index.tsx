@@ -69,7 +69,7 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!cardData.cardNumber || !cardData.name || !cardData.bank) {
       toast.error('Mohon lengkapi semua field')
       return
@@ -77,6 +77,32 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
 
     setLoading(true)
     try {
+      // Get auth credentials
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+
+      if (!storedUserData) {
+        toast.error('User data tidak ditemukan. Silakan login kembali.')
+        setLoading(false)
+        return
+      }
+
+      const user = JSON.parse(storedUserData)
+
+      // Build headers with authentication
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (user.uuid) {
+        headers['X-User-UUID'] = user.uuid
+      }
+
       let payload: Record<string, any> = {
         account_number: cardData.cardNumber,
         account_name: cardData.name,
@@ -85,44 +111,46 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
       }
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
+      // Resolve store UUID - always include for both create and update
+      let finalStoreUuid = storeUuid || null
+
+      if (!finalStoreUuid) {
+        console.log('No storeUuid prop, fetching from /api/users/me')
+        const userRes = await fetch(`${backendUrl}/api/users/me`, {
+          headers,
+          credentials: 'include',
+          cache: 'no-store'
+        })
+        const userJson = await userRes.json()
+        finalStoreUuid = userJson?.data?.store?.uuid || null
+        console.log('Store UUID from /api/users/me:', finalStoreUuid)
+      }
+
+      if (!finalStoreUuid) {
+        toast.error('Store tidak ditemukan')
+        setLoading(false)
+        return
+      }
+
+      // Include store_uuid in payload for both create and update
+      payload.store_uuid = finalStoreUuid
+
+      console.log('=== Bank Account Submit ===')
+      console.log('Mode:', data?.uuid ? 'UPDATE' : 'CREATE')
+      console.log('Store UUID:', finalStoreUuid)
+      console.log('Payload:', payload)
+      console.log('User UUID:', user.uuid)
+
       const url = data?.uuid
         ? `${backendUrl}/api/public/bank-accounts/${data.uuid}`
         : `${backendUrl}/api/public/bank-accounts`
 
       const method = data?.uuid ? 'PUT' : 'POST'
 
-      // Saat membuat rekening baru, sertakan store_uuid dari props atau fallback ke /api/users/me
-      if (!data?.uuid) {
-        let finalStoreUuid = storeUuid || null
-
-        if (!finalStoreUuid) {
-          const userRes = await fetch(`${backendUrl}/api/users/me`, {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            cache: 'no-store'
-          })
-          const userJson = await userRes.json()
-          finalStoreUuid = userJson?.data?.store?.uuid || null
-        }
-
-        if (!finalStoreUuid) {
-          toast.error('Store tidak ditemukan')
-          setLoading(false)
-          return
-        }
-
-        payload = { ...payload, store_uuid: finalStoreUuid }
-      }
-      
       const response = await fetch(url, {
         method,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(payload)
       })

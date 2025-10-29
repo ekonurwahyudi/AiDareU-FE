@@ -69,6 +69,10 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
       const user = JSON.parse(storedUserData)
 
+      console.log('=== Fetch Bank Accounts ===')
+      console.log('Store UUID from props:', storeUuid)
+      console.log('User UUID:', user.uuid)
+
       // Build headers for authentication
       const headers: HeadersInit = {
         'Accept': 'application/json',
@@ -85,6 +89,7 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
 
       // Prioritas: gunakan storeUuid dari props
       if (storeUuid) {
+        console.log('Fetching bank accounts with store UUID:', storeUuid)
         const timestamp = Date.now()
         const response = await fetch(`${backendUrl}/api/public/bank-accounts?store_uuid=${storeUuid}&_t=${timestamp}`, {
           headers,
