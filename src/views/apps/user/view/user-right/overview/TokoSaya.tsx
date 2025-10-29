@@ -330,14 +330,25 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
           const json = await res.json()
 
+          console.log('=== Store API Response ===', json)
+
           if (res.ok && json.data) {
             const storeFromUser = json.data
+
+            console.log('Store data from API:', storeFromUser)
+            console.log('Phone:', storeFromUser.phone)
+            console.log('Category:', storeFromUser.category)
+            console.log('Domain:', storeFromUser.domain)
+            console.log('Province:', storeFromUser.province || storeFromUser.provinsi)
+            console.log('City:', storeFromUser.city || storeFromUser.kota)
+            console.log('District:', storeFromUser.district || storeFromUser.kecamatan)
 
             const s: StoreItem = {
               id: 0,
               uuid: storeFromUser.uuid,
               name: storeFromUser.name || '',
               subdomain: storeFromUser.subdomain || '',
+              domain: storeFromUser.domain || '',
               phone: storeFromUser.phone || user.phone || '',
               category: storeFromUser.category || '',
               description: storeFromUser.description || '',
@@ -345,6 +356,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
               city: storeFromUser.city || storeFromUser.kota || '',
               district: storeFromUser.district || storeFromUser.kecamatan || ''
             }
+
+            console.log('Mapped StoreItem:', s)
             setStoreData(s)
             setSelectedStoreUuid(s.uuid || null)
             setInitialSubdomain(s.subdomain || '')
@@ -353,10 +366,23 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             const cityValue = s.city || ''
             const districtValue = s.district || ''
 
+            const categoryLabel = CATEGORY_SLUG_TO_LABEL[s.category as string] || ''
+            console.log('Category slug:', s.category, '-> Label:', categoryLabel)
+
+            console.log('=== Setting form values ===')
+            console.log('Setting storeName:', s.name)
+            console.log('Setting subdomain:', s.subdomain)
+            console.log('Setting phoneNumber:', s.phone)
+            console.log('Setting category:', categoryLabel)
+            console.log('Setting description:', s.description)
+            console.log('Setting province:', provinceValue)
+            console.log('Setting city:', cityValue)
+            console.log('Setting district:', districtValue)
+
             setValue('storeName', s.name || '')
             setValue('subdomain', s.subdomain || '')
             setValue('phoneNumber', s.phone || '')
-            setValue('category', CATEGORY_SLUG_TO_LABEL[s.category as string] || CATEGORY_SLUG_TO_LABEL[(s as any).kategori_toko as string] || '')
+            setValue('category', categoryLabel)
             setValue('description', s.description || '')
             setValue('province', provinceValue)
             setValue('city', cityValue)
@@ -394,12 +420,22 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
           const userData = json.data
           const storeFromUser = userData?.store
 
+          console.log('=== /api/users/me Response ===', json)
+          console.log('Store from user:', storeFromUser)
+
           if (storeFromUser) {
+            console.log('Store data from /users/me:', storeFromUser)
+            console.log('Phone:', storeFromUser.phone)
+            console.log('Category:', storeFromUser.category)
+            console.log('Domain:', storeFromUser.domain)
+            console.log('Province:', storeFromUser.province || storeFromUser.provinsi)
+
             const s: StoreItem = {
               id: 0,
               uuid: storeFromUser.uuid,
               name: storeFromUser.name || '',
               subdomain: storeFromUser.subdomain || '',
+              domain: storeFromUser.domain || '',
               phone: storeFromUser.phone || userData.phone || userData.no_hp || '',
               category: storeFromUser.category || storeFromUser.kategori_toko || '',
               description: storeFromUser.description || '',
@@ -407,6 +443,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
               city: storeFromUser.city || storeFromUser.kota || '',
               district: storeFromUser.district || storeFromUser.kecamatan || ''
             }
+
+            console.log('Mapped StoreItem (fallback):', s)
             setStoreData(s)
             if (s.uuid) setSelectedStoreUuid(s.uuid as string)
             setInitialSubdomain(s.subdomain)
@@ -415,10 +453,17 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             const cityValue = s.city || ''
             const districtValue = s.district || ''
 
+            const categoryLabel = CATEGORY_SLUG_TO_LABEL[s.category as string] || ''
+            console.log('Category slug (fallback):', s.category, '-> Label:', categoryLabel)
+
+            console.log('=== Setting form values (fallback) ===')
+            console.log('Setting phoneNumber:', s.phone)
+            console.log('Setting category:', categoryLabel)
+
             setValue('storeName', s.name || '')
             setValue('subdomain', s.subdomain || '')
             setValue('phoneNumber', s.phone || '')
-            setValue('category', CATEGORY_SLUG_TO_LABEL[s.category as string] || CATEGORY_SLUG_TO_LABEL[(s as any).kategori_toko as string] || '')
+            setValue('category', categoryLabel)
             setValue('description', s.description || '')
             setValue('province', provinceValue)
             setValue('city', cityValue)
