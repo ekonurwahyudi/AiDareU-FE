@@ -20,7 +20,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
-  return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
+  return 'Rp. ' + Math.round(amount).toLocaleString('id-ID')
 }
 
 // Helper function to format date
@@ -43,7 +43,30 @@ interface StepConfirmationProps {
 
 const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }: StepConfirmationProps) => {
   const params = useParams()
-  const subdomain = (params?.subdomain as string) || 'store'
+
+  // Get subdomain from params or detect from hostname
+  const getSubdomain = (): string => {
+    // First try to get from params (path-based route like /s/serbaadaku)
+    if (params?.subdomain) {
+      return params.subdomain as string
+    }
+
+    // Detect from hostname (real subdomain like serbaadaku.aidareu.com)
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const parts = hostname.split('.')
+
+      // If subdomain exists (e.g., serbaadaku.aidareu.com)
+      if (parts.length > 2 && parts[0] !== 'www') {
+        return parts[0]
+      }
+    }
+
+    // Fallback
+    return 'store'
+  }
+
+  const subdomain = getSubdomain()
 
   const [orderData, setOrderData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -58,7 +81,18 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
   const fetchOrderDetails = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/order/${orderUuid}`)
+
+      // Always use absolute URL to main domain for API calls
+      const apiUrl = 'https://aidareu.com/api/order/' + orderUuid
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store'
+      })
       const result = await response.json()
 
       console.log('Order API Response:', result)
@@ -115,7 +149,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
     if (orderData && orderData.store && orderData.store.phone) {
       const phone = orderData.store.phone.replace(/^0/, '62').replace(/\D/g, '')
       const message = generateWhatsAppMessage()
-      window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+      window.open('https://wa.me/' + phone + '?text=' + message, '_blank')
     } else {
       alert('Nomor WhatsApp toko tidak tersedia')
     }
@@ -137,9 +171,9 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
         </Typography>
         <Button
           component={Link}
-          href={subdomain === 'store' ? '/store' : `/s/${subdomain}`}
+          href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
           variant="contained"
-          sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: `${primaryColor}dd` }, boxShadow: 'none !important' }}
+          sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' }, boxShadow: 'none !important' }}
         >
           Kembali ke Store
         </Button>
@@ -261,7 +295,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
             const productName = product.nama_produk || product.name || 'Product'
             const productImage = product.upload_gambar_produk?.[0] || product.image
             const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-            const imageUrl = productImage ? `${backendUrl}/storage/${productImage}` : null
+            const imageUrl = productImage ? backendUrl + '/storage/' + productImage : null
 
             return (
               <div
@@ -374,12 +408,12 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
           <Button
             component={Link}
-            href={subdomain === 'store' ? '/store' : `/s/${subdomain}`}
+            href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
             variant="outlined"
             sx={{
               borderColor: primaryColor,
               color: primaryColor,
-              '&:hover': { borderColor: `${primaryColor}dd`, bgcolor: `${primaryColor}08` },
+              '&:hover': { borderColor: primaryColor + 'dd', bgcolor: primaryColor + '08' },
               boxShadow: 'none !important'
             }}
           >
@@ -387,10 +421,10 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
           </Button>
           <Button
             component={Link}
-            href={subdomain === 'store' ? `/store/invoice/${orderUuid}` : `/s/${subdomain}/invoice/${orderUuid}`}
+            href={subdomain === 'store' ? '/store/invoice/' + orderUuid : '/invoice/' + orderUuid}
             target="_blank"
             variant="contained"
-            sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: `${primaryColor}dd` }, boxShadow: 'none !important' }}
+            sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' }, boxShadow: 'none !important' }}
           >
             Lihat Invoice
           </Button>
