@@ -78,8 +78,20 @@ export default function InvoicePage() {
         ? (process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com') + '/api/order/' + params.uuid
         : '/api/order/' + params.uuid
 
+      console.log('Fetching order from:', apiUrl)
       const response = await fetch(apiUrl)
-      const result = await response.json()
+
+      console.log('Response status:', response.status)
+      console.log('Response content-type:', response.headers.get('content-type'))
+
+      if (!response.ok) {
+        throw new Error('HTTP error! status: ' + response.status)
+      }
+
+      const text = await response.text()
+      console.log('Response text (first 200 chars):', text.substring(0, 200))
+
+      const result = JSON.parse(text)
 
       if (result.success) {
         setOrderData(result.data)
@@ -88,7 +100,7 @@ export default function InvoicePage() {
       }
     } catch (err) {
       console.error('Error fetching invoice:', err)
-      setError('Gagal mengambil data invoice')
+      setError('Gagal mengambil data invoice: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setLoading(false)
     }
