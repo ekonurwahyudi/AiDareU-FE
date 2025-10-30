@@ -171,7 +171,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
         </Typography>
         <Button
           component={Link}
-          href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
+          href="/"
           variant="contained"
           sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' }, boxShadow: 'none !important' }}
         >
@@ -408,7 +408,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
           <Button
             component={Link}
-            href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
+            href="/"
             variant="outlined"
             sx={{
               borderColor: primaryColor,
@@ -421,7 +421,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
           </Button>
           <Button
             component={Link}
-            href={subdomain === 'store' ? '/store/invoice/' + orderUuid : '/invoice/' + orderUuid}
+            href={'/invoice/' + orderUuid}
             target="_blank"
             variant="contained"
             sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' }, boxShadow: 'none !important' }}

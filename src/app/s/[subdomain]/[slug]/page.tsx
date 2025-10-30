@@ -794,8 +794,8 @@ function ProductDetailPage() {
   }
 
   const handleBack = () => {
-    const subdomain = params.subdomain as string
-    router.push(`/s/${subdomain}`)
+    // Direct path to home - no /s/subdomain needed
+    router.push('/')
   }
 
   const toggleFavorite = () => {
@@ -809,10 +809,9 @@ function ProductDetailPage() {
     // Always add to cart and redirect to checkout for both digital and physical products
     console.log('Adding to cart and redirecting to checkout')
     handleAddToCart()
-    // Redirect to checkout page with subdomain
-    const subdomain = params.subdomain as string
+    // Redirect to checkout page - direct path without /s/subdomain
     console.log('Navigating to checkout...')
-    router.push(`/s/${subdomain}/checkout`)
+    router.push('/checkout')
   }
 
   if (loading || storeLoading) {

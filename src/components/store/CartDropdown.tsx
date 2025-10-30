@@ -108,12 +108,8 @@ const CartDropdown = ({
     handleClose()
     console.log('Navigating to checkout from dropdown...')
 
-    // Route based on current path
-    if (isSubdomainRoute && subdomain) {
-      router.push('/s/' + subdomain + '/checkout')
-    } else {
-      router.push('/checkout')
-    }
+    // Always use direct /checkout path (works for both subdomain and path-based routing)
+    router.push('/checkout')
   }
 
   const open = Boolean(anchorEl)

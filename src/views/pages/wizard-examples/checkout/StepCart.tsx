@@ -434,7 +434,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             <Button
               variant="contained"
               component={Link}
-              href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
+              href="/"
               sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: primaryColor + 'dd' } }}
             >
               Lanjut Belanja
@@ -594,7 +594,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         )}
         {cartItems.length > 0 && (
           <Typography
-            href={subdomain === 'store' ? '/store' : '/s/' + subdomain}
+            href="/"
             component={Link}
             className='flex items-center justify-between gap-4 plb-2 pli-5 border rounded'
             sx={{ borderColor: primaryColor, color: primaryColor }}

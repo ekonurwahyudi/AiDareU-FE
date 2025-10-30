@@ -98,17 +98,8 @@ const CartDrawerComponent = ({
     onClose()
     console.log('Navigating to checkout from drawer...')
 
-    // Smart routing based on current context
-    if (isRealSubdomain) {
-      // On real subdomain: just /checkout
-      router.push('/checkout')
-    } else if (isPathBasedRoute && subdomain) {
-      // On path-based route: /s/{subdomain}/checkout
-      router.push('/s/' + subdomain + '/checkout')
-    } else {
-      // Fallback
-      router.push('/checkout')
-    }
+    // Always use direct /checkout path (works for both subdomain and path-based routing)
+    router.push('/checkout')
   }
 
   return (
