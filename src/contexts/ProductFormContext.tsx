@@ -197,10 +197,15 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         submitData.append('stock', formData.stock ? formData.stock.toString() : '0')
       }
 
-      // Add images
+      // Add new images
       formData.images.forEach((file, index) => {
         submitData.append(`images[${index}]`, file)
       })
+
+      // Send existing images that should be kept (for edit mode)
+      if (isEdit && formData.existingImages && formData.existingImages.length > 0) {
+        submitData.append('existing_images', JSON.stringify(formData.existingImages))
+      }
 
       // For Laravel compatibility with FormData PUT requests
       if (isEdit) {
