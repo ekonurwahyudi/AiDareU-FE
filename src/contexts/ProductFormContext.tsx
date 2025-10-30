@@ -122,14 +122,40 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
     setIsSubmitting(true)
     
     try {
-      // First try to get store data from API
+      // Get auth credentials first
+      const authToken = localStorage.getItem('auth_token')
+      const userData = localStorage.getItem('user_data')
+      let userUuid = null
+      if (userData) {
+        try {
+          const user = JSON.parse(userData)
+          userUuid = user.uuid
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+
+      // Get store UUID from authenticated API call
       let storeUuid = null
-      
+
       try {
-        const storeResponse = await fetch('/api/public/stores', {
-          credentials: 'include'
+        const storeHeaders: HeadersInit = {
+          'Accept': 'application/json'
+        }
+        if (authToken) {
+          storeHeaders['Authorization'] = `Bearer ${authToken}`
+        }
+        if (userUuid) {
+          storeHeaders['X-User-UUID'] = userUuid
+        }
+
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+        const storeResponse = await fetch(`${backendUrl}/api/public/stores`, {
+          headers: storeHeaders,
+          credentials: 'include',
+          cache: 'no-store'
         })
-        
+
         if (storeResponse.ok) {
           const storeResult = await storeResponse.json()
           console.log('Store API response:', storeResult)
@@ -137,23 +163,23 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
           if (stores.length > 0) {
             // Use the UUID from the store object
             storeUuid = stores[0].uuid
-            console.log('Found store UUID:', storeUuid)
+            console.log('Found store UUID from API:', storeUuid)
           } else {
             console.warn('No stores found in API response')
           }
+        } else {
+          console.error('Failed to fetch stores:', storeResponse.status, await storeResponse.text())
         }
       } catch (storeError) {
-        console.warn('Failed to fetch stores from API:', storeError)
+        console.error('Failed to fetch stores from API:', storeError)
       }
-      
-      // Fallback to localStorage if API fails
+
+      // Fallback to localStorage if API fails (but this should not happen in production)
       if (!storeUuid) {
-        const userData = localStorage.getItem('user_data')
-        if (userData) {
-          const user = JSON.parse(userData)
-          if (user.stores && user.stores.length > 0) {
-            storeUuid = user.stores[0].uuid || user.stores[0].id
-          }
+        const user = userData ? JSON.parse(userData) : null
+        if (user && user.stores && user.stores.length > 0) {
+          storeUuid = user.stores[0].uuid || user.stores[0].id
+          console.log('Using store UUID from localStorage:', storeUuid)
         }
       }
 
@@ -210,19 +236,6 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       // For Laravel compatibility with FormData PUT requests
       if (isEdit) {
         submitData.append('_method', 'PUT')
-      }
-      
-      // Get auth credentials
-      const authToken = localStorage.getItem('auth_token')
-      const userData = localStorage.getItem('user_data')
-      let userUuid = null
-      if (userData) {
-        try {
-          const user = JSON.parse(userData)
-          userUuid = user.uuid
-        } catch (e) {
-          console.error('Error parsing user data:', e)
-        }
       }
 
       // Build headers with authentication
