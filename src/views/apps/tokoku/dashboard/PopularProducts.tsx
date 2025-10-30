@@ -37,7 +37,7 @@ const PopularProducts = ({ products }: PopularProductsProps) => {
       const images = JSON.parse(imageJson)
 
       if (Array.isArray(images) && images.length > 0) {
-        return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/storage/${images[0]}`
+        return `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'}/storage/${images[0]}`
       }
     } catch (e) {
       console.error('Error parsing image JSON:', e)
