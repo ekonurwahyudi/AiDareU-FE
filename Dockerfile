@@ -1,26 +1,18 @@
-# Frontend (Next.js) - Root Dockerfile for EasyPanel
+# Frontend (Next.js)
 FROM node:18-alpine AS deps
 WORKDIR /app
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm ci --ignore-scripts --no-audit --no-fund
 
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY frontend/ .
+COPY . .
 
 # Build-time environment variables
 ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_BACKEND_URL
-ARG NEXT_PUBLIC_FRONTEND_URL
-ARG NODE_ENV
-ARG NEXT_TELEMETRY_DISABLED
-
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-ENV NEXT_PUBLIC_FRONTEND_URL=$NEXT_PUBLIC_FRONTEND_URL
-ENV NODE_ENV=$NODE_ENV
-ENV NEXT_TELEMETRY_DISABLED=$NEXT_TELEMETRY_DISABLED
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build icons and application
 RUN npm run build:icons && npm run build
