@@ -134,6 +134,7 @@ const RegisterV1Simple = ({ mode }: { mode: SystemMode }) => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/register`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },

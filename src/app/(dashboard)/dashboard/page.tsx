@@ -58,6 +58,7 @@ const DashboardPage = () => {
       }
 
       const response = await fetch('/api/auth/me', {
+        credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`
         }

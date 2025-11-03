@@ -69,12 +69,13 @@ const LoginV1Simple = () => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: data.email,
-          password: data.password 
+          password: data.password
         })
       })
 

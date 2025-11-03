@@ -66,6 +66,7 @@ const ForgotPasswordV1 = () => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/forgot-password`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },

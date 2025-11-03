@@ -98,6 +98,7 @@ const TwoStepsV1 = () => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/verify-email`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -127,12 +128,13 @@ const TwoStepsV1 = () => {
               const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
               const loginResponse = await fetch(`${backendUrl}/api/auth/login`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                   email: userData.email,
-                  password: userData.password 
+                  password: userData.password
                 })
               })
               
@@ -185,6 +187,7 @@ const TwoStepsV1 = () => {
       const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/resend-verification`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
