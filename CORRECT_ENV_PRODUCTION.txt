@@ -1,0 +1,11 @@
+# ========================================
+# FRONTEND PRODUCTION ENVIRONMENT
+# ========================================
+# Copy this to EasyPanel Environment Variables
+
+NEXT_PUBLIC_API_URL=https://api.aidareu.com/api
+API_URL=https://api.aidareu.com/api
+NEXT_PUBLIC_BACKEND_URL=https://api.aidareu.com
+NEXT_PUBLIC_FRONTEND_URL=https://aidareu.com
+NODE_ENV=production
+NEXT_TELEMETRY_DISABLED=1
