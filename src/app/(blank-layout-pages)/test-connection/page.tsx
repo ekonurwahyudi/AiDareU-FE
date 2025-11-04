@@ -23,7 +23,8 @@ const TestConnectionPage = () => {
   const [corsCheck, setCorsCheck] = useState<TestResult>({ status: 'idle' })
   const [authCheck, setAuthCheck] = useState<TestResult>({ status: 'idle' })
 
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+  // Get backend base URL (without /api suffix)
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
   const testHealthCheck = async () => {
     setHealthCheck({ status: 'loading' })

@@ -137,7 +137,7 @@ const ResetPasswordV1 = () => {
     setErrorState(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:8000'
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/reset-password`, {
         method: 'POST',
         credentials: 'include',
