@@ -63,7 +63,12 @@ const Seo = () => {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
       const response = await fetch(`${backendUrl}/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       const data = await response.json()
 
@@ -83,9 +88,16 @@ const Seo = () => {
 
         // Add timestamp to prevent browser caching
         const cacheBuster = `?t=${timestamp}`
-        if (seo.og_image) {
-          setOgImagePreview(`${backendUrl}/storage/${seo.og_image}${cacheBuster}`)
-        }
+
+        // Force clear old preview first
+        setOgImagePreview('')
+
+        // Then set new preview with cache buster
+        setTimeout(() => {
+          if (seo.og_image) {
+            setOgImagePreview(`${backendUrl}/storage/${seo.og_image}${cacheBuster}`)
+          }
+        }, 100)
       } else {
         console.log('No SEO settings found')
       }
@@ -156,8 +168,13 @@ const Seo = () => {
 
       if (data.success) {
         toast.success('SEO settings updated successfully')
+        // Reset file input first
+        setOgImage(null)
+        // Wait a bit for backend to finish writing file
         if (storeUuid) {
-          fetchSeoSettings(storeUuid)
+          setTimeout(() => {
+            fetchSeoSettings(storeUuid)
+          }, 500)
         }
       } else {
         toast.error(data.message || 'Failed to update SEO settings')

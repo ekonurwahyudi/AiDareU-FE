@@ -75,7 +75,12 @@ const Slide = () => {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
       const response = await fetch(`${backendUrl}/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       const data = await response.json()
 
@@ -87,11 +92,22 @@ const Slide = () => {
 
         // Add timestamp to prevent browser caching
         const cacheBuster = `?t=${timestamp}`
+
+        // Force clear old previews first
         setSlidePreviews({
-          slide_1: slideData.slide_1 ? `${backendUrl}/storage/${slideData.slide_1}${cacheBuster}` : '',
-          slide_2: slideData.slide_2 ? `${backendUrl}/storage/${slideData.slide_2}${cacheBuster}` : '',
-          slide_3: slideData.slide_3 ? `${backendUrl}/storage/${slideData.slide_3}${cacheBuster}` : ''
+          slide_1: '',
+          slide_2: '',
+          slide_3: ''
         })
+
+        // Then set new previews with cache buster
+        setTimeout(() => {
+          setSlidePreviews({
+            slide_1: slideData.slide_1 ? `${backendUrl}/storage/${slideData.slide_1}${cacheBuster}` : '',
+            slide_2: slideData.slide_2 ? `${backendUrl}/storage/${slideData.slide_2}${cacheBuster}` : '',
+            slide_3: slideData.slide_3 ? `${backendUrl}/storage/${slideData.slide_3}${cacheBuster}` : ''
+          })
+        }, 100)
       } else {
         console.log('No slides found')
       }
@@ -148,9 +164,12 @@ const Slide = () => {
 
       if (data.success) {
         toast.success('Slides updated successfully')
-        fetchSlides(storeUuid)
-        // Reset file inputs
+        // Reset file inputs first
         setSlides({ slide_1: null, slide_2: null, slide_3: null })
+        // Wait a bit for backend to finish writing file
+        setTimeout(() => {
+          fetchSlides(storeUuid)
+        }, 500)
       } else {
         toast.error(data.message || 'Failed to update slides')
       }

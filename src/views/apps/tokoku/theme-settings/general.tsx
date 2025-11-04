@@ -83,7 +83,12 @@ const General = () => {
       // Add cache busting parameter to prevent caching
       const timestamp = new Date().getTime()
       const response = await fetch(`${backendUrl}/api/theme-settings?store_uuid=${uuid}&_t=${timestamp}`, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       })
       const data = await response.json()
 
@@ -101,12 +106,20 @@ const General = () => {
 
         // Add timestamp to prevent browser caching
         const cacheBuster = `?t=${timestamp}`
-        if (settings.logo) {
-          setLogoPreview(`${backendUrl}/storage/${settings.logo}${cacheBuster}`)
-        }
-        if (settings.favicon) {
-          setFaviconPreview(`${backendUrl}/storage/${settings.favicon}${cacheBuster}`)
-        }
+
+        // Force clear old previews first
+        setLogoPreview('')
+        setFaviconPreview('')
+
+        // Then set new previews with cache buster
+        setTimeout(() => {
+          if (settings.logo) {
+            setLogoPreview(`${backendUrl}/storage/${settings.logo}${cacheBuster}`)
+          }
+          if (settings.favicon) {
+            setFaviconPreview(`${backendUrl}/storage/${settings.favicon}${cacheBuster}`)
+          }
+        }, 100)
       } else {
         console.log('No settings found or request failed')
       }
@@ -227,7 +240,13 @@ const General = () => {
 
       if (data.success) {
         toast.success('General settings updated successfully')
-        fetchSettings(storeUuid)
+        // Reset file inputs first
+        setLogo(null)
+        setFavicon(null)
+        // Wait a bit for backend to finish writing file
+        setTimeout(() => {
+          fetchSettings(storeUuid)
+        }, 500)
       } else {
         toast.error(data.message || 'Failed to update settings')
       }
