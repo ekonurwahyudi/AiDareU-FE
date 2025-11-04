@@ -81,8 +81,10 @@ const Seo = () => {
           og_deskripsi: seo.og_deskripsi || ''
         })
 
+        // Add timestamp to prevent browser caching
+        const cacheBuster = `?t=${timestamp}`
         if (seo.og_image) {
-          setOgImagePreview(`${backendUrl}/storage/${seo.og_image}`)
+          setOgImagePreview(`${backendUrl}/storage/${seo.og_image}${cacheBuster}`)
         }
       } else {
         console.log('No SEO settings found')

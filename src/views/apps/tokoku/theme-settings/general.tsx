@@ -99,11 +99,13 @@ const General = () => {
           primary_color: settings.primary_color || '#E91E63'
         })
 
+        // Add timestamp to prevent browser caching
+        const cacheBuster = `?t=${timestamp}`
         if (settings.logo) {
-          setLogoPreview(`${backendUrl}/storage/${settings.logo}`)
+          setLogoPreview(`${backendUrl}/storage/${settings.logo}${cacheBuster}`)
         }
         if (settings.favicon) {
-          setFaviconPreview(`${backendUrl}/storage/${settings.favicon}`)
+          setFaviconPreview(`${backendUrl}/storage/${settings.favicon}${cacheBuster}`)
         }
       } else {
         console.log('No settings found or request failed')

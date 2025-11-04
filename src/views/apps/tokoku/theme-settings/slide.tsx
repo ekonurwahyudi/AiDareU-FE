@@ -85,10 +85,12 @@ const Slide = () => {
         const slideData = data.data.slides
         console.log('Slides object:', slideData)
 
+        // Add timestamp to prevent browser caching
+        const cacheBuster = `?t=${timestamp}`
         setSlidePreviews({
-          slide_1: slideData.slide_1 ? `${backendUrl}/storage/${slideData.slide_1}` : '',
-          slide_2: slideData.slide_2 ? `${backendUrl}/storage/${slideData.slide_2}` : '',
-          slide_3: slideData.slide_3 ? `${backendUrl}/storage/${slideData.slide_3}` : ''
+          slide_1: slideData.slide_1 ? `${backendUrl}/storage/${slideData.slide_1}${cacheBuster}` : '',
+          slide_2: slideData.slide_2 ? `${backendUrl}/storage/${slideData.slide_2}${cacheBuster}` : '',
+          slide_3: slideData.slide_3 ? `${backendUrl}/storage/${slideData.slide_3}${cacheBuster}` : ''
         })
       } else {
         console.log('No slides found')
