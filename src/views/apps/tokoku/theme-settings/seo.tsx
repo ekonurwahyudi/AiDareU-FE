@@ -82,7 +82,7 @@ const Seo = () => {
         })
 
         if (seo.og_image) {
-          setOgImagePreview(`${backendUrl}/storage/${seo.og_image}`)
+          setOgImagePreview(`${backendUrl}/api/storage/${seo.og_image}`)
         }
       } else {
         console.log('No SEO settings found')

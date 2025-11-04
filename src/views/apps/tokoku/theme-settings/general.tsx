@@ -100,10 +100,10 @@ const General = () => {
         })
 
         if (settings.logo) {
-          setLogoPreview(`${backendUrl}/storage/${settings.logo}`)
+          setLogoPreview(`${backendUrl}/api/storage/${settings.logo}`)
         }
         if (settings.favicon) {
-          setFaviconPreview(`${backendUrl}/storage/${settings.favicon}`)
+          setFaviconPreview(`${backendUrl}/api/storage/${settings.favicon}`)
         }
       } else {
         console.log('No settings found or request failed')
