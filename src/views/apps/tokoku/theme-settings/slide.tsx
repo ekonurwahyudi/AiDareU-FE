@@ -86,9 +86,9 @@ const Slide = () => {
         console.log('Slides object:', slideData)
 
         setSlidePreviews({
-          slide_1: slideData.slide_1 ? `${backendUrl}/api/storage/${slideData.slide_1}` : '',
-          slide_2: slideData.slide_2 ? `${backendUrl}/api/storage/${slideData.slide_2}` : '',
-          slide_3: slideData.slide_3 ? `${backendUrl}/api/storage/${slideData.slide_3}` : ''
+          slide_1: slideData.slide_1 ? `${backendUrl}/storage/${slideData.slide_1}` : '',
+          slide_2: slideData.slide_2 ? `${backendUrl}/storage/${slideData.slide_2}` : '',
+          slide_3: slideData.slide_3 ? `${backendUrl}/storage/${slideData.slide_3}` : ''
         })
       } else {
         console.log('No slides found')
