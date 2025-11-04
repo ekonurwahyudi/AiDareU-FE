@@ -146,7 +146,7 @@ const Testimoni = () => {
     try {
       const url = editingTestimoni
         ? `${backendUrl}/api/theme-settings/testimonial/${editingTestimoni.uuid}`
-        : `${backendUrl}/api/theme-settings/testimonial'
+        : `${backendUrl}/api/theme-settings/testimonial`
 
       const method = editingTestimoni ? 'PUT' : 'POST'
 
