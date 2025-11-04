@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       headers['X-User-UUID'] = userUuid
     }
 
-    const response = await fetch(`${BACKEND_URL}/api/user/me`, {
+    const response = await fetch(`${BACKEND_URL}/api/users/me`, {
       method: 'GET',
       headers,
       credentials: 'include'
