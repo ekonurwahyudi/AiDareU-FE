@@ -40,39 +40,25 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
   }
 
   const handleViewWebsite = () => {
-    // Get subdomain from RBAC context first
-    const subdomain = currentStore?.subdomain || currentStore?.nama_toko?.toLowerCase().replace(/\s+/g, '-')
+    // Get subdomain from RBAC context
+    const subdomain = currentStore?.subdomain || currentStore?.slug
 
     console.log('Opening store with subdomain:', subdomain)
 
-    if (subdomain) {
-      // Open store with subdomain
+    if (!subdomain) {
+      alert('Toko tidak ditemukan. Silakan atur subdomain terlebih dahulu.')
+      return
+    }
+
+    // Check environment
+    const isDev = frontendUrl.includes('localhost')
+
+    if (isDev) {
+      // Development: use /s/subdomain route
       window.open(`${frontendUrl}/s/${subdomain}`, '_blank')
     } else {
-      // If no subdomain, try to get from localStorage
-      const user = localStorage.getItem('user')
-      if (user) {
-        const userData = JSON.parse(user)
-        const fallbackSubdomain = userData.store?.subdomain
-
-        console.log('Fallback subdomain from localStorage:', fallbackSubdomain)
-
-        if (fallbackSubdomain) {
-          window.open(`${frontendUrl}/s/${fallbackSubdomain}`, '_blank')
-        } else {
-          // Last resort - use store name as slug
-          const storeName = userData.store?.nama_toko
-          if (storeName) {
-            const storeSlug = storeName.toLowerCase().replace(/\s+/g, '-')
-            console.log('Using store name as slug:', storeSlug)
-            window.open(`${frontendUrl}/s/${storeSlug}`, '_blank')
-          } else {
-            window.open(`${frontendUrl}/store`, '_blank')
-          }
-        }
-      } else {
-        window.open(`${frontendUrl}/store`, '_blank')
-      }
+      // Production: use subdomain.aidareu.com directly
+      window.open(`https://${subdomain}.aidareu.com`, '_blank')
     }
   }
 
