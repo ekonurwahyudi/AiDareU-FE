@@ -40,39 +40,44 @@ export function middleware(request: NextRequest) {
                      hostname !== 'www.aidareu.com' &&
                      hostname !== 'api.aidareu.com'
 
+  console.log('Parts:', parts)
+  console.log('Is Subdomain?:', isSubdomain)
+  console.log('Parts length:', parts.length)
+
   // If this is a subdomain and path doesn't already start with /s/
   if (isSubdomain && !pathname.startsWith('/s/')) {
     const subdomain = parts[0]
 
+    console.log('Extracted subdomain:', subdomain)
+
     // Reserved subdomains - pass through
     const reserved = ['www', 'api', 'admin', 'mail', 'ftp']
     if (reserved.includes(subdomain)) {
+      console.log('Reserved subdomain, passing through')
       return NextResponse.next()
     }
 
     // Rewrite to /s/[subdomain]/[path]
     // This is INTERNAL - browser URL stays unchanged
     const newPath = `/s/${subdomain}${pathname}`
-    console.log('Rewriting to:', newPath)
+    console.log('✅ REWRITING TO:', newPath)
 
     // Use NextResponse.rewrite for INTERNAL rewriting
     // Browser will NOT see this change in URL
     return NextResponse.rewrite(new URL(newPath, request.url))
   }
 
+  console.log('❌ NOT REWRITING - No subdomain detected or already at /s/ path')
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
-     * - api routes (handled separately)
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public files
+     * Match all requests including root path
+     * EXCEPT: api routes, static files, images
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/',
+    '/((?!api|_next|favicon.ico|.*\\.).*)',
   ]
 }
