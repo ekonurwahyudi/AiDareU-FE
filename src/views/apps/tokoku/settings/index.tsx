@@ -34,7 +34,17 @@ const Settings = ({ tabContentList }: { tabContentList: { [key: string]: ReactEl
 
   const handleViewWebsite = () => {
     if (subdomain) {
-      window.open(`http://localhost:3000/s/${subdomain}`, '_blank')
+      // Use subdomain.aidareu.com for production, localhost for dev
+      const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'
+      const isDev = frontendUrl.includes('localhost')
+
+      if (isDev) {
+        // Development: use /s/subdomain route
+        window.open(`${frontendUrl}/s/${subdomain}`, '_blank')
+      } else {
+        // Production: use subdomain.aidareu.com
+        window.open(`https://${subdomain}.aidareu.com`, '_blank')
+      }
     }
   }
 

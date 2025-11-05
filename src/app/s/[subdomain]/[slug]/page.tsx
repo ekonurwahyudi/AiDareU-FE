@@ -951,7 +951,7 @@ function ProductDetailPage() {
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={handleAddToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
-        storeLogo={storeData?.settings?.logo ? `http://localhost:8000/storage/${storeData.settings.logo}` : undefined}
+        storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
       />
 
