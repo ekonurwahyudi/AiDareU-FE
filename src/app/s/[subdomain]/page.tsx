@@ -416,7 +416,8 @@ const DynamicStorePage = () => {
   }
 
   const handleProductClick = (product: Product) => {
-    router.push(`/s/${subdomain}/${product.slug}`)
+    // Clean URL without /s/ prefix - Worker handles routing
+    router.push(`/${product.slug}`)
   }
 
   const handleFaqClick = (index: number) => {

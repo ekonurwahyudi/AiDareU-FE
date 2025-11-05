@@ -162,7 +162,7 @@ export default function InvoicePage() {
     return (
       <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
         <Typography color="error" variant="h6">{error || 'Invoice tidak ditemukan'}</Typography>
-        <Button onClick={() => router.push(subdomain === 'store' ? '/store' : `/s/${subdomain}`)} sx={{ mt: 2 }}>Kembali ke Store</Button>
+        <Button onClick={() => router.push('/')} sx={{ mt: 2 }}>Kembali ke Store</Button>
       </Container>
     )
   }
@@ -196,7 +196,7 @@ export default function InvoicePage() {
         <Button
           variant="outlined"
           startIcon={<ArrowBackIcon />}
-          onClick={() => router.push(subdomain === 'store' ? '/store' : `/s/${subdomain}`)}
+          onClick={() => router.push('/')}
         >
           Kembali
         </Button>
