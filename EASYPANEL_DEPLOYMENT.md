@@ -1,336 +1,422 @@
 # EasyPanel Deployment Guide - AiDareU
 
-## CHECKLIST DEPLOYMENT
+## 🌐 Domain Configuration
 
-### ✅ Backend Environment Variables (WAJIB!)
+### Recommended Setup
 
-Pastikan environment variables di EasyPanel Backend sudah sesuai:
+| Service | Domain | Port (Internal) | Description |
+|---------|--------|-----------------|-------------|
+| **Backend API** | `api.aidareu.com` | 8080 | Laravel API Server |
+| **Frontend** | `aidareu.com` or `app.aidareu.com` | 3000 | Next.js Dashboard |
+| **PostgreSQL** | Internal only | 5432 | Database |
 
-```env
-# APP CONFIGURATION
-APP_NAME=AiDareU
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://api.aidareu.com
+## 📋 Prerequisites
 
-# DATABASE
-DB_CONNECTION=pgsql
-DB_HOST=aidareu-db
-DB_PORT=5432
-DB_DATABASE=your_database_name
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
+1. EasyPanel installed and running
+2. Domain `aidareu.com` pointed to your server
+3. SSL certificates (EasyPanel handles this automatically)
+4. PostgreSQL service created in EasyPanel
 
-# SESSION CONFIGURATION - CRITICAL FOR LOGIN!
-SESSION_DRIVER=database
-SESSION_LIFETIME=120
-SESSION_ENCRYPT=false
-SESSION_PATH=/
-SESSION_DOMAIN=.aidareu.com
-SESSION_SAME_SITE=none
-SESSION_SECURE_COOKIE=true
-SESSION_HTTP_ONLY=true
+## 🚀 Deployment Steps
 
-# SANCTUM & CORS
-SANCTUM_STATEFUL_DOMAINS=aidareu.com,app.aidareu.com,api.aidareu.com,www.aidareu.com
-SANCTUM_GUARD=web
-SANCTUM_MIDDLEWARE=web
+### Step 1: Create PostgreSQL Database
 
-# PROXY CONFIGURATION
-TRUSTED_PROXIES=*
+1. In EasyPanel, create a new PostgreSQL service:
+   - Name: `aidareu-postgres`
+   - Database: `aidareu`
+   - Username: `postgres`
+   - Password: (generate secure password)
 
-# MAIL CONFIGURATION
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_app_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=your_email@gmail.com
-MAIL_FROM_NAME="${APP_NAME}"
+2. Note down the connection details:
+   - Host: `aidareu-postgres` (internal network)
+   - Port: `5432`
+   - Database: `aidareu`
 
-# CACHE
-CACHE_STORE=database
+### Step 2: Deploy Backend (Laravel API)
 
-# OPENAI (optional)
-OPENAI_API_KEY=your_openai_key
-OPENAI_MODEL=gpt-4o
-OPENAI_MAX_TOKENS=15000
-OPENAI_TEMPERATURE=0.3
+#### 2.1 Create Backend App in EasyPanel
 
-# BITESHIP (optional)
-BITESHIP_API_KEY=your_biteship_key
-```
+1. **Create New App**:
+   - Name: `aidareu-backend`
+   - Type: GitHub
+   - Repository: `https://github.com/ekonurwahyudi/AiDareU-BE.git`
+   - Branch: `main`
 
-### ✅ Frontend Environment Variables (WAJIB!)
-
-Pastikan environment variables di EasyPanel Frontend sudah sesuai:
-
-```env
-NEXT_PUBLIC_API_URL=https://api.aidareu.com/api
-API_URL=https://api.aidareu.com/api
-NEXT_PUBLIC_BACKEND_URL=https://api.aidareu.com
-NEXT_PUBLIC_FRONTEND_URL=https://aidareu.com
-NODE_ENV=production
-NEXT_TELEMETRY_DISABLED=1
-```
-
-## CARA DEPLOY/UPDATE
-
-### 1. Backend Deployment
-
-Setelah push ke GitHub:
-
-1. **Go to EasyPanel** → Backend Service
-2. **Click "Rebuild"** atau "Redeploy"
-3. **Wait for build** to complete (~2-5 minutes)
-4. **Clear Laravel cache**:
-   ```bash
-   php artisan config:clear
-   php artisan cache:clear
-   php artisan route:clear
-   php artisan view:clear
+2. **Build Settings**:
+   ```dockerfile
+   # Use existing Dockerfile
+   Build Command: (use Dockerfile)
    ```
-5. **Verify deployment**:
-   - Open: https://api.aidareu.com/api/health
-   - Should return: `{"status":"ok","message":"API is working!",...}`
 
-### 2. Frontend Deployment
+3. **Environment Variables**:
+   ```env
+   APP_NAME=AiDareU
+   APP_ENV=production
+   APP_KEY=base64:WaPKKNrAyHnZJ/74r0/ZvfYbiSo521URtXldvYFfRhM=
+   APP_DEBUG=false
+   APP_URL=https://api.aidareu.com
 
-Setelah push ke GitHub:
+   # Database
+   DB_CONNECTION=pgsql
+   DB_HOST=aidareu-postgres
+   DB_PORT=5432
+   DB_DATABASE=aidareu
+   DB_USERNAME=postgres
+   DB_PASSWORD=<your-secure-password>
 
-1. **Go to EasyPanel** → Frontend Service
-2. **Click "Rebuild"** atau "Redeploy"
-3. **Wait for build** to complete (~3-10 minutes)
-4. **Verify deployment**:
-   - Open: https://aidareu.com
-   - Check browser console (F12) - no errors about localhost
-   - Open: https://aidareu.com/test-connection
-   - Run all tests - should all be green
+   # Sessions & Cache
+   CACHE_DRIVER=file
+   SESSION_DRIVER=database
+   QUEUE_CONNECTION=sync
 
-### 3. Testing After Deployment
+   # CORS & Sanctum
+   SANCTUM_STATEFUL_DOMAINS=aidareu.com,app.aidareu.com,api.aidareu.com
+   SESSION_DOMAIN=.aidareu.com
 
-#### A. Clear Browser Cache
-```
-1. Press CTRL + SHIFT + DELETE
-2. Select "Cookies and other site data"
-3. Select "Cached images and files"
-4. Click "Clear data"
-5. Close ALL tabs of aidareu.com
-6. Open fresh tab: https://aidareu.com/login
-```
+   # Email (Gmail SMTP)
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-app-password
+   MAIL_ENCRYPTION=tls
+   MAIL_FROM_ADDRESS=your-email@gmail.com
+   MAIL_FROM_NAME=AiDareU
 
-#### B. Test Connection
-```
-1. Go to: https://aidareu.com/test-connection
-2. Click "Run All Tests"
-3. Verify all 4 tests pass:
-   ✅ Health Check
-   ✅ Database Connection
-   ✅ CORS Configuration
-   ✅ Authentication Endpoint (after login)
-```
+   # API Keys
+   OPENAI_API_KEY=sk-...
+   BITESHIP_API_KEY=biteship_live...
 
-#### C. Test Login
-```
-1. Go to: https://aidareu.com/login
-2. Enter email and password
-3. Should successfully login
-4. Should redirect to dashboard
-5. No CORS errors in console
-```
+   # Migrations
+   RUN_MIGRATIONS=true
 
-## TROUBLESHOOTING
+   # Trust Proxies
+   TRUSTED_PROXIES=*
+   ```
 
-### Problem: Login tidak berfungsi, 401 Unauthorized
+4. **Domain Settings**:
+   - Domain: `api.aidareu.com`
+   - Port: `8080` (internal)
+   - Enable SSL: ✅ Yes
 
-**Penyebab:**
-- Backend environment variables belum di-set dengan benar
-- SESSION_SAME_SITE masih "lax" (harus "none")
-- SESSION_DOMAIN tidak ada atau salah
-- Frontend belum rebuild
+5. **Deploy**:
+   - Click "Deploy"
+   - Wait for build to complete
 
-**Solusi:**
-1. Check backend env vars di EasyPanel
-2. Pastikan `SESSION_SAME_SITE=none`
-3. Pastikan `SESSION_DOMAIN=.aidareu.com` (dengan leading dot!)
-4. Pastikan `SESSION_SECURE_COOKIE=true`
-5. Rebuild backend
-6. Run: `php artisan config:clear && php artisan cache:clear`
-7. Clear browser cache dan cookies
-8. Test login lagi
+#### 2.2 Verify Backend
 
-### Problem: CORS errors dengan localhost:8000
+```bash
+# Check if API is accessible
+curl https://api.aidareu.com/api
 
-**Penyebab:**
-- Frontend masih running di local development
-- Frontend di EasyPanel belum rebuild dengan commit terbaru
-- Browser cache masih menyimpan versi lama
-
-**Solusi:**
-1. **Stop local development server** (jangan jalankan `npm run dev`)
-2. **Rebuild frontend di EasyPanel**
-3. **Hard refresh browser**: CTRL + SHIFT + R
-4. **Clear browser cache completely**
-5. **Check URL** - harus `https://aidareu.com`, bukan `localhost:8000`
-
-### Problem: JSON.parse errors
-
-**Penyebab:**
-- Backend mengembalikan HTML error page (500/404) bukan JSON
-- Route tidak ditemukan
-- Database tidak terkoneksi
-
-**Solusi:**
-1. Check backend logs di EasyPanel
-2. Test endpoint langsung: `https://api.aidareu.com/api/test-db`
-3. Verify database credentials di env vars
-4. Run: `php artisan migrate` jika belum
-
-### Problem: "Missing Allow Origin" CORS error
-
-**Penyebab:**
-- Backend CORS config tidak include frontend domain
-- HandleCors middleware tidak aktif
-
-**Solusi:**
-1. Verify `config/cors.php` include `https://aidareu.com`
-2. Verify `bootstrap/app.php` line 19: `$middleware->prepend(HandleCors::class)`
-3. Rebuild backend
-4. Clear cache: `php artisan config:clear`
-
-## CRITICAL CONFIGURATIONS
-
-### 1. Session Configuration (Backend)
-
-**WAJIB untuk cross-domain authentication:**
-
-```env
-SESSION_DOMAIN=.aidareu.com      # Leading dot is CRITICAL!
-SESSION_SAME_SITE=none           # Must be "none" for cross-domain
-SESSION_SECURE_COOKIE=true       # Must be true for HTTPS
-SESSION_HTTP_ONLY=true           # Security best practice
+# Should return API response or 404 (depending on routes)
 ```
 
-**Why?**
-- `SESSION_DOMAIN=.aidareu.com` → Cookie berlaku untuk semua subdomain (aidareu.com, api.aidareu.com, app.aidareu.com)
-- `SESSION_SAME_SITE=none` → Cookie dikirim pada cross-site requests (aidareu.com → api.aidareu.com)
-- `SESSION_SECURE_COOKIE=true` → Cookie hanya dikirim via HTTPS
-- Leading dot (`.aidareu.com`) is REQUIRED for cross-subdomain cookies!
+### Step 3: Deploy Frontend (Next.js)
 
-### 2. CORS Configuration (Backend)
+#### 3.1 Create Frontend App in EasyPanel
 
-File: `config/cors.php`
+1. **Create New App**:
+   - Name: `aidareu-frontend`
+   - Type: GitHub
+   - Repository: `https://github.com/ekonurwahyudi/AiDareU-FE.git`
+   - Branch: `main`
 
-```php
-'allowed_origins' => [
-    'https://aidareu.com',
-    'https://app.aidareu.com',
-    'https://api.aidareu.com',
-    'https://www.aidareu.com',
-],
-'supports_credentials' => true,  // CRITICAL!
+2. **Build Settings**:
+   ```dockerfile
+   # Use existing Dockerfile
+   Build Command: (use Dockerfile)
+
+   # Build Arguments (important!)
+   NEXT_PUBLIC_API_URL=https://api.aidareu.com/api
+   ```
+
+3. **Environment Variables**:
+   ```env
+   NODE_ENV=production
+   PORT=3000
+
+   # API Configuration
+   NEXT_PUBLIC_API_URL=https://api.aidareu.com/api
+   NEXT_PUBLIC_BACKEND_URL=https://api.aidareu.com
+   API_URL=http://aidareu-backend:8080/api
+
+   # Next.js
+   NEXT_TELEMETRY_DISABLED=1
+   ```
+
+4. **Domain Settings**:
+   - Domain: `aidareu.com` (or `app.aidareu.com`)
+   - Port: `3000` (internal)
+   - Enable SSL: ✅ Yes
+
+5. **Deploy**:
+   - Click "Deploy"
+   - Wait for build to complete (may take 5-10 minutes)
+
+#### 3.2 Verify Frontend
+
+```bash
+# Visit frontend
+https://aidareu.com
+
+# Should load the dashboard login page
 ```
 
-**Why?**
-- `supports_credentials: true` → Allows cookies to be sent cross-domain
-- Without this, browser akan ignore Set-Cookie headers dari API
+## 🔧 Docker Compose (Alternative Method)
 
-### 3. Sanctum Configuration (Backend)
+If you prefer using Docker Compose in EasyPanel:
 
-File: `config/sanctum.php`
+### Backend docker-compose.yml
 
-```php
-'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS',
-    'aidareu.com,app.aidareu.com,api.aidareu.com,www.aidareu.com'
-)),
-'guard' => ['web'],
+```yaml
+version: "3.8"
+
+services:
+  backend:
+    image: ghcr.io/ekonurwahyudi/aidareu-backend:latest
+    environment:
+      APP_URL: https://api.aidareu.com
+      DB_HOST: aidareu-postgres
+      DB_DATABASE: aidareu
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+      SANCTUM_STATEFUL_DOMAINS: aidareu.com,app.aidareu.com,api.aidareu.com
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: aidareu
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
 ```
 
-**Why?**
-- Sanctum perlu tahu domain mana yang receive stateful authentication
-- Guard `web` enables session-based auth
+### Frontend docker-compose.yml
 
-### 4. Frontend Fetch Configuration
+```yaml
+version: "3.8"
 
-**ALL** fetch calls to backend API MUST include:
-
-```typescript
-fetch('https://api.aidareu.com/api/endpoint', {
-  method: 'POST',
-  credentials: 'include',  // CRITICAL!
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(data)
-})
+services:
+  frontend:
+    image: ghcr.io/ekonurwahyudi/aidareu-frontend:latest
+    environment:
+      NEXT_PUBLIC_API_URL: https://api.aidareu.com/api
+      NEXT_PUBLIC_BACKEND_URL: https://api.aidareu.com
+      API_URL: http://aidareu-backend:8080/api
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
 ```
 
-**Why?**
-- `credentials: 'include'` → Browser will send cookies with the request
-- Without this, session cookies won't be sent, resulting in 401 errors
+## 🔍 Configuration Checklist
 
-## FILES YANG SUDAH DI-FIX
+### Backend Configuration
 
-### Backend (Repository: AiDareU-BE)
+- [ ] `APP_URL` = `https://api.aidareu.com`
+- [ ] `DB_HOST` = PostgreSQL service name
+- [ ] `SANCTUM_STATEFUL_DOMAINS` includes frontend domains
+- [ ] `SESSION_DOMAIN` = `.aidareu.com`
+- [ ] `TRUSTED_PROXIES` = `*`
+- [ ] CORS config includes production domains
+- [ ] Email credentials configured
+- [ ] API keys configured
+- [ ] SSL enabled for domain
 
-✅ `config/cors.php` - CORS configuration
-✅ `config/sanctum.php` - Sanctum stateful domains
-✅ `config/session.php` - Session configuration
-✅ `bootstrap/app.php` - HandleCors middleware
-✅ `routes/api.php` - Route `/api/users/me` moved to authenticated routes
-✅ `app/Http/Controllers/AuthController.php` - Added `auth()->login($user)` on line 288
-✅ `.env.production` - Complete production environment variables
+### Frontend Configuration
 
-### Frontend (Repository: AiDareU-FE)
+- [ ] `NEXT_PUBLIC_API_URL` = `https://api.aidareu.com/api`
+- [ ] `NEXT_PUBLIC_BACKEND_URL` = `https://api.aidareu.com`
+- [ ] `API_URL` = Internal backend URL for SSR
+- [ ] Build arg `NEXT_PUBLIC_API_URL` set correctly
+- [ ] SSL enabled for domain
 
-✅ All authentication files have `credentials: 'include'`:
-- `src/views/pages/auth/LoginV1Simple.tsx`
-- `src/views/pages/auth/RegisterV1Simple.tsx`
-- `src/views/pages/auth/ForgotPasswordV1.tsx`
-- `src/views/pages/auth/ResetPasswordV1.tsx`
-- `src/views/pages/auth/TwoStepsV1.tsx`
-- `src/views/Login.tsx`
-- `src/views/Register.tsx`
-- And 44 more files...
+### Network & DNS
 
-✅ All files use `process.env.NEXT_PUBLIC_BACKEND_URL` instead of `.replace('/api', '')`
+- [ ] `api.aidareu.com` → Server IP (A record)
+- [ ] `aidareu.com` → Server IP (A record)
+- [ ] SSL certificates auto-generated by EasyPanel
+- [ ] Backend accessible via HTTPS
+- [ ] Frontend accessible via HTTPS
 
-✅ Route proxies fixed:
-- `src/app/api/users/me/route.ts` - Fixed endpoint from `/api/user/me` to `/api/users/me`
-- `src/app/api/rbac/roles/route.ts` - Has `credentials: 'include'`
-- `src/app/api/rbac/permissions/me/route.ts` - Has `credentials: 'include'`
+## 🧪 Testing
 
-✅ Test connection page:
-- `src/app/(blank-layout-pages)/test-connection/page.tsx` - Complete test suite
+### 1. Test Backend API
 
-## LATEST COMMITS
+```bash
+# Health check (if you have one)
+curl https://api.aidareu.com/api/health
 
-### Backend
-- Commit `8996764`: Add test endpoints: /test-db & /test-cors
-- Commit `5b0fb29`: Fix: Move /api/users/me to auth routes & set web session on login
+# Login endpoint
+curl -X POST https://api.aidareu.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"password"}'
+```
 
-### Frontend
-- Commit `5f39e32`: Fix: Use NEXT_PUBLIC_BACKEND_URL consistently across all files
-- Commit `0eac988`: Add connection test page
-- Commit `8e0e5a6`: Fix: Endpoint /api/users/me (was /api/user/me)
+### 2. Test Frontend
 
-## SUMMARY
+1. Open browser: `https://aidareu.com`
+2. Should see login page
+3. Check browser console for errors
+4. Verify API calls go to `https://api.aidareu.com/api`
 
-Untuk deployment sukses:
+### 3. Test CORS
 
-1. ✅ Backend env vars sudah benar (terutama SESSION_* variables)
-2. ✅ Frontend env vars sudah benar (NEXT_PUBLIC_BACKEND_URL)
-3. ✅ Rebuild backend di EasyPanel
-4. ✅ Rebuild frontend di EasyPanel
-5. ✅ Clear Laravel cache: `php artisan config:clear && php artisan cache:clear`
-6. ✅ Clear browser cache dan cookies
-7. ✅ Test di: https://aidareu.com/test-connection
-8. ✅ Test login di: https://aidareu.com/login
+```bash
+# Should return CORS headers
+curl -I -X OPTIONS https://api.aidareu.com/api/auth/login \
+  -H "Origin: https://aidareu.com" \
+  -H "Access-Control-Request-Method: POST"
+```
 
-**SEHARUSNYA LOGIN SUDAH BERFUNGSI SEKARANG!**
+## 🐛 Troubleshooting
 
-Jika masih ada masalah, check:
-- Browser console (F12) untuk error messages
-- Backend logs di EasyPanel
-- https://aidareu.com/test-connection untuk diagnostic
+### Backend Issues
+
+**Problem**: 500 Error or App Key Missing
+```bash
+# Generate new app key
+docker exec -it aidareu-backend php artisan key:generate
+
+# Clear cache
+docker exec -it aidareu-backend php artisan config:clear
+docker exec -it aidareu-backend php artisan cache:clear
+```
+
+**Problem**: Database Connection Failed
+```bash
+# Check PostgreSQL is running
+docker ps | grep postgres
+
+# Test connection
+docker exec -it aidareu-backend php artisan tinker
+>>> DB::connection()->getPdo();
+```
+
+**Problem**: CORS Errors
+- Check `config/cors.php` includes frontend domain
+- Check `SANCTUM_STATEFUL_DOMAINS` includes frontend domain
+- Clear config cache: `php artisan config:clear`
+
+### Frontend Issues
+
+**Problem**: Can't connect to backend
+- Verify `NEXT_PUBLIC_API_URL` is correct
+- Check browser Network tab for actual URL being called
+- Verify backend is accessible: `curl https://api.aidareu.com/api`
+
+**Problem**: Build fails
+```bash
+# Check build logs in EasyPanel
+# Common issues:
+# - Missing NEXT_PUBLIC_API_URL build arg
+# - Node modules cache issues
+# - Out of memory (increase Docker memory)
+```
+
+**Problem**: Environment variables not updating
+- Rebuild the container (not just restart)
+- For `NEXT_PUBLIC_*` vars, you MUST rebuild (they're embedded during build)
+
+## 📊 Port Summary
+
+| Service | External Port | Internal Port | Protocol |
+|---------|---------------|---------------|----------|
+| Backend | 443 (HTTPS) | 8080 | HTTP |
+| Frontend | 443 (HTTPS) | 3000 | HTTP |
+| PostgreSQL | None (internal) | 5432 | PostgreSQL |
+
+**Note**: EasyPanel handles SSL termination, so internal apps run on HTTP, exposed via HTTPS.
+
+## 🔐 Security Best Practices
+
+1. **Environment Variables**:
+   - Never commit `.env` files
+   - Use EasyPanel's environment variables UI
+   - Rotate API keys regularly
+
+2. **Database**:
+   - Use strong passwords
+   - Enable backups in EasyPanel
+   - Restrict access to internal network only
+
+3. **SSL/TLS**:
+   - Let EasyPanel manage SSL certificates
+   - Force HTTPS redirects
+   - Enable HSTS headers
+
+4. **Application**:
+   - Set `APP_DEBUG=false` in production
+   - Enable rate limiting
+   - Monitor error logs
+
+## 📝 Maintenance
+
+### Update Backend
+
+```bash
+# In EasyPanel UI:
+1. Go to aidareu-backend app
+2. Click "Redeploy"
+3. EasyPanel pulls latest from GitHub
+4. Rebuilds and restarts
+```
+
+### Update Frontend
+
+```bash
+# In EasyPanel UI:
+1. Go to aidareu-frontend app
+2. Click "Redeploy"
+3. May take 5-10 minutes (Next.js build)
+```
+
+### Database Backup
+
+```bash
+# In EasyPanel:
+1. Go to PostgreSQL service
+2. Enable automated backups
+3. Set backup retention period
+```
+
+### View Logs
+
+```bash
+# In EasyPanel UI:
+1. Select app (backend or frontend)
+2. Click "Logs" tab
+3. Real-time log streaming
+```
+
+## 🎯 Final Checklist
+
+Before going live:
+
+- [ ] Both apps deployed successfully
+- [ ] SSL certificates active
+- [ ] Database connected
+- [ ] Frontend can login
+- [ ] API calls working
+- [ ] CORS configured correctly
+- [ ] Email sending works
+- [ ] All environment variables set
+- [ ] Backups enabled
+- [ ] Error monitoring setup
+- [ ] Test all major features
+
+---
+
+**Support**: For issues, check EasyPanel logs and verify all environment variables are set correctly.
+
+**Last Updated**: October 2025
