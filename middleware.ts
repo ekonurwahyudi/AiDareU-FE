@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const hostname = request.headers.get('host') || ''
+
+  // Get hostname from X-Forwarded-Host (set by Cloudflare Worker) or Host header
+  const hostname = request.headers.get('x-forwarded-host') ||
+                   request.headers.get('x-original-host') ||
+                   request.headers.get('host') || ''
 
   console.log('Middleware - Host:', hostname)
+  console.log('Middleware - X-Forwarded-Host:', request.headers.get('x-forwarded-host'))
   console.log('Middleware - Path:', pathname)
 
   // Skip API routes and static files
