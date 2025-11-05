@@ -4,13 +4,22 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Get hostname from X-Forwarded-Host (set by Cloudflare Worker) or Host header
-  const hostname = request.headers.get('x-forwarded-host') ||
-                   request.headers.get('x-original-host') ||
-                   request.headers.get('host') || ''
+  const xForwardedHost = request.headers.get('x-forwarded-host')
+  const xOriginalHost = request.headers.get('x-original-host')
+  const hostHeader = request.headers.get('host')
 
-  console.log('Middleware - Host:', hostname)
-  console.log('Middleware - X-Forwarded-Host:', request.headers.get('x-forwarded-host'))
-  console.log('Middleware - Path:', pathname)
+  const hostname = xForwardedHost || xOriginalHost || hostHeader || ''
+
+  // Debug logging - IMPORTANT for troubleshooting
+  console.log('============ MIDDLEWARE DEBUG ============')
+  console.log('X-Forwarded-Host:', xForwardedHost)
+  console.log('X-Original-Host:', xOriginalHost)
+  console.log('Host:', hostHeader)
+  console.log('Final Hostname:', hostname)
+  console.log('Path:', pathname)
+  console.log('Full URL:', request.url)
+  console.log('==========================================')
+
 
   // Skip API routes and static files
   if (
