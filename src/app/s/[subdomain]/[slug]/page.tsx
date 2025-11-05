@@ -786,9 +786,7 @@ function ProductDetailPage() {
 
   const handleBack = () => {
     const subdomain = params.subdomain as string
-    const isDev = typeof window !== 'undefined' && (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'))
-    const url = isDev ? `/s/${subdomain}` : `/`
-    router.push(url)
+    router.push(`/s/${subdomain}`)
   }
 
   const toggleFavorite = () => {
@@ -802,12 +800,10 @@ function ProductDetailPage() {
     // Always add to cart and redirect to checkout for both digital and physical products
     console.log('Adding to cart and redirecting to checkout')
     handleAddToCart()
-    // Redirect to checkout page - production uses subdomain, dev uses /s/subdomain
+    // Redirect to checkout page
     const subdomain = params.subdomain as string
-    const isDev = typeof window !== 'undefined' && (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'))
-    const checkoutUrl = isDev ? `/s/${subdomain}/checkout` : `/checkout`
     console.log('Navigating to checkout...')
-    router.push(checkoutUrl)
+    router.push(`/s/${subdomain}/checkout`)
   }
 
   if (loading || storeLoading) {
