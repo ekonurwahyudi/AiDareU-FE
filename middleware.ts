@@ -3,23 +3,19 @@ import { NextRequest, NextResponse } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get hostname from X-Forwarded-Host (set by Cloudflare Worker) or Host header
-  const xForwardedHost = request.headers.get('x-forwarded-host')
-  const xOriginalHost = request.headers.get('x-original-host')
-  const hostHeader = request.headers.get('host')
-
-  const hostname = xForwardedHost || xOriginalHost || hostHeader || ''
-
-  // Debug logging - IMPORTANT for troubleshooting
+  // Debug logging
   console.log('============ MIDDLEWARE DEBUG ============')
-  console.log('X-Forwarded-Host:', xForwardedHost)
-  console.log('X-Original-Host:', xOriginalHost)
-  console.log('Host:', hostHeader)
-  console.log('Final Hostname:', hostname)
   console.log('Path:', pathname)
   console.log('Full URL:', request.url)
-  console.log('==========================================')
 
+  // IMPORTANT: Cloudflare Worker already rewrites subdomain.aidareu.com to aidareu.com/s/subdomain
+  // Middleware should just PASS THROUGH - no rewriting needed!
+
+  // If path already starts with /s/, it came from Worker - just pass through
+  if (pathname.startsWith('/s/')) {
+    console.log('✅ Path already has /s/ prefix (from Worker) - PASS THROUGH')
+    return NextResponse.next()
+  }
 
   // Skip API routes and static files
   if (
@@ -28,46 +24,11 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/static/') ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2|ttf|eot)$/)
   ) {
+    console.log('✅ Static/API route - PASS THROUGH')
     return NextResponse.next()
   }
 
-  // Extract subdomain from hostname
-  const parts = hostname.split('.')
-
-  // Check if this is a tenant subdomain
-  // Example: serbaadaku.aidareu.com -> parts = ['serbaadaku', 'aidareu', 'com']
-  const isSubdomain = parts.length >= 3 &&
-                     hostname !== 'www.aidareu.com' &&
-                     hostname !== 'api.aidareu.com'
-
-  console.log('Parts:', parts)
-  console.log('Is Subdomain?:', isSubdomain)
-  console.log('Parts length:', parts.length)
-
-  // If this is a subdomain and path doesn't already start with /s/
-  if (isSubdomain && !pathname.startsWith('/s/')) {
-    const subdomain = parts[0]
-
-    console.log('Extracted subdomain:', subdomain)
-
-    // Reserved subdomains - pass through
-    const reserved = ['www', 'api', 'admin', 'mail', 'ftp']
-    if (reserved.includes(subdomain)) {
-      console.log('Reserved subdomain, passing through')
-      return NextResponse.next()
-    }
-
-    // Rewrite to /s/[subdomain]/[path]
-    // This is INTERNAL - browser URL stays unchanged
-    const newPath = `/s/${subdomain}${pathname}`
-    console.log('✅ REWRITING TO:', newPath)
-
-    // Use NextResponse.rewrite for INTERNAL rewriting
-    // Browser will NOT see this change in URL
-    return NextResponse.rewrite(new URL(newPath, request.url))
-  }
-
-  console.log('❌ NOT REWRITING - No subdomain detected or already at /s/ path')
+  console.log('✅ Regular route - PASS THROUGH')
   return NextResponse.next()
 }
 
