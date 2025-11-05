@@ -1,38 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl
+  const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
   console.log('Middleware - Host:', hostname)
   console.log('Middleware - Path:', pathname)
 
-  // PRIORITY 1: API proxy requests
-  if (pathname.startsWith('/api/proxy/')) {
-    const backendBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api'
-    const apiPath = pathname.replace('/api/proxy', '')
-    const targetUrl = `${backendBase}${apiPath}`
-
-    const url = new URL(targetUrl)
-    // Preserve query params
-    searchParams.forEach((value, key) => {
-      url.searchParams.set(key, value)
-    })
-
-    return NextResponse.rewrite(url)
-  }
-
-  // PRIORITY 2: Skip static files and Next.js internals
+  // Skip API routes and static files
   if (
+    pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/static/') ||
-    pathname.startsWith('/api/') ||
-    pathname.includes('.') // Any file extension (js, css, png, etc.)
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff|woff2|ttf|eot)$/)
   ) {
     return NextResponse.next()
   }
 
-  // No subdomain routing needed - Cloudflare Worker handles it
+  // Extract subdomain from hostname
+  const parts = hostname.split('.')
+
+  // Check if this is a tenant subdomain
+  // Example: serbaadaku.aidareu.com -> parts = ['serbaadaku', 'aidareu', 'com']
+  const isSubdomain = parts.length >= 3 &&
+                     hostname !== 'www.aidareu.com' &&
+                     hostname !== 'api.aidareu.com'
+
+  // If this is a subdomain and path doesn't already start with /s/
+  if (isSubdomain && !pathname.startsWith('/s/')) {
+    const subdomain = parts[0]
+
+    // Reserved subdomains - pass through
+    const reserved = ['www', 'api', 'admin', 'mail', 'ftp']
+    if (reserved.includes(subdomain)) {
+      return NextResponse.next()
+    }
+
+    // Rewrite to /s/[subdomain]/[path]
+    // This is INTERNAL - browser URL stays unchanged
+    const newPath = `/s/${subdomain}${pathname}`
+    console.log('Rewriting to:', newPath)
+
+    // Use NextResponse.rewrite for INTERNAL rewriting
+    // Browser will NOT see this change in URL
+    return NextResponse.rewrite(new URL(newPath, request.url))
+  }
+
   return NextResponse.next()
 }
 
@@ -40,11 +53,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
+     * - api routes (handled separately)
      * - _next/static (static files)
      * - _next/image (image optimization)
-     * - favicon.ico (favicon file)
-     * - public folder files
+     * - favicon.ico
+     * - public files
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/proxy).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ]
 }
