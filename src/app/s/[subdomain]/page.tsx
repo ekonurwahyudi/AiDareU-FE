@@ -408,8 +408,10 @@ const DynamicStorePage = () => {
   }
 
   const handleProductClick = (product: Product) => {
-    // Use slug for routing with subdomain
-    router.push(`/s/${subdomain}/${product.slug}`)
+    // Use slug for routing - production uses subdomain, dev uses /s/subdomain
+    const isDev = typeof window !== 'undefined' && (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'))
+    const url = isDev ? `/s/${subdomain}/${product.slug}` : `/${product.slug}`
+    router.push(url)
   }
 
   const handleFaqClick = (index: number) => {
