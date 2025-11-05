@@ -32,49 +32,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // PRIORITY 3: Subdomain routing
-  // Extract subdomain from hostname
-  const parts = hostname.split('.')
-
-  // Check if this is a tenant subdomain
-  // Examples:
-  // - belidisiniaja.aidareu.com -> parts = ['belidisiniaja', 'aidareu', 'com'] (3 parts)
-  // - localhost -> parts = ['localhost'] (1 part, skip)
-  // - www.aidareu.com -> parts = ['www', 'aidareu', 'com'] (reserved, skip)
-  const isSubdomain = parts.length >= 3 &&
-                     !hostname.startsWith('www.') &&
-                     !hostname.startsWith('api.')
-
-  // If this is a tenant subdomain AND path doesn't already start with /s/
-  if (isSubdomain && !pathname.startsWith('/s/')) {
-    const subdomain = parts[0]
-
-    // Reserved subdomains - pass through without rewrite
-    const reserved = ['www', 'api', 'admin', 'mail', 'ftp']
-    if (reserved.includes(subdomain)) {
-      console.log('Reserved subdomain, passing through')
-      return NextResponse.next()
-    }
-
-    // Rewrite to /s/[subdomain]/[...path]
-    // Examples:
-    // - belidisiniaja.aidareu.com/ -> /s/belidisiniaja
-    // - belidisiniaja.aidareu.com/product-slug -> /s/belidisiniaja/product-slug
-    const newPath = `/s/${subdomain}${pathname}`
-
-    console.log('Rewriting to:', newPath)
-
-    // Create rewrite URL (internal, not visible to browser)
-    const rewriteUrl = new URL(newPath, request.url)
-
-    // Preserve query params
-    searchParams.forEach((value, key) => {
-      rewriteUrl.searchParams.set(key, value)
-    })
-
-    return NextResponse.rewrite(rewriteUrl)
-  }
-
+  // No subdomain routing needed - Cloudflare Worker handles it
   return NextResponse.next()
 }
 

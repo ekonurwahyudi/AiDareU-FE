@@ -281,6 +281,7 @@ const DynamicStorePage = () => {
   // Store data from database
   const [storeData, setStoreData] = useState<any>(null)
   const [storeLoading, setStoreLoading] = useState(true)
+  const [storeNotFound, setStoreNotFound] = useState(false)
   const [dynamicSlides, setDynamicSlides] = useState<any[]>([])
   const [dynamicTestimonials, setDynamicTestimonials] = useState<any[]>([])
   const [dynamicFaqs, setDynamicFaqs] = useState<any[]>([])
@@ -345,6 +346,7 @@ const DynamicStorePage = () => {
           console.log('Store data fetched from API:', data.data)
           setStoreData(data.data)
           setStoreLoading(false) // Mark store data as loaded
+          setStoreNotFound(false)
 
           // Set products
           if (data.data.products) {
@@ -369,9 +371,15 @@ const DynamicStorePage = () => {
           if (data.data.faqs && data.data.faqs.length > 0) {
             setDynamicFaqs(data.data.faqs)
           }
+        } else {
+          // Store not found or inactive
+          console.error('Store not found:', subdomain)
+          setStoreNotFound(true)
+          setStoreLoading(false)
         }
       } catch (error) {
         console.error('Error fetching store data:', error)
+        setStoreNotFound(true)
         setStoreLoading(false)
       } finally {
         setLoading(false)
@@ -474,6 +482,87 @@ const DynamicStorePage = () => {
             50% { opacity: 0.5; }
           }
         `}</style>
+      </Box>
+    )
+  }
+
+  // Show "Store Not Found" message
+  if (storeNotFound) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          textAlign: 'center',
+          padding: 4
+        }}
+      >
+        <Box
+          sx={{
+            background: 'white',
+            borderRadius: '24px',
+            padding: { xs: 4, md: 6 },
+            maxWidth: '600px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}
+        >
+          <Typography
+            variant="h1"
+            sx={{
+              fontSize: { xs: '3rem', md: '4rem' },
+              fontWeight: 800,
+              color: '#DC2626',
+              mb: 2
+            }}
+          >
+            404
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: '#1F2937',
+              mb: 2
+            }}
+          >
+            Toko Tidak Ditemukan
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: '#6B7280',
+              mb: 4,
+              fontSize: '1.1rem'
+            }}
+          >
+            Maaf, toko <strong>{subdomain}</strong> tidak tersedia atau sudah tidak aktif.
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => window.location.href = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://aidareu.com'}
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              fontWeight: 600,
+              px: 4,
+              py: 1.5,
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontSize: '1.1rem',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+              }
+            }}
+          >
+            Kembali ke Beranda
+          </Button>
+        </Box>
       </Box>
     )
   }
