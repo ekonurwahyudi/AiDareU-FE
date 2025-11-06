@@ -644,6 +644,7 @@ function ProductDetailPage() {
         // Wait for storeData to load first
         if (!storeData?.uuid) {
           console.log('Store data not loaded yet, waiting...')
+          setLoading(false)
           return
         }
 
@@ -738,9 +739,13 @@ function ProductDetailPage() {
 
             setProduct(foundProduct)
           } else {
+            console.error('Product not found! Available products:', transformedProducts.length)
+            console.error('Looking for slug:', slug)
+            console.error('Available slugs:', transformedProducts.map(p => p.slug).join(', '))
             setError('Produk tidak ditemukan')
           }
         } else {
+          console.error('Invalid API response format:', data)
           setError('Produk tidak ditemukan')
         }
       } catch (error) {
