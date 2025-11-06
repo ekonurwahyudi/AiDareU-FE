@@ -639,10 +639,21 @@ function ProductDetailPage() {
         setError(null)
 
         console.log('Fetching product with slug:', slug)
+        console.log('Store UUID:', storeData?.uuid)
+
+        // Wait for storeData to load first
+        if (!storeData?.uuid) {
+          console.log('Store data not loaded yet, waiting...')
+          return
+        }
 
         // Use environment variable for backend URL
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-        const response = await fetch(`${backendUrl}/api/public/products?per_page=1000`, {
+        const apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeData.uuid}`
+
+        console.log('Fetching from:', apiUrl)
+
+        const response = await fetch(apiUrl, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -740,10 +751,10 @@ function ProductDetailPage() {
       }
     }
 
-    if (slug) {
+    if (slug && storeData?.uuid) {
       fetchProduct()
     }
-  }, [slug])
+  }, [slug, storeData?.uuid])
 
   const handleAddToCart = () => {
     if (!product) {
