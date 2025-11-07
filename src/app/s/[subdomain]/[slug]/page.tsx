@@ -621,7 +621,8 @@ function ProductDetailPage() {
 
         if (data.success && data.data) {
           setStoreData(data.data)
-          console.log('[Product Detail] Store UUID:', data.data.uuid)
+          console.log('[Product Detail] Store UUID:', data.data.uuid_store || data.data.uuid)
+          console.log('[Product Detail] Store object:', data.data.store)
         } else {
           console.error('[Product Detail] Invalid store data format:', data)
         }
@@ -666,11 +667,16 @@ function ProductDetailPage() {
     const fetchProduct = async () => {
       try {
         console.log('Fetching product with slug:', slug)
-        console.log('Store UUID:', storeData?.uuid)
+        console.log('Store data available:', !!storeData)
+
+        // Get store UUID from correct field (could be uuid_store, uuid, or store.uuid_store)
+        const storeUuid = storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+        console.log('Store UUID:', storeUuid)
 
         // Wait for storeData to load first
-        if (!storeData?.uuid) {
-          console.log('Store data not loaded yet, waiting...')
+        if (!storeUuid) {
+          console.log('Store UUID not available yet, waiting...')
+          console.log('Store data structure:', storeData)
           return
         }
 
@@ -679,7 +685,7 @@ function ProductDetailPage() {
 
         // Use environment variable for backend URL
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-        const apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeData.uuid}`
+        const apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeUuid}`
 
         console.log('Fetching from:', apiUrl)
 
@@ -784,10 +790,13 @@ function ProductDetailPage() {
       }
     }
 
-    if (slug && storeData?.uuid) {
+    // Get store UUID from correct field
+    const storeUuid = storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+
+    if (slug && storeUuid) {
       fetchProduct()
     }
-  }, [slug, storeData?.uuid])
+  }, [slug, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
 
   const handleAddToCart = () => {
     if (!product) {
