@@ -111,11 +111,14 @@ const StoreSetupModal = ({ open, onClose, onSuccess }: StoreSetupModalProps) => 
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/stores', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const token = localStorage.getItem('token')
+
+      const response = await fetch(`${backendUrl}/api/stores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(data)
       })
