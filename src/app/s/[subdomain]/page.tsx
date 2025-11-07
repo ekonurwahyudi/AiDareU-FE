@@ -337,9 +337,35 @@ const DynamicStorePage = () => {
         setStoreLoading(true)
         setLoading(true)
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-        const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
-          cache: 'no-store' // Prevent caching issues
+        const apiUrl = `${backendUrl}/api/store/${subdomain}`
+
+        console.log('Fetching store data from:', apiUrl)
+
+        const response = await fetch(apiUrl, {
+          cache: 'no-store', // Prevent caching issues
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
         })
+
+        console.log('Store API response status:', response.status)
+        console.log('Store API content-type:', response.headers.get('content-type'))
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Store API error response:', errorText)
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+          const textResponse = await response.text()
+          console.error('Non-JSON response from store API:', textResponse.substring(0, 500))
+          throw new Error('Store API returned non-JSON response')
+        }
+
         const data = await response.json()
 
         if (data.success && data.data) {
