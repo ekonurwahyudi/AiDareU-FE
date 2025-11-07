@@ -671,17 +671,7 @@ function ProductDetailPage() {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        const responseText = await response.text()
-        console.log('Raw API response:', responseText.substring(0, 500))
-
-        let data
-        try {
-          data = JSON.parse(responseText)
-        } catch (parseError) {
-          console.error('JSON parse error:', parseError)
-          throw new Error('Invalid response format')
-        }
-
+        const data = await response.json()
         console.log('Parsed data:', data)
 
         if (data.status === 'success' && data.data && data.data.data) {
