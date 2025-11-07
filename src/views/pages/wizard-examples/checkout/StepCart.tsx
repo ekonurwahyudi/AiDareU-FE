@@ -126,10 +126,22 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     setLoadingProvinces(true)
     try {
       const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('API returned non-JSON response')
+      }
+
       const data = await response.json()
       setProvinces(data)
     } catch (error) {
       console.error('Error loading provinces:', error)
+      setProvinces([]) // Set empty array on error
     } finally {
       setLoadingProvinces(false)
     }
@@ -139,10 +151,22 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     setLoadingCities(true)
     try {
       const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('API returned non-JSON response')
+      }
+
       const data = await response.json()
       setCities(data)
     } catch (error) {
       console.error('Error loading cities:', error)
+      setCities([]) // Set empty array on error
     } finally {
       setLoadingCities(false)
     }
@@ -152,10 +176,22 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     setLoadingDistricts(true)
     try {
       const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${cityId}.json`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('API returned non-JSON response')
+      }
+
       const data = await response.json()
       setDistricts(data)
     } catch (error) {
       console.error('Error loading districts:', error)
+      setDistricts([]) // Set empty array on error
     } finally {
       setLoadingDistricts(false)
     }

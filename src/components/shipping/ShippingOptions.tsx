@@ -120,6 +120,14 @@ const ShippingOptions = ({
         })
       })
 
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text()
+        console.error('Non-JSON response from shipping API:', textResponse.substring(0, 500))
+        throw new Error('Shipping API returned non-JSON response')
+      }
+
       const data: ShippingResponse = await response.json()
 
       if (!response.ok) {

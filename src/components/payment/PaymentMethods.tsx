@@ -77,6 +77,15 @@ const PaymentMethods = ({
 
     try {
       const response = await fetch(`/api/stores/${storeUuid}/bank-accounts`)
+
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text()
+        console.error('Non-JSON response from payment API:', textResponse.substring(0, 500))
+        throw new Error('Payment API returned non-JSON response')
+      }
+
       const data: PaymentMethodsResponse = await response.json()
 
       if (!response.ok) {
