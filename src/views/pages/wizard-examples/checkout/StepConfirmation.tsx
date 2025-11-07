@@ -387,7 +387,7 @@ Saya sudah melakukan transfer. Mohon dicek ya! Terima kasih 🙏`
           </Button>
           <Button
             component={Link}
-            href={subdomain === 'store' ? `/store/invoice/${orderUuid}` : `/s/${subdomain}/invoice/${orderUuid}`}
+            href={`/invoice/${orderUuid}`}
             target="_blank"
             variant="contained"
             sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: `${primaryColor}dd` }, boxShadow: 'none !important' }}

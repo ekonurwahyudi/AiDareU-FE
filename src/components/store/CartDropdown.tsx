@@ -108,12 +108,9 @@ const CartDropdown = ({
     handleClose()
     console.log('Navigating to checkout from dropdown...')
 
-    // Route based on current path
-    if (isSubdomainRoute && subdomain) {
-      router.push(`/s/${subdomain}/checkout`)
-    } else {
-      router.push('/store/checkout')
-    }
+    // Route to checkout - Clean URL without /s/ or /store/ prefix
+    // Cloudflare Worker handles routing
+    router.push('/checkout')
   }
 
   const open = Boolean(anchorEl)
