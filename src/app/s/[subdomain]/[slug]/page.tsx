@@ -738,7 +738,7 @@ function ProductDetailPage() {
             colors: null,
             isNew: product.status_produk === 'active' && new Date(product.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
             inStock: product.jenis_produk === 'digital' || (product.stock && product.stock > 0),
-            slug: product.nama_produk.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''),
+            slug: product.slug || product.nama_produk.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''),
             category: product.category?.judul_kategori || 'Produk',
             description: product.deskripsi || 'No description available for this product.',
             jenis_produk: product.jenis_produk,
