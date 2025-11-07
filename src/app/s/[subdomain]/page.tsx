@@ -443,7 +443,8 @@ const DynamicStorePage = () => {
 
   const handleProductClick = (product: Product) => {
     // Clean URL without /s/ prefix - Worker handles routing
-    router.push(`/${product.slug}`)
+    // Pass product UUID as query parameter for efficient loading
+    router.push(`/${product.slug}?uuid=${product.uuid || product.id}`)
   }
 
   const handleFaqClick = (index: number) => {

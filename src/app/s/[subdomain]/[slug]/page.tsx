@@ -2,7 +2,7 @@
 
 // React Imports
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
 // Cart Context
 import { useCart } from '@/contexts/CartContext'
@@ -415,7 +415,9 @@ const getProductIcon = (productName: string) => {
 function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const slug = params.slug as string
+  const productUuid = searchParams.get('uuid') // Get UUID from query parameter
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -667,18 +669,16 @@ function ProductDetailPage() {
     const fetchProduct = async () => {
       try {
         console.log('Fetching product with slug:', slug)
+        console.log('Product UUID from URL:', productUuid)
         console.log('Store data available:', !!storeData)
 
         // Get store UUID from correct field (try all possible locations)
         const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
         console.log('Store UUID:', storeUuid)
-        console.log('Checking: storeData.store =', storeData?.store)
-        console.log('Checking: storeData.store.uuid =', storeData?.store?.uuid)
 
         // Wait for storeData to load first
         if (!storeUuid) {
           console.log('Store UUID not available yet, waiting...')
-          console.log('Store data structure:', storeData)
           return
         }
 
@@ -687,7 +687,19 @@ function ProductDetailPage() {
 
         // Use environment variable for backend URL
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-        const apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeUuid}`
+
+        // If we have product UUID from URL, fetch single product directly
+        let apiUrl: string
+        let fetchingSingleProduct = false
+
+        if (productUuid) {
+          apiUrl = `${backendUrl}/api/public/products/${productUuid}`
+          fetchingSingleProduct = true
+          console.log('Fetching single product by UUID:', productUuid)
+        } else {
+          apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeUuid}`
+          console.log('Fetching all products for store')
+        }
 
         console.log('Fetching from:', apiUrl)
 
@@ -720,9 +732,8 @@ function ProductDetailPage() {
         const data = await response.json()
         console.log('Parsed data:', data)
 
-        if (data.status === 'success' && data.data && data.data.data) {
-          // Transform and find product by slug
-          const transformedProducts: Product[] = data.data.data.map((product: any) => ({
+        // Helper function to transform product data
+        const transformProduct = (product: any): Product => ({
             id: product.uuid || product.id?.toString(),
             uuid: product.uuid,
             name: product.nama_produk,
@@ -748,31 +759,28 @@ function ProductDetailPage() {
             stock: product.stock || 0,
             url_produk: product.url_produk,
             storeUuid: product.store?.uuid || product.uuid_store || undefined // mapping UUID Store
-          }))
+          })
+
+        // Handle single product response (when fetching by UUID)
+        if (fetchingSingleProduct && data.status === 'success' && data.data) {
+          console.log('Single product fetched successfully')
+          const transformedProduct = transformProduct(data.data)
+          console.log('Transformed product:', transformedProduct.name)
+          setProduct(transformedProduct)
+        }
+        // Handle list of products response (when fetching all products)
+        else if (!fetchingSingleProduct && data.status === 'success' && data.data && data.data.data) {
+          console.log('Product list fetched, searching by slug')
+          const transformedProducts: Product[] = data.data.data.map(transformProduct)
 
           console.log('Looking for slug:', slug)
           console.log('Available slugs:', transformedProducts.map(p => p.slug))
-
-          // Log the first product to see what fields we have
-          if (data.data.data.length > 0) {
-            console.log('Raw product sample:', data.data.data[0])
-            console.log('Available fields:', Object.keys(data.data.data[0]))
-            console.log('deskripsi field:', data.data.data[0].deskripsi)
-          }
 
           // Find product by slug
           const foundProduct = transformedProducts.find((p: Product) => p.slug === slug)
 
           if (foundProduct) {
             console.log('Found product:', foundProduct.name)
-            console.log('Product description:', foundProduct.description)
-
-            // Find raw product data
-            const rawProduct = data.data.data.find((p: any) =>
-              p.nama_produk.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') === slug
-            )
-            console.log('Raw product deskripsi:', rawProduct?.deskripsi)
-
             setProduct(foundProduct)
           } else {
             console.error('Product not found! Available products:', transformedProducts.length)
@@ -798,7 +806,7 @@ function ProductDetailPage() {
     if (slug && storeUuid) {
       fetchProduct()
     }
-  }, [slug, storeData?.store?.uuid, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
+  }, [slug, productUuid, storeData?.store?.uuid, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
 
   const handleAddToCart = () => {
     if (!product) {
