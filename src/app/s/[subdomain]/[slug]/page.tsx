@@ -669,9 +669,11 @@ function ProductDetailPage() {
         console.log('Fetching product with slug:', slug)
         console.log('Store data available:', !!storeData)
 
-        // Get store UUID from correct field (could be uuid_store, uuid, or store.uuid_store)
-        const storeUuid = storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+        // Get store UUID from correct field (try all possible locations)
+        const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
         console.log('Store UUID:', storeUuid)
+        console.log('Checking: storeData.store =', storeData?.store)
+        console.log('Checking: storeData.store.uuid =', storeData?.store?.uuid)
 
         // Wait for storeData to load first
         if (!storeUuid) {
@@ -790,13 +792,13 @@ function ProductDetailPage() {
       }
     }
 
-    // Get store UUID from correct field
-    const storeUuid = storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+    // Get store UUID from correct field (check all possible locations)
+    const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
 
     if (slug && storeUuid) {
       fetchProduct()
     }
-  }, [slug, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
+  }, [slug, storeData?.store?.uuid, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
 
   const handleAddToCart = () => {
     if (!product) {
