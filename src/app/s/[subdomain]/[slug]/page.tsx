@@ -432,7 +432,7 @@ function ProductDetailPage() {
   } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isFavorite, setIsFavorite] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -587,16 +587,46 @@ function ProductDetailPage() {
         setStoreLoading(true)
         const subdomain = params.subdomain as string
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-        const response = await fetch(`${backendUrl}/api/store/${subdomain}`, {
-          cache: 'no-store' // Prevent caching issues
+        const apiUrl = `${backendUrl}/api/store/${subdomain}`
+
+        console.log('[Product Detail] Fetching store data from:', apiUrl)
+
+        const response = await fetch(apiUrl, {
+          cache: 'no-store', // Prevent caching issues
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
         })
+
+        console.log('[Product Detail] Store API response status:', response.status)
+        console.log('[Product Detail] Store API content-type:', response.headers.get('content-type'))
+
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('[Product Detail] Store API error response:', errorText)
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+          const textResponse = await response.text()
+          console.error('[Product Detail] Non-JSON response from store API:', textResponse.substring(0, 500))
+          throw new Error('Store API returned non-JSON response')
+        }
+
         const data = await response.json()
+        console.log('[Product Detail] Store data received:', data)
 
         if (data.success && data.data) {
           setStoreData(data.data)
+          console.log('[Product Detail] Store UUID:', data.data.uuid)
+        } else {
+          console.error('[Product Detail] Invalid store data format:', data)
         }
       } catch (error) {
-        console.error('Error fetching store data:', error)
+        console.error('[Product Detail] Error fetching store data:', error)
       } finally {
         setStoreLoading(false)
       }
@@ -635,18 +665,17 @@ function ProductDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        setLoading(true)
-        setError(null)
-
         console.log('Fetching product with slug:', slug)
         console.log('Store UUID:', storeData?.uuid)
 
         // Wait for storeData to load first
         if (!storeData?.uuid) {
           console.log('Store data not loaded yet, waiting...')
-          setLoading(false)
           return
         }
+
+        setLoading(true)
+        setError(null)
 
         // Use environment variable for backend URL
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
