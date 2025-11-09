@@ -58,10 +58,31 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
   const fetchOrderDetails = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/order/${orderUuid}`)
-      const result = await response.json()
 
-      console.log('Order API Response:', result)
+      // Use backend URL directly
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const apiUrl = `${backendUrl}/api/order/${orderUuid}`
+
+      console.log('[Order Details] Fetching from:', apiUrl)
+
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+
+      console.log('[Order Details] Response status:', response.status)
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text()
+        console.error('[Order Details] Non-JSON response:', textResponse)
+        throw new Error('API returned non-JSON response')
+      }
+
+      const result = await response.json()
+      console.log('[Order Details] Response data:', result)
 
       if (result.success) {
         // Transform data to match frontend expectations (camelCase)
