@@ -292,6 +292,9 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
   const customer = orderData?.customer
   const detailOrders = orderData?.detailOrders || []
 
+  // Backend URL for images
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
   // Debug log for bank account
   console.log('[Order Confirmation] Bank Account:', bankAccount)
   console.log('[Order Confirmation] Full Order Data:', orderData)
@@ -320,35 +323,181 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
           background-color: ${primaryColor}dd !important;
         }
 
-        /* Print Styles */
+        /* Print Styles - Professional Invoice Layout */
         @media print {
-          /* Hide navigation elements */
-          header, footer, .no-print {
+          /* Hide all web UI elements */
+          header, footer, .no-print, .MuiAlert-root, button {
             display: none !important;
           }
 
-          /* Ensure content fits on page */
+          /* Reset page styling */
           body {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: white !important;
           }
 
-          /* Adjust card styles for print */
-          .MuiCard-root {
+          /* Hide success card and grid layout for print */
+          .print-hide {
+            display: none !important;
+          }
+
+          /* Show print-only invoice */
+          .print-invoice {
+            display: block !important;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 10mm;
+            background: white;
+            color: black;
+          }
+
+          /* Remove all cards, borders, shadows */
+          .MuiCard-root, .MuiCardContent-root {
             box-shadow: none !important;
-            border: 1px solid #e0e0e0 !important;
-            page-break-inside: avoid;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
           }
 
-          /* Make sticky elements static for print */
+          /* Make sticky elements static */
           [style*="sticky"] {
             position: static !important;
           }
 
-          /* Ensure colors are visible */
+          /* Ensure colors print correctly */
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+
+          /* Page break control */
+          .page-break {
+            page-break-after: always;
+          }
+
+          .no-page-break {
+            page-break-inside: avoid;
+          }
+        }
+
+        /* Print Invoice Styles - Hidden on screen */
+        .print-invoice {
+          display: none;
+        }
+
+        @media print {
+          .print-invoice {
+            font-family: 'Arial', sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+          }
+
+          .invoice-header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+          }
+
+          .invoice-title {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+
+          .invoice-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+          }
+
+          .invoice-section {
+            margin-bottom: 15px;
+          }
+
+          .invoice-section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 4px;
+          }
+
+          .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+
+          .invoice-table th {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+          }
+
+          .invoice-table td {
+            border: 1px solid #000;
+            padding: 8px;
+          }
+
+          .invoice-table .text-right {
+            text-align: right;
+          }
+
+          .invoice-table .text-center {
+            text-align: center;
+          }
+
+          .invoice-total {
+            margin-top: 10px;
+            text-align: right;
+          }
+
+          .invoice-total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 5px;
+          }
+
+          .invoice-total-label {
+            width: 150px;
+            font-weight: bold;
+          }
+
+          .invoice-total-value {
+            width: 150px;
+            text-align: right;
+          }
+
+          .invoice-grand-total {
+            border-top: 2px solid #000;
+            padding-top: 8px;
+            font-size: 12pt;
+            font-weight: bold;
+          }
+
+          .invoice-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            font-size: 9pt;
+          }
+
+          .payment-instructions {
+            background-color: #fffacd;
+            border: 1px solid #000;
+            padding: 10px;
+            margin: 20px 0;
+          }
+
+          .payment-instructions-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 11pt;
           }
         }
       `}</style>
@@ -382,8 +531,8 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
             </Box>
           ) : (
             <>
-              {/* Success Message */}
-              <Card sx={{ mb: 3, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
+              {/* Success Message - Hidden on Print */}
+              <Card className="print-hide" sx={{ mb: 3, backgroundColor: '#f0fdf4', border: '1px solid #86efac' }}>
                 <CardContent sx={{ textAlign: 'center', py: 4 }}>
                   <Box sx={{ fontSize: 60, mb: 2 }}>✅</Box>
                   <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#16a34a', mb: 1 }}>
@@ -412,7 +561,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                 </CardContent>
               </Card>
 
-              <Grid container spacing={3}>
+              <Grid className="print-hide" container spacing={3}>
                 {/* Order Information */}
                 <Grid size={{ xs: 12, md: 8 }}>
                   <Card sx={{ mb: 3 }}>
@@ -649,6 +798,148 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                   </Card>
                 </Grid>
               </Grid>
+
+              {/* Professional Print Invoice - Hidden on Screen */}
+              <Box
+                className="print-invoice"
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    <!-- Invoice Header -->
+                    <div class="invoice-header">
+                      <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                          ${storeData?.settings?.logo
+                            ? `<img src="${backendUrl}/storage/${storeData.settings.logo}" alt="${storeData?.store?.name || 'Store'}" style="height: 50px; margin-bottom: 10px;" />`
+                            : `<div class="invoice-title">${storeData?.store?.name || 'Invoice'}</div>`
+                          }
+                          <div style="font-size: 9pt;">
+                            <strong>${storeData?.store?.name || ''}</strong><br />
+                            ${storeData?.store?.phone ? `Tel: ${storeData.store.phone}<br />` : ''}
+                            ${storeData?.store?.alamat || ''}
+                          </div>
+                        </div>
+                        <div style="text-align: right;">
+                          <div class="invoice-title">INVOICE</div>
+                          <div style="font-size: 10pt;">
+                            <strong>No: ${orderNumber}</strong><br />
+                            Tanggal: ${createdAt ? formatDate(createdAt) : '-'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Customer & Order Info -->
+                    <div class="invoice-info-grid">
+                      <div class="invoice-section">
+                        <div class="invoice-section-title">INFORMASI PENERIMA</div>
+                        <div>
+                          <strong>Nama:</strong> ${customer?.nama || '-'}<br />
+                          <strong>No. HP:</strong> ${customer?.no_hp || '-'}<br />
+                          ${customer?.email ? `<strong>Email:</strong> ${customer.email}<br />` : ''}
+                          <strong>Alamat:</strong><br />
+                          ${customer?.alamat || ''}<br />
+                          ${customer?.kecamatan || ''}, ${customer?.kota || ''}<br />
+                          ${customer?.provinsi || ''}
+                        </div>
+                      </div>
+
+                      <div class="invoice-section">
+                        <div class="invoice-section-title">INFORMASI PENGIRIMAN</div>
+                        <div>
+                          <strong>Ekspedisi:</strong> ${ekspedisi}<br />
+                          <strong>Estimasi Tiba:</strong> ${estimasiTiba}<br />
+                          <strong>Status:</strong> <span style="background-color: #fff3cd; padding: 2px 8px; border: 1px solid #000; font-weight: bold;">Menunggu Pembayaran</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Products Table -->
+                    <div class="invoice-section">
+                      <div class="invoice-section-title">DETAIL PRODUK</div>
+                      <table class="invoice-table">
+                        <thead>
+                          <tr>
+                            <th style="width: 50px;" class="text-center">No</th>
+                            <th>Nama Produk</th>
+                            <th style="width: 80px;" class="text-center">Qty</th>
+                            <th style="width: 120px;" class="text-right">Harga</th>
+                            <th style="width: 120px;" class="text-right">Subtotal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${detailOrders.map((item: any, index: number) => {
+                            const product = item.product || {}
+                            const productName = product.nama_produk || 'Product'
+                            const quantity = item.quantity || 1
+                            const price = item.price || 0
+                            const subtotal = quantity * price
+
+                            return `
+                              <tr>
+                                <td class="text-center">${index + 1}</td>
+                                <td>${productName}</td>
+                                <td class="text-center">${quantity}</td>
+                                <td class="text-right">${formatRupiah(price)}</td>
+                                <td class="text-right"><strong>${formatRupiah(subtotal)}</strong></td>
+                              </tr>
+                            `
+                          }).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="invoice-total">
+                      <div class="invoice-total-row invoice-grand-total">
+                        <div class="invoice-total-label">TOTAL PEMBAYARAN:</div>
+                        <div class="invoice-total-value">${formatRupiah(totalHarga)}</div>
+                      </div>
+                    </div>
+
+                    <!-- Payment Instructions -->
+                    ${bankAccount ? `
+                      <div class="payment-instructions no-page-break">
+                        <div class="payment-instructions-title">INSTRUKSI PEMBAYARAN</div>
+                        <div style="margin-bottom: 10px;">
+                          Silakan transfer ke rekening berikut:
+                        </div>
+                        <table style="width: 100%; font-size: 10pt;">
+                          <tr>
+                            <td style="width: 120px;"><strong>Bank</strong></td>
+                            <td>: ${bankAccount.bank_name || bankAccount.bankName || bankAccount.nama_bank}</td>
+                          </tr>
+                          <tr>
+                            <td><strong>No. Rekening</strong></td>
+                            <td>: <strong style="font-size: 12pt;">${bankAccount.account_number || bankAccount.accountNumber || bankAccount.nomor_rekening}</strong></td>
+                          </tr>
+                          <tr>
+                            <td><strong>Atas Nama</strong></td>
+                            <td>: ${bankAccount.account_holder_name || bankAccount.accountHolderName || bankAccount.nama_pemilik}</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Jumlah Transfer</strong></td>
+                            <td>: <strong style="font-size: 12pt; color: #d32f2f;">${formatRupiah(totalHarga)}</strong></td>
+                          </tr>
+                        </table>
+                        <div style="margin-top: 10px; font-size: 9pt; font-style: italic;">
+                          * Harap transfer sesuai dengan jumlah yang tertera di atas<br />
+                          * Konfirmasi pembayaran melalui WhatsApp setelah melakukan transfer
+                        </div>
+                      </div>
+                    ` : ''}
+
+                    <!-- Footer -->
+                    <div class="invoice-footer">
+                      <div style="text-align: center; margin-bottom: 10px;">
+                        Terima kasih atas kepercayaan Anda berbelanja di ${storeData?.store?.name || 'toko kami'}
+                      </div>
+                      <div style="text-align: center; font-size: 8pt; color: #666;">
+                        Invoice ini digenerate secara otomatis pada ${new Date().toLocaleString('id-ID')}
+                      </div>
+                    </div>
+                  `
+                }}
+              />
             </>
           )}
         </Container>
