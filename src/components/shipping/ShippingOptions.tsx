@@ -106,7 +106,13 @@ const ShippingOptions = ({
     setError('')
 
     try {
-      const response = await fetch('/api/shipping/calculate', {
+      // Use backend URL directly
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const apiUrl = `${backendUrl}/api/shipping/calculate`
+
+      console.log('[Shipping Options] Fetching from:', apiUrl)
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -76,7 +76,13 @@ const PaymentMethods = ({
     setError('')
 
     try {
-      const response = await fetch(`/api/stores/${storeUuid}/bank-accounts`)
+      // Use backend URL directly
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const apiUrl = `${backendUrl}/api/stores/${storeUuid}/bank-accounts`
+
+      console.log('[Payment Methods] Fetching from:', apiUrl)
+
+      const response = await fetch(apiUrl)
 
       // Check if response is JSON before parsing
       const contentType = response.headers.get('content-type')
