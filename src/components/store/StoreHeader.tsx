@@ -3,6 +3,9 @@
 // React Imports
 import { useState } from 'react'
 
+// Next.js Imports
+import Link from 'next/link'
+
 // MUI Imports
 import {
   AppBar,
@@ -142,20 +145,22 @@ const StoreHeader = ({
         <Container maxWidth="lg">
           <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 0, sm: 2 } }}>
             {/* Logo */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {storeLogo ? (
-                <Box
-                  component="img"
-                  src={storeLogo}
-                  alt={storeName}
-                  sx={{ height: 40, width: 'auto', objectFit: 'contain' }}
-                />
-              ) : (
-                <Logo variant="h6" sx={{ color: primaryColor }}>
-                  ❤️ {storeName}
-                </Logo>
-              )}
-            </Box>
+            <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                {storeLogo ? (
+                  <Box
+                    component="img"
+                    src={storeLogo}
+                    alt={storeName}
+                    sx={{ height: 40, width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+                  />
+                ) : (
+                  <Logo variant="h6" sx={{ color: primaryColor }}>
+                    ❤️ {storeName}
+                  </Logo>
+                )}
+              </Box>
+            </Link>
 
             {/* Desktop Navigation */}
             {!isMobile && (
@@ -260,18 +265,20 @@ const StoreHeader = ({
         }}
       >
         <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {storeLogo ? (
-              <Box
-                component="img"
-                src={storeLogo}
-                alt={storeName}
-                sx={{ height: 32, width: 'auto', objectFit: 'contain' }}
-              />
-            ) : (
-              <Logo variant="h6">❤️ {storeName}</Logo>
-            )}
-          </Box>
+          <Link href="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {storeLogo ? (
+                <Box
+                  component="img"
+                  src={storeLogo}
+                  alt={storeName}
+                  sx={{ height: 32, width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+                />
+              ) : (
+                <Logo variant="h6">❤️ {storeName}</Logo>
+              )}
+            </Box>
+          </Link>
           <IconButton onClick={() => setMobileMenuOpen(false)}>
             <CloseIcon />
           </IconButton>
