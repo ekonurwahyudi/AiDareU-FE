@@ -110,20 +110,23 @@ const ShippingOptions = ({
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const apiUrl = `${backendUrl}/api/shipping/calculate`
 
+      const requestData = {
+        store_uuid: storeUuid,
+        destination_province: destinationProvince,
+        destination_city: destinationCity,
+        destination_district: destinationDistrict,
+        weight: weight
+      }
+
       console.log('[Shipping Options] Fetching from:', apiUrl)
+      console.log('[Shipping Options] Request data:', requestData)
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          storeUuid,
-          destinationProvince,
-          destinationCity,
-          destinationDistrict,
-          weight
-        })
+        body: JSON.stringify(requestData)
       })
 
       // Check if response is JSON before parsing
