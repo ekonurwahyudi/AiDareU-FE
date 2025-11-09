@@ -292,6 +292,12 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
   const customer = orderData?.customer
   const detailOrders = orderData?.detailOrders || []
 
+  // Calculate subtotal and ongkir
+  const subtotalProduk = detailOrders.reduce((sum: number, item: any) => {
+    return sum + (item.price * item.quantity)
+  }, 0)
+  const ongkir = totalHarga - subtotalProduk
+
   // Backend URL for images
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
@@ -701,6 +707,27 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
                       <Divider sx={{ my: 2 }} />
 
+                      {/* Price Breakdown */}
+                      <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="body1" color="text.primary">
+                          Subtotal:
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                          {formatRupiah(subtotalProduk)}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="body1" color="text.primary">
+                          Ongkir:
+                        </Typography>
+                        <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                          {formatRupiah(ongkir)}
+                        </Typography>
+                      </Box>
+
+                      <Divider sx={{ my: 1 }} />
+
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                           Total
@@ -890,6 +917,14 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
                     <!-- Total -->
                     <div class="invoice-total">
+                      <div class="invoice-total-row">
+                        <div class="invoice-total-label">Subtotal:</div>
+                        <div class="invoice-total-value">${formatRupiah(subtotalProduk)}</div>
+                      </div>
+                      <div class="invoice-total-row">
+                        <div class="invoice-total-label">Ongkir:</div>
+                        <div class="invoice-total-value">${formatRupiah(ongkir)}</div>
+                      </div>
                       <div class="invoice-total-row invoice-grand-total">
                         <div class="invoice-total-label">TOTAL PEMBAYARAN:</div>
                         <div class="invoice-total-value">${formatRupiah(totalHarga)}</div>
