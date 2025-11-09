@@ -56,13 +56,13 @@ const getProductImages = (imageData: any): string[] => {
 }
 
 const OrderDetailsCard = ({ order }: { order: Order }) => {
-  // Calculate subtotal
+  // Calculate subtotal from products
   const subtotal = order.detailOrders?.reduce((sum, item) => {
     return sum + (item.price * item.quantity)
   }, 0) || 0
 
-  // For now, we'll set shipping fee to 0 since it's included in total_harga
-  const shippingFee = 0
+  // Calculate ongkir: total_harga - subtotal
+  const ongkir = order.total_harga - subtotal
 
   return (
     <Card>
@@ -155,9 +155,9 @@ const OrderDetailsCard = ({ order }: { order: Order }) => {
               </Typography>
             </div>
             <div className='flex justify-between items-center mb-2'>
-              <Typography color='text.primary'>Shipping ({order.ekspedisi}):</Typography>
+              <Typography color='text.primary'>Ongkir:</Typography>
               <Typography color='text.primary' className='font-medium'>
-                {shippingFee > 0 ? `Rp ${new Intl.NumberFormat('id-ID').format(shippingFee)}` : 'Included'}
+                Rp {new Intl.NumberFormat('id-ID').format(ongkir)}
               </Typography>
             </div>
             <Divider className="my-2" />
