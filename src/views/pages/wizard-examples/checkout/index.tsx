@@ -3,6 +3,9 @@
 // React Imports
 import { useState } from 'react'
 
+// Next Imports
+import { useRouter } from 'next/navigation'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -186,6 +189,9 @@ const getStepContent = (
 }
 
 const CheckoutWizard = ({ primaryColor = '#E91E63' }: CheckoutWizardProps) => {
+  // Router
+  const router = useRouter()
+
   // States
   const [activeStep, setActiveStep] = useState<number>(0)
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null)
@@ -196,7 +202,10 @@ const CheckoutWizard = ({ primaryColor = '#E91E63' }: CheckoutWizardProps) => {
       setCheckoutData(data)
     }
     if (uuid) {
-      setOrderUuid(uuid)
+      // Redirect to confirmation page with UUID in URL
+      console.log('[Checkout Wizard] Redirecting to:', `/checkout/${uuid}`)
+      router.push(`/checkout/${uuid}`)
+      return
     }
     setActiveStep(activeStep + 1)
   }
