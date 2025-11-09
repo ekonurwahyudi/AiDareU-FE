@@ -345,11 +345,17 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       console.log('Customer Data:', customerData)
       console.log('Order Data:', orderData)
 
-      // Send to API
-      const response = await fetch('/api/checkout', {
+      // Send to API - use backend URL directly
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const apiUrl = `${backendUrl}/api/checkout`
+
+      console.log('[Checkout] Sending to:', apiUrl)
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           customer: customerData,
@@ -358,7 +364,18 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         })
       })
 
+      console.log('[Checkout] Response status:', response.status)
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text()
+        console.error('[Checkout] Non-JSON response:', textResponse)
+        throw new Error('API returned non-JSON response')
+      }
+
       const result = await response.json()
+      console.log('[Checkout] Response data:', result)
 
       if (result.success) {
         // Clear cart after successful checkout
