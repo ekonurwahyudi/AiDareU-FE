@@ -20,6 +20,7 @@ import { Container } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
+import PrintIcon from '@mui/icons-material/Print'
 
 // Component Imports
 import StoreHeader from '@/components/store/StoreHeader'
@@ -245,6 +246,10 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
     window.open(whatsappUrl, '_blank')
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   // Show loading skeleton
   if (storeLoading || loading) {
     return (
@@ -287,9 +292,13 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
   const customer = orderData?.customer
   const detailOrders = orderData?.detailOrders || []
 
+  // Debug log for bank account
+  console.log('[Order Confirmation] Bank Account:', bankAccount)
+  console.log('[Order Confirmation] Full Order Data:', orderData)
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Apply dynamic primary color */}
+      {/* Apply dynamic primary color and print styles */}
       <style jsx global>{`
         :root,
         body,
@@ -309,6 +318,38 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
         }
         .MuiButton-containedPrimary:hover {
           background-color: ${primaryColor}dd !important;
+        }
+
+        /* Print Styles */
+        @media print {
+          /* Hide navigation elements */
+          header, footer, .no-print {
+            display: none !important;
+          }
+
+          /* Ensure content fits on page */
+          body {
+            margin: 0;
+            padding: 20px;
+          }
+
+          /* Adjust card styles for print */
+          .MuiCard-root {
+            box-shadow: none !important;
+            border: 1px solid #e0e0e0 !important;
+            page-break-inside: avoid;
+          }
+
+          /* Make sticky elements static for print */
+          [style*="sticky"] {
+            position: static !important;
+          }
+
+          /* Ensure colors are visible */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
         }
       `}</style>
 
@@ -348,9 +389,26 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                   <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#16a34a', mb: 1 }}>
                     Pesanan Berhasil!
                   </Typography>
-                  <Typography variant="body1" color="text.secondary">
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
                     Terima kasih atas pesanan Anda. Silakan lakukan pembayaran sesuai instruksi di bawah.
                   </Typography>
+                  <Button
+                    variant="outlined"
+                    onClick={handlePrint}
+                    sx={{
+                      borderColor: '#16a34a',
+                      color: '#16a34a',
+                      '&:hover': {
+                        borderColor: '#15803d',
+                        backgroundColor: '#f0fdf4'
+                      },
+                      '@media print': {
+                        display: 'none'
+                      }
+                    }}
+                  >
+                    🖨️ Print Invoice
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -449,19 +507,42 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         const quantity = item.quantity || 1
                         const price = item.price || 0
                         const subtotal = quantity * price
+                        const productImage = product.foto_produk || product.fotoProduk
+                        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+                        const imageUrl = productImage ? `${backendUrl}/storage/${productImage}` : '/images/placeholder-product.png'
 
                         return (
                           <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: index < detailOrders.length - 1 ? '1px solid #e0e0e0' : 'none' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                              {/* Product Image */}
+                              <Box
+                                component="img"
+                                src={imageUrl}
+                                alt={productName}
+                                sx={{
+                                  width: 80,
+                                  height: 80,
+                                  objectFit: 'cover',
+                                  borderRadius: 1,
+                                  border: '1px solid #e0e0e0'
+                                }}
+                                onError={(e: any) => {
+                                  e.target.src = '/images/placeholder-product.png'
+                                }}
+                              />
+
+                              {/* Product Details */}
                               <Box sx={{ flex: 1 }}>
-                                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                                   {productName}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
                                   {quantity}x {formatRupiah(price)}
                                 </Typography>
                               </Box>
-                              <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+
+                              {/* Subtotal */}
+                              <Typography variant="body1" sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>
                                 {formatRupiah(subtotal)}
                               </Typography>
                             </Box>
@@ -497,21 +578,21 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                           <Box sx={{ mb: 2 }}>
                             <Typography variant="body2" color="text.secondary">Bank</Typography>
                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                              {bankAccount.nama_bank || bankAccount.namaBank}
+                              {bankAccount.bank_name || bankAccount.bankName || bankAccount.nama_bank}
                             </Typography>
                           </Box>
 
                           <Box sx={{ mb: 2 }}>
                             <Typography variant="body2" color="text.secondary">No. Rekening</Typography>
                             <Typography variant="body1" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-                              {bankAccount.nomor_rekening || bankAccount.nomorRekening}
+                              {bankAccount.account_number || bankAccount.accountNumber || bankAccount.nomor_rekening}
                             </Typography>
                           </Box>
 
                           <Box sx={{ mb: 3 }}>
                             <Typography variant="body2" color="text.secondary">Atas Nama</Typography>
                             <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                              {bankAccount.nama_pemilik || bankAccount.namaPemilik}
+                              {bankAccount.account_holder_name || bankAccount.accountHolderName || bankAccount.nama_pemilik}
                             </Typography>
                           </Box>
 
