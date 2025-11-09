@@ -82,10 +82,12 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
       }
 
       const result = await response.json()
-      console.log('[Order Details] Response data:', result)
+      console.log('[Order Details] Full response:', result)
+      console.log('[Order Details] Result data:', result.data)
 
-      if (result.success) {
+      if (result.success && result.data) {
         // Transform data to match frontend expectations (camelCase)
+        // Laravel relationships use camelCase (detailOrders, bankAccount)
         const transformedData = {
           ...result.data,
           nomorOrder: result.data.nomor_order || result.data.nomorOrder,
@@ -94,20 +96,29 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
           uuidStore: result.data.uuid_store || result.data.uuidStore,
           uuidCustomer: result.data.uuid_customer || result.data.uuidCustomer,
           uuidBankAccount: result.data.uuid_bank_account || result.data.uuidBankAccount,
-          detailOrders: result.data.detail_orders || result.data.detailOrders || [],
-          bankAccount: result.data.bank_account || result.data.bankAccount,
+          // Priority: camelCase from Laravel relationships first
+          detailOrders: result.data.detailOrders || result.data.detail_orders || [],
+          bankAccount: result.data.bankAccount || result.data.bank_account,
+          customer: result.data.customer,
+          store: result.data.store,
           createdAt: result.data.created_at || result.data.createdAt,
           updatedAt: result.data.updated_at || result.data.updatedAt
         }
 
-        console.log('Transformed Order Data:', transformedData)
+        console.log('[Order Details] Transformed data:', transformedData)
+        console.log('[Order Details] Detail orders count:', transformedData.detailOrders?.length || 0)
         setOrderData(transformedData)
       } else {
-        setError(result.message)
+        console.error('[Order Details] API returned success:false', result)
+        setError(result.message || 'Gagal mengambil data order')
       }
     } catch (err) {
-      console.error('Error fetching order:', err)
-      setError('Gagal mengambil data order')
+      console.error('[Order Details] Exception:', err)
+      console.error('[Order Details] Error details:', {
+        message: err instanceof Error ? err.message : 'Unknown error',
+        stack: err instanceof Error ? err.stack : undefined
+      })
+      setError(`Gagal mengambil data order: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
