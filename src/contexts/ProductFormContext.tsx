@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Editor } from '@tiptap/core'
+import { useRBAC } from '@/contexts/rbacContext'
 
 export interface ProductFormData {
   nama_produk: string
@@ -58,6 +59,7 @@ interface ProductFormProviderProps {
 
 export const ProductFormProvider = ({ children, productUuid, isEdit = false }: ProductFormProviderProps) => {
   const router = useRouter()
+  const { currentStore } = useRBAC()
   const [formData, setFormDataState] = useState<ProductFormData>(initialFormData)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -120,42 +122,10 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
     }
 
     setIsSubmitting(true)
-    
+
     try {
-      // First try to get store data from API
-      let storeUuid = null
-      
-      try {
-        const storeResponse = await fetch('/api/public/stores', {
-          credentials: 'include'
-        })
-        
-        if (storeResponse.ok) {
-          const storeResult = await storeResponse.json()
-          console.log('Store API response:', storeResult)
-          const stores = storeResult.data || storeResult.stores || []
-          if (stores.length > 0) {
-            // Use the UUID from the store object
-            storeUuid = stores[0].uuid
-            console.log('Found store UUID:', storeUuid)
-          } else {
-            console.warn('No stores found in API response')
-          }
-        }
-      } catch (storeError) {
-        console.warn('Failed to fetch stores from API:', storeError)
-      }
-      
-      // Fallback to localStorage if API fails
-      if (!storeUuid) {
-        const userData = localStorage.getItem('user_data')
-        if (userData) {
-          const user = JSON.parse(userData)
-          if (user.stores && user.stores.length > 0) {
-            storeUuid = user.stores[0].uuid || user.stores[0].id
-          }
-        }
-      }
+      // Get store UUID from RBAC context
+      const storeUuid = currentStore?.uuid || currentStore?.id
 
       if (!storeUuid) {
         throw new Error('Store not found. Please ensure you have a store set up.')
