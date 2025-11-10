@@ -11,10 +11,19 @@ export function middleware(request: NextRequest) {
   // IMPORTANT: Cloudflare Worker already rewrites subdomain.aidareu.com to aidareu.com/s/subdomain
   // Middleware should just PASS THROUGH - no rewriting needed!
 
+  // Clone request headers and add full URL for metadata generation
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-url', request.url)
+  requestHeaders.set('x-pathname', pathname)
+
   // If path already starts with /s/, it came from Worker - just pass through
   if (pathname.startsWith('/s/')) {
     console.log('✅ Path already has /s/ prefix (from Worker) - PASS THROUGH')
-    return NextResponse.next()
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders
+      }
+    })
   }
 
   // Skip API routes and static files
@@ -29,7 +38,11 @@ export function middleware(request: NextRequest) {
   }
 
   console.log('✅ Regular route - PASS THROUGH')
-  return NextResponse.next()
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders
+    }
+  })
 }
 
 export const config = {
