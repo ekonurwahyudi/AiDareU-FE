@@ -123,6 +123,16 @@ const Seo = () => {
     }
   }
 
+  const handleRemoveOgImage = () => {
+    setOgImage(null)
+    setOgImagePreview('')
+    // Reset file input
+    const fileInput = document.getElementById('og-image-upload') as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ''
+    }
+  }
+
   const handleSubmit = async () => {
     if (!storeUuid) {
       toast.error('Store UUID not found')
@@ -298,18 +308,29 @@ const Seo = () => {
                 </Box>
               )}
               <div className='flex flex-col gap-4'>
-                <label htmlFor='og-image-upload' style={{ cursor: 'pointer' }}>
-                  <Button variant='contained'>
-                    Upload OG Image
-                  </Button>
-                  <input
-                    hidden
-                    type='file'
-                    accept='image/png, image/jpeg, image/jpg, image/gif'
-                    onChange={handleOgImageChange}
-                    id='og-image-upload'
-                  />
-                </label>
+                <div className='flex gap-2'>
+                  <label htmlFor='og-image-upload' style={{ cursor: 'pointer' }}>
+                    <Button variant='contained' component='span'>
+                      {ogImagePreview ? 'Change Image' : 'Upload OG Image'}
+                    </Button>
+                    <input
+                      hidden
+                      type='file'
+                      accept='image/png, image/jpeg, image/jpg, image/gif'
+                      onChange={handleOgImageChange}
+                      id='og-image-upload'
+                    />
+                  </label>
+                  {ogImagePreview && (
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      onClick={handleRemoveOgImage}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
                 <Typography variant='caption' color='text.secondary'>
                   Allowed PNG, JPG or GIF. Max size of 2MB
                 </Typography>
