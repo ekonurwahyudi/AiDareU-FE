@@ -9,17 +9,31 @@ type Props = {
 async function fetchStoreData(subdomain: string) {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const response = await fetch(`${backendUrl}/api/stores/subdomain/${subdomain}`, {
+    const apiUrl = `${backendUrl}/api/store/${subdomain}`
+
+    console.log('[generateMetadata] Fetching from:', apiUrl)
+
+    const response = await fetch(apiUrl, {
       cache: 'no-store',
-      next: { revalidate: 60 }
+      next: { revalidate: 60 },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
     })
 
-    if (!response.ok) return null
+    console.log('[generateMetadata] Response status:', response.status)
+
+    if (!response.ok) {
+      console.log('[generateMetadata] Response not OK')
+      return null
+    }
 
     const data = await response.json()
+    console.log('[generateMetadata] Data received:', data ? 'Yes' : 'No')
     return data.success ? data.data : null
   } catch (error) {
-    console.error('Error fetching store data for metadata:', error)
+    console.error('[generateMetadata] Error fetching store data:', error)
     return null
   }
 }
@@ -28,10 +42,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { subdomain } = await params
   const storeData = await fetchStoreData(subdomain)
 
+  // If fetch fails, return minimal metadata instead of error
+  // Client-side useStoreMetadata hook will still update metadata dynamically
   if (!storeData) {
     return {
-      title: 'Store Not Found',
-      description: 'The store you are looking for does not exist.'
+      title: 'AiDareU Store',
+      description: 'Discover amazing products at our store'
     }
   }
 
