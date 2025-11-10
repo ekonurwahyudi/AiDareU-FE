@@ -177,26 +177,33 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         submitData.append('_method', 'PUT')
       }
       
-      const url = isEdit && productUuid ? `/api/public/products/${productUuid}` : '/api/public/products'
-      const method = 'POST' // Always POST for FormData, Laravel will handle _method
-      
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-      const fullUrl = url.startsWith('/api/') ? `${apiUrl.replace('/api', '')}${url}` : url
-      
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const endpoint = isEdit && productUuid ? `/api/public/products/${productUuid}` : '/api/public/products'
+      const fullUrl = `${backendUrl}${endpoint}`
+
+      console.log('Submitting to:', fullUrl, 'Method:', isEdit ? 'PUT (via POST)' : 'POST')
+
       const response = await fetch(fullUrl, {
-        method,
+        method: 'POST', // Always POST for FormData, Laravel will handle _method
         body: submitData,
         credentials: 'include'
       })
 
+      console.log('Response status:', response.status, response.statusText)
+
       let result
       try {
         const responseText = await response.text()
-        console.log('Raw response:', responseText)
+        console.log('Raw response:', responseText.substring(0, 500)) // Log first 500 chars
         result = JSON.parse(responseText)
+        console.log('Parsed result:', result)
       } catch (parseError) {
         console.error('JSON parse error:', parseError)
         throw new Error('Invalid response from server. Please try again.')
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || `Server error: ${response.status}`)
       }
 
       if (result.status === 'success') {
@@ -225,8 +232,8 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       const loadProductData = async () => {
         setIsLoading(true)
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
-          const response = await fetch(`${apiUrl}/public/products/${productUuid}`, {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+          const response = await fetch(`${backendUrl}/api/public/products/${productUuid}`, {
             credentials: 'include'
           })
           
