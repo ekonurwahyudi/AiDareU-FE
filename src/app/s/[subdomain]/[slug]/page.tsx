@@ -644,23 +644,23 @@ function ProductDetailPage() {
   // Update metadata untuk halaman detail produk
   useStoreMetadata({
     title: product && storeData
-      ? `${storeData.settings?.site_title || storeData.store?.name} - ${product.name}`
-      : 'Loading...',
+      ? `${product.name} - ${storeData.settings?.site_title || storeData.store?.name}`
+      : (storeData?.seo?.meta_title || 'Loading...'),
     description: product?.description
       ? (typeof product.description === 'string'
           ? product.description.replace(/<[^>]*>/g, '').substring(0, 160)
-          : 'Lihat detail produk ini')
-      : `Belanja ${product?.name || 'produk'} di ${storeData?.settings?.site_title || storeData?.store?.name || 'toko kami'}`,
-    keywords: product?.name || '',
+          : storeData?.seo?.deskripsi || 'Lihat detail produk ini')
+      : storeData?.seo?.deskripsi || `Belanja ${product?.name || 'produk'} di ${storeData?.settings?.site_title || storeData?.store?.name || 'toko kami'}`,
+    keywords: product?.name ? `${product.name}, ${storeData?.seo?.keyword || ''}` : storeData?.seo?.keyword || '',
     ogTitle: product
       ? `${product.name} - ${storeData?.settings?.site_title || storeData?.store?.name}`
-      : '',
+      : storeData?.seo?.og_title || storeData?.settings?.site_title || storeData?.store?.name || '',
     ogDescription: product?.description
       ? (typeof product.description === 'string'
           ? product.description.replace(/<[^>]*>/g, '').substring(0, 160)
-          : '')
-      : '',
-    ogImage: product?.images?.[0] || product?.image || storeData?.settings?.logo,
+          : storeData?.seo?.og_deskripsi || storeData?.seo?.deskripsi || '')
+      : storeData?.seo?.og_deskripsi || storeData?.seo?.deskripsi || '',
+    ogImage: product?.images?.[0] || product?.image || storeData?.seo?.og_image || storeData?.settings?.logo,
     favicon: storeData?.settings?.favicon
   })
 

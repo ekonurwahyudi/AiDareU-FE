@@ -13,6 +13,7 @@ import { styled } from '@mui/material/styles'
 
 // Component Imports
 import { toast } from 'react-hot-toast'
+import OpenGraphPreview from '@/components/OpenGraphPreview'
 
 // Context Imports
 import { useRBAC } from '@/contexts/rbacContext'
@@ -314,6 +315,17 @@ const Seo = () => {
                 </Typography>
               </div>
             </Box>
+          </Grid>
+
+          {/* Open Graph Preview */}
+          <Grid size={{ xs: 12 }}>
+            <OpenGraphPreview
+              title={formData.og_title || formData.meta_title}
+              description={formData.og_deskripsi || formData.deskripsi}
+              image={ogImagePreview}
+              url={currentStore?.domain ? `https://${currentStore.domain}` : undefined}
+              siteName={currentStore?.name}
+            />
           </Grid>
 
           {/* Submit Button */}
