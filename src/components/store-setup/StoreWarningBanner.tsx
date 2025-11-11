@@ -138,7 +138,7 @@ const StoreWarningBanner = () => {
                   onClick={handleOpenModal}
                   startIcon={<i className="tabler-plus" />}
                 >
-                  Buat Toko Sekarang
+                  Buka Toko
                 </Button>
                 <IconButton
                   aria-label="close"
@@ -161,11 +161,10 @@ const StoreWarningBanner = () => {
             }}
           >
             <AlertTitle sx={{ fontWeight: 600 }}>
-              <i className="tabler-alert-triangle" style={{ marginRight: 8 }} />
               Anda Belum Memiliki Toko
             </AlertTitle>
             Untuk menggunakan fitur-fitur di halaman ini, Anda perlu membuat toko terlebih dahulu.
-            Klik tombol "Buat Toko Sekarang" untuk memulai setup toko Anda.
+            Klik tombol "Buka Toko" untuk memulai setup toko Anda.
           </Alert>
         </Collapse>
       </Box>

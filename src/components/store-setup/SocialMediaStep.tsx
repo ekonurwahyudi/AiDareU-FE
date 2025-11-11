@@ -27,22 +27,10 @@ interface SocialMediaStepProps {
 
 // Validation Schema
 const schema = yup.object().shape({
-  instagram: yup.string().test('url', 'URL Instagram tidak valid', function(value) {
-    if (!value || value === '') return true // Allow empty
-    return yup.string().url().isValidSync(value)
-  }),
-  facebook: yup.string().test('url', 'URL Facebook tidak valid', function(value) {
-    if (!value || value === '') return true // Allow empty
-    return yup.string().url().isValidSync(value)
-  }),
-  tiktok: yup.string().test('url', 'URL TikTok tidak valid', function(value) {
-    if (!value || value === '') return true // Allow empty
-    return yup.string().url().isValidSync(value)
-  }),
-  youtube: yup.string().test('url', 'URL YouTube tidak valid', function(value) {
-    if (!value || value === '') return true // Allow empty
-    return yup.string().url().isValidSync(value)
-  })
+  instagram: yup.string(), // Optional, no validation
+  facebook: yup.string(), // Optional, no validation
+  tiktok: yup.string(), // Optional, no validation
+  youtube: yup.string() // Optional, no validation
 })
 
 const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: SocialMediaStepProps) => {
@@ -70,15 +58,35 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
     setError(null)
 
     try {
+      // Build full URLs from usernames
+      const buildUrl = (platform: string, username: string) => {
+        if (!username || username.trim() === '') return ''
+
+        const cleanUsername = username.trim()
+
+        switch (platform) {
+          case 'instagram':
+            return `https://instagram.com/${cleanUsername}`
+          case 'facebook':
+            return `https://facebook.com/${cleanUsername}`
+          case 'tiktok':
+            return `https://tiktok.com/@${cleanUsername}`
+          case 'youtube':
+            return `https://youtube.com/@${cleanUsername}`
+          default:
+            return cleanUsername
+        }
+      }
+
       // Update store data
       const finalData = {
         ...storeData,
-        instagram: data.instagram,
-        facebook: data.facebook,
-        tiktok: data.tiktok,
-        youtube: data.youtube
+        instagram: buildUrl('instagram', data.instagram),
+        facebook: buildUrl('facebook', data.facebook),
+        tiktok: buildUrl('tiktok', data.tiktok),
+        youtube: buildUrl('youtube', data.youtube)
       }
-      
+
       setStoreData(finalData)
 
       // Submit to backend
@@ -146,13 +154,14 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
                 {...field}
                 fullWidth
                 label='Instagram'
-                placeholder='https://instagram.com/username'
+                placeholder='username'
                 error={!!errors.instagram}
-                helperText={errors.instagram?.message || ''}
+                helperText={errors.instagram?.message || 'Opsional - Masukkan username saja'}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <i className="tabler-brand-instagram" style={{ color: '#E1306C' }} />
+                      <i className="tabler-brand-instagram" style={{ color: '#E1306C', marginRight: 4 }} />
+                      <span style={{ color: '#666' }}>instagram.com/</span>
                     </InputAdornment>
                   )
                 }}
@@ -170,13 +179,14 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
                 {...field}
                 fullWidth
                 label='Facebook'
-                placeholder='https://facebook.com/username'
+                placeholder='username'
                 error={!!errors.facebook}
-                helperText={errors.facebook?.message || ''}
+                helperText={errors.facebook?.message || 'Opsional - Masukkan username saja'}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <i className="tabler-brand-facebook" style={{ color: '#1877F2' }} />
+                      <i className="tabler-brand-facebook" style={{ color: '#1877F2', marginRight: 4 }} />
+                      <span style={{ color: '#666' }}>facebook.com/</span>
                     </InputAdornment>
                   )
                 }}
@@ -194,13 +204,14 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
                 {...field}
                 fullWidth
                 label='TikTok'
-                placeholder='https://tiktok.com/@username'
+                placeholder='username'
                 error={!!errors.tiktok}
-                helperText={errors.tiktok?.message || ''}
+                helperText={errors.tiktok?.message || 'Opsional - Masukkan username saja'}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <i className="tabler-brand-tiktok" style={{ color: '#000000' }} />
+                      <i className="tabler-brand-tiktok" style={{ color: '#000000', marginRight: 4 }} />
+                      <span style={{ color: '#666' }}>tiktok.com/@</span>
                     </InputAdornment>
                   )
                 }}
@@ -218,13 +229,14 @@ const SocialMediaStep = ({ handlePrev, onComplete, storeData, setStoreData }: So
                 {...field}
                 fullWidth
                 label='YouTube'
-                placeholder='https://youtube.com/@username'
+                placeholder='username'
                 error={!!errors.youtube}
-                helperText={errors.youtube?.message || ''}
+                helperText={errors.youtube?.message || 'Opsional - Masukkan username saja'}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <i className="tabler-brand-youtube" style={{ color: '#FF0000' }} />
+                      <i className="tabler-brand-youtube" style={{ color: '#FF0000', marginRight: 4 }} />
+                      <span style={{ color: '#666' }}>youtube.com/@</span>
                     </InputAdornment>
                   )
                 }}
