@@ -116,7 +116,23 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
 
             const initialUrls: Record<string, string> = {}
             accounts.forEach((account: SocialMedia) => {
-              initialUrls[account.platform] = account.url
+              // Extract username from URL for display
+              const url = account.url || ''
+              let username = ''
+
+              if (url.includes('instagram.com/')) {
+                username = url.split('instagram.com/')[1]?.replace(/\/$/, '') || ''
+              } else if (url.includes('facebook.com/')) {
+                username = url.split('facebook.com/')[1]?.replace(/\/$/, '') || ''
+              } else if (url.includes('tiktok.com/@')) {
+                username = url.split('tiktok.com/@')[1]?.replace(/\/$/, '') || ''
+              } else if (url.includes('youtube.com/@')) {
+                username = url.split('youtube.com/@')[1]?.replace(/\/$/, '') || ''
+              } else {
+                username = url
+              }
+
+              initialUrls[account.platform] = username
             })
             setUrls(initialUrls)
           }
@@ -150,7 +166,23 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
 
               const initialUrls: Record<string, string> = {}
               accounts.forEach((account: SocialMedia) => {
-                initialUrls[account.platform] = account.url
+                // Extract username from URL for display
+                const url = account.url || ''
+                let username = ''
+
+                if (url.includes('instagram.com/')) {
+                  username = url.split('instagram.com/')[1]?.replace(/\/$/, '') || ''
+                } else if (url.includes('facebook.com/')) {
+                  username = url.split('facebook.com/')[1]?.replace(/\/$/, '') || ''
+                } else if (url.includes('tiktok.com/@')) {
+                  username = url.split('tiktok.com/@')[1]?.replace(/\/$/, '') || ''
+                } else if (url.includes('youtube.com/@')) {
+                  username = url.split('youtube.com/@')[1]?.replace(/\/$/, '') || ''
+                } else {
+                  username = url
+                }
+
+                initialUrls[account.platform] = username
               })
               setUrls(initialUrls)
             }
@@ -175,12 +207,32 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
   }
 
   const handleSubmit = async (platform: string) => {
-    const url = urls[platform] || ''
+    const username = urls[platform] || ''
 
-    if (!url.trim()) {
-      toast.error('URL tidak boleh kosong')
+    if (!username.trim()) {
+      toast.error('Username tidak boleh kosong')
       return
     }
+
+    // Build full URL from username
+    const buildUrl = (platform: string, username: string): string => {
+      const cleanUsername = username.trim()
+
+      switch (platform) {
+        case 'Instagram':
+          return `https://instagram.com/${cleanUsername}`
+        case 'Facebook':
+          return `https://facebook.com/${cleanUsername}`
+        case 'TikTok':
+          return `https://tiktok.com/@${cleanUsername}`
+        case 'YouTube':
+          return `https://youtube.com/@${cleanUsername}`
+        default:
+          return cleanUsername
+      }
+    }
+
+    const fullUrl = buildUrl(platform, username)
 
     try {
       setUpdating({ ...updating, [platform]: true })
@@ -233,7 +285,7 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
 
       const payload = {
         platform: platform,
-        url: url.trim(),
+        url: fullUrl,
         is_active: true,
         store_uuid: finalStoreUuid
       }
@@ -309,15 +361,16 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
                     </Typography>
                   </div>
 
-                  {/* Input URL */}
+                  {/* Input Username */}
                   <div className="flex-grow">
                     <CustomTextField
                       fullWidth
-                      type="url"
-                      placeholder={item.placeholder}
+                      type="text"
+                      placeholder={`Masukkan username ${item.title}`}
                       value={urls[item.title] || ''}
                       onChange={(e) => handleChange(item.title, e.target.value)}
                       disabled={updating[item.title]}
+                      helperText={`Contoh: ${item.placeholder.split('/').pop()}`}
                     />
                   </div>
 

@@ -55,7 +55,23 @@ const bankOptions = [
   { name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1199px-Bank_Central_Asia.svg.png' },
   { name: 'BNI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/300px-BNI_logo.svg.png?20240305030303' },
   { name: 'BRI', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/BANK_BRI_logo.svg/189px-BANK_BRI_logo.svg.png' },
-  { name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/320px-Bank_Mandiri_logo_2016.svg.png' }
+  { name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/320px-Bank_Mandiri_logo_2016.svg.png' },
+  { name: 'CIMB Niaga', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/c/c1/CIMB_Niaga_logo.svg/320px-CIMB_Niaga_logo.svg.png' },
+  { name: 'Danamon', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Bank_Danamon_logo.svg/320px-Bank_Danamon_logo.svg.png' },
+  { name: 'Permata Bank', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/a/a8/Permata_Bank_logo.svg/320px-Permata_Bank_logo.svg.png' },
+  { name: 'BTN', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/8/84/Bank_BTN_logo.svg/320px-Bank_BTN_logo.svg.png' },
+  { name: 'BSI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/6/68/Bank_Syariah_Indonesia.svg/320px-Bank_Syariah_Indonesia.svg.png' },
+  { name: 'Panin Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Panin_Bank_logo.svg/320px-Panin_Bank_logo.svg.png' },
+  { name: 'OCBC NISP', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/OCBC_NISP_logo.svg/320px-OCBC_NISP_logo.svg.png' },
+  { name: 'Maybank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Maybank_Logo.svg/320px-Maybank_Logo.svg.png' },
+  { name: 'Bank Mega', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Bank_Mega_Logo.svg/320px-Bank_Mega_Logo.svg.png' },
+  { name: 'Bank Jago', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bank_Jago_logo.svg/320px-Bank_Jago_logo.svg.png' },
+  { name: 'Jenius (BTPN)', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Jenius_logo.svg/320px-Jenius_logo.svg.png' },
+  { name: 'SeaBank', logo: 'https://seeklogo.com/images/S/seabank-logo-91E5B85976-seeklogo.com.png' },
+  { name: 'Gopay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/320px-Gopay_logo.svg.png' },
+  { name: 'OVO', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/320px-Logo_ovo_purple.svg.png' },
+  { name: 'Dana', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/320px-Logo_dana_blue.svg.png' },
+  { name: 'ShopeePay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shopee_logo.svg/320px-Shopee_logo.svg.png' }
 ]
 
 const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: boolean; setOpen: (open: boolean) => void; data?: BillingCardData; onSuccess?: () => void; storeUuid?: string | null }) => {
@@ -77,6 +93,31 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
 
     setLoading(true)
     try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const authToken = localStorage.getItem('auth_token')
+      const storedUserData = localStorage.getItem('user_data')
+
+      if (!storedUserData || !authToken) {
+        toast.error('User not authenticated. Please login again.')
+        setLoading(false)
+        return
+      }
+
+      const user = JSON.parse(storedUserData)
+
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (user.uuid) {
+        headers['X-User-UUID'] = user.uuid
+      }
+
       let payload: Record<string, any> = {
         account_number: cardData.cardNumber,
         account_name: cardData.name,
@@ -84,10 +125,10 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
         is_primary: cardData.is_primary || false
       }
 
-      const url = data?.uuid 
-        ? `/api/public/bank-accounts/${data.uuid}` 
-        : '/api/public/bank-accounts'
-      
+      const url = data?.uuid
+        ? `${backendUrl}/api/public/bank-accounts/${data.uuid}`
+        : `${backendUrl}/api/public/bank-accounts`
+
       const method = data?.uuid ? 'PUT' : 'POST'
 
       // Saat membuat rekening baru, sertakan store_uuid dari props atau fallback ke /api/users/me
@@ -95,11 +136,8 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
         let finalStoreUuid = storeUuid || null
 
         if (!finalStoreUuid) {
-          const userRes = await fetch('/api/users/me', {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-            },
+          const userRes = await fetch(`${backendUrl}/api/users/me`, {
+            headers,
             credentials: 'include',
             cache: 'no-store'
           })
@@ -115,13 +153,10 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
 
         payload = { ...payload, store_uuid: finalStoreUuid }
       }
-      
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers,
         credentials: 'include',
         body: JSON.stringify(payload)
       })
