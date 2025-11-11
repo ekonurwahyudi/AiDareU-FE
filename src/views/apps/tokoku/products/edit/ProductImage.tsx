@@ -67,7 +67,7 @@ const ProductImage = () => {
   // Hooks
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif']
+      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp', '.svg', '.bmp', '.avif']
     },
     maxFiles: remainingSlots,
     maxSize: 5 * 1024 * 1024, // 5MB
