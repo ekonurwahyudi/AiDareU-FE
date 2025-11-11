@@ -171,7 +171,8 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         headers['X-User-UUID'] = user.uuid
       }
 
-      const response = await fetch(`/api/public/bank-accounts/${uuid}`, {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const response = await fetch(`${backendUrl}/api/public/bank-accounts/${uuid}`, {
         method: 'DELETE',
         headers,
         credentials: 'include'

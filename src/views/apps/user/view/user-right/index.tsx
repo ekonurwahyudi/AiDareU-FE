@@ -29,7 +29,7 @@ const UserRight = ({ tabContentList }: { tabContentList: { [key: string]: ReactE
             <CustomTabList onChange={handleChange} variant='scrollable' pill='true'>
               <Tab icon={<i className='tabler-building-store' />} value='overview' label='Toko Saya' iconPosition='start' />
               <Tab icon={<i className='tabler-credit-card' />} value='billing-plans' label='Rekening bank' iconPosition='start' />
-              <Tab icon={<i className='tabler-user-square-rounded' />} value='security' label='Karyawan' iconPosition='start' />
+              {/* <Tab icon={<i className='tabler-user-square-rounded' />} value='security' label='Karyawan' iconPosition='start' /> */}
               <Tab icon={<i className='tabler-layers-linked' />} value='connections' label='Sosial Media' iconPosition='start' />
             </CustomTabList>
           </Grid>

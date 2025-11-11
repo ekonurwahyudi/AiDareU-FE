@@ -524,10 +524,22 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       }
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+      const authToken = localStorage.getItem('auth_token')
+
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
       const res = await fetch(`${backendUrl}/api/public/stores/${selectedStoreUuid}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers,
+        body: JSON.stringify(payload),
+        credentials: 'include'
       })
 
       const data = await res.json()
