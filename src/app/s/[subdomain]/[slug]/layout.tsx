@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
 
 type Props = {
   params: Promise<{ subdomain: string; slug: string }>
+  searchParams: Promise<{ uuid?: string }>
   children: React.ReactNode
 }
 
@@ -58,14 +58,15 @@ async function fetchProductByUuid(uuid: string) {
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { subdomain } = await params
+  const search = await searchParams
 
-  // Get UUID from URL
-  const headersList = await headers()
-  const fullUrl = headersList.get('x-url') || headersList.get('referer') || ''
-  const urlParams = new URLSearchParams(fullUrl.split('?')[1] || '')
-  const productUuid = urlParams.get('uuid')
+  // Get UUID from searchParams (more reliable than headers)
+  const productUuid = search.uuid
+
+  console.log('[Product Layout Metadata] Subdomain:', subdomain)
+  console.log('[Product Layout Metadata] Product UUID:', productUuid)
 
   // Fetch store data untuk SEO settings
   const storeData = await fetchStoreData(subdomain)
