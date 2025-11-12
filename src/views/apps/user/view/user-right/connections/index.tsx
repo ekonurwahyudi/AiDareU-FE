@@ -55,6 +55,18 @@ const socialAccountsArr = [
     icon: 'tabler-brand-youtube',
     color: '#FF0000', // YouTube red
     placeholder: 'https://youtube.com/@channel'
+  },
+  {
+    title: 'Shopee',
+    icon: 'tabler-shopping-cart',
+    color: '#EE4D2D', // Shopee orange
+    placeholder: 'https://shopee.co.id/username'
+  },
+  {
+    title: 'Tokopedia',
+    icon: 'tabler-building-store',
+    color: '#42B549', // Tokopedia green
+    placeholder: 'https://tokopedia.com/username'
   }
 ]
 
@@ -128,6 +140,10 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
                 username = url.split('tiktok.com/@')[1]?.replace(/\/$/, '') || ''
               } else if (url.includes('youtube.com/@')) {
                 username = url.split('youtube.com/@')[1]?.replace(/\/$/, '') || ''
+              } else if (url.includes('shopee.co.id/')) {
+                username = url.split('shopee.co.id/')[1]?.replace(/\/$/, '') || ''
+              } else if (url.includes('tokopedia.com/')) {
+                username = url.split('tokopedia.com/')[1]?.replace(/\/$/, '') || ''
               } else {
                 username = url
               }
@@ -178,6 +194,10 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
                   username = url.split('tiktok.com/@')[1]?.replace(/\/$/, '') || ''
                 } else if (url.includes('youtube.com/@')) {
                   username = url.split('youtube.com/@')[1]?.replace(/\/$/, '') || ''
+                } else if (url.includes('shopee.co.id/')) {
+                  username = url.split('shopee.co.id/')[1]?.replace(/\/$/, '') || ''
+                } else if (url.includes('tokopedia.com/')) {
+                  username = url.split('tokopedia.com/')[1]?.replace(/\/$/, '') || ''
                 } else {
                   username = url
                 }
@@ -227,6 +247,10 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
           return `https://tiktok.com/@${cleanUsername}`
         case 'YouTube':
           return `https://youtube.com/@${cleanUsername}`
+        case 'Shopee':
+          return `https://shopee.co.id/${cleanUsername}`
+        case 'Tokopedia':
+          return `https://tokopedia.com/${cleanUsername}`
         default:
           return cleanUsername
       }
