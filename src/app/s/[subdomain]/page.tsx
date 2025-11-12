@@ -443,8 +443,10 @@ const DynamicStorePage = () => {
 
   const handleProductClick = (product: Product) => {
     // Clean URL without /s/ prefix - Worker handles routing
-    // Pass product UUID as query parameter for efficient loading
-    router.push(`/${product.slug}?uuid=${product.uuid || product.id}`)
+    // Embed UUID in slug for SSR metadata (format: slug-uuid)
+    const uuid = product.uuid || product.id
+    const slugWithUuid = `${product.slug}-${uuid.substring(0, 8)}`
+    router.push(`/${slugWithUuid}?uuid=${uuid}`)
   }
 
   const handleFaqClick = (index: number) => {
