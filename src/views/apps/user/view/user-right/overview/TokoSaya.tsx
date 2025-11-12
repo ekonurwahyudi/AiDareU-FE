@@ -197,11 +197,19 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
   const loadProvinces = async () => {
     setLoadingProvinces(true)
     try {
-      const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json')
+      const response = await fetch('https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json', {
+        mode: 'cors',
+        cache: 'force-cache'
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const data = await response.json()
       setProvinces(data)
     } catch (error) {
       console.error('Error loading provinces:', error)
+      // Set empty array to prevent further errors
+      setProvinces([])
     } finally {
       setLoadingProvinces(false)
     }
@@ -210,11 +218,18 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
   const loadCities = async (provinceId: string) => {
     setLoadingCities(true)
     try {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`, {
+        mode: 'cors',
+        cache: 'force-cache'
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const data = await response.json()
       setCities(data)
     } catch (error) {
       console.error('Error loading cities:', error)
+      setCities([])
     } finally {
       setLoadingCities(false)
     }
@@ -223,11 +238,18 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
   const loadDistricts = async (cityId: string) => {
     setLoadingDistricts(true)
     try {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${cityId}.json`)
+      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${cityId}.json`, {
+        mode: 'cors',
+        cache: 'force-cache'
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const data = await response.json()
       setDistricts(data)
     } catch (error) {
       console.error('Error loading districts:', error)
+      setDistricts([])
     } finally {
       setLoadingDistricts(false)
     }
@@ -245,7 +267,11 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
       try {
         // Load cities
-        const citiesResponse = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`)
+        const citiesResponse = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProvince.id}.json`, {
+          mode: 'cors',
+          cache: 'force-cache'
+        })
+        if (!citiesResponse.ok) throw new Error('Failed to load cities')
         const citiesData = await citiesResponse.json()
         setCities(citiesData)
 
@@ -255,7 +281,11 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             setValue('city', selectedCity.name)
 
             // Load districts
-            const districtsResponse = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedCity.id}.json`)
+            const districtsResponse = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedCity.id}.json`, {
+              mode: 'cors',
+              cache: 'force-cache'
+            })
+            if (!districtsResponse.ok) throw new Error('Failed to load districts')
             const districtsData = await districtsResponse.json()
             setDistricts(districtsData)
 
@@ -277,7 +307,13 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
   // Helper to get cities (reusable)
   const getCities = async (provinceId: string) => {
     try {
-      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`)
+      const response = await fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${provinceId}.json`, {
+        mode: 'cors',
+        cache: 'force-cache'
+      })
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       return await response.json()
     } catch (error) {
       console.error('Error getting cities:', error)
