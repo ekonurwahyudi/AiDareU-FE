@@ -745,17 +745,28 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
                 name="category"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth error={!!errors.category}>
-                    <InputLabel>Kategori</InputLabel>
-                    <Select {...field} label="Kategori" disabled={!isEditing}>
-                      {categories.map((c) => (
-                        <MenuItem key={c} value={c}>
-                          {c}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    <FormHelperText>{errors.category?.message as string}</FormHelperText>
-                  </FormControl>
+                  isEditing ? (
+                    <FormControl fullWidth error={!!errors.category}>
+                      <InputLabel>Kategori</InputLabel>
+                      <Select {...field} label="Kategori">
+                        {categories.map((c) => (
+                          <MenuItem key={c} value={c}>
+                            {c}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                      <FormHelperText>{errors.category?.message as string}</FormHelperText>
+                    </FormControl>
+                  ) : (
+                    <TextField
+                      {...field}
+                      fullWidth
+                      label="Kategori"
+                      disabled
+                      error={!!errors.category}
+                      helperText={errors.category?.message as string}
+                    />
+                  )
                 )}
               />
             </Grid>
