@@ -1,9 +1,15 @@
+'use client'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+
+// Hook Imports
+import { useRBAC } from '@/contexts/rbacContext'
 
 type Props = {
   searchValue: string
@@ -13,6 +19,9 @@ type Props = {
 const ProductDigitalHeader = (props: Props) => {
   // Props
   const { searchValue, setSearchValue } = props
+
+  // Hooks
+  const { hasRole } = useRBAC()
 
   return (
     <Card>
@@ -38,6 +47,15 @@ const ProductDigitalHeader = (props: Props) => {
               )
             }}
           />
+          {hasRole('superadmin') && (
+            <Button
+              variant='contained'
+              color='primary'
+              startIcon={<i className='tabler-plus' />}
+            >
+              Add Product
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

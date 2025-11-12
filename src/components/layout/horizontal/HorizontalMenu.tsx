@@ -87,7 +87,7 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-          <MenuItem href='/dashboards/ecommerce' activeUrl='/dashboards' exactMatch={false} icon={<i className='tabler-smart-home' />}>
+          <MenuItem href='/dashboards/' activeUrl='/dashboards' exactMatch={false} icon={<i className='tabler-smart-home' />}>
             Dashboard
           </MenuItem>
           
@@ -195,7 +195,7 @@ const HorizontalMenu = () => {
           <MenuItem href="#" icon={<i className='tabler-brand-github-copilot' />}>
             Join Komunitas
           </MenuItem>
-          {hasRole('owner') && (
+          {hasRole('superadmin') && (
             <SubMenu label="Master Data"
             icon={
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">

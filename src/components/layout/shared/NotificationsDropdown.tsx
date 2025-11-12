@@ -476,38 +476,49 @@ const NotificationDropdown = () => {
                         return (
                           <div
                             key={id}
-                            className={classnames('flex plb-3 pli-4 gap-3 cursor-pointer hover:bg-actionHover group', {
+                            className={classnames('flex flex-col plb-3 pli-4 gap-3 hover:bg-actionHover group', {
                               'border-be': true,
                               'bg-actionHover bg-opacity-10': !read
                             })}
-                            onClick={() => handleNotificationClick(notification)}
                           >
-                            {getAvatar({ avatarImage, avatarIcon, title, avatarText, avatarColor, avatarSkin })}
-                            <div className='flex flex-col flex-auto'>
-                              <Typography variant='body2' className='font-medium mbe-1' color='text.primary'>
-                                {title}
-                              </Typography>
-                              <Typography variant='caption' color='text.secondary' className='mbe-2'>
-                                {subtitle}
-                              </Typography>
-                              <Typography variant='caption' color='text.disabled'>
-                                {time}
-                              </Typography>
+                            <div className='flex gap-3'>
+                              {getAvatar({ avatarImage, avatarIcon, title, avatarText, avatarColor, avatarSkin })}
+                              <div className='flex flex-col flex-auto'>
+                                <Typography variant='body2' className='font-medium mbe-1' color='text.primary'>
+                                  {title}
+                                </Typography>
+                                <Typography variant='caption' color='text.secondary' className='mbe-2'>
+                                  {subtitle}
+                                </Typography>
+                                <Typography variant='caption' color='text.disabled'>
+                                  {time}
+                                </Typography>
+                              </div>
+                              <div className='flex flex-col items-end gap-2'>
+                                <Badge
+                                  variant='dot'
+                                  color={read ? 'secondary' : 'primary'}
+                                  onClick={e => handleReadNotification(e, !read, id)}
+                                  className={classnames('mbs-1 mie-1', {
+                                    'invisible group-hover:visible': read
+                                  })}
+                                />
+                                <i
+                                  className='tabler-x text-xl invisible group-hover:visible'
+                                  onClick={e => handleRemoveNotification(e, id)}
+                                />
+                              </div>
                             </div>
-                            <div className='flex flex-col items-end gap-2'>
-                              <Badge
-                                variant='dot'
-                                color={read ? 'secondary' : 'primary'}
-                                onClick={e => handleReadNotification(e, !read, id)}
-                                className={classnames('mbs-1 mie-1', {
-                                  'invisible group-hover:visible': read
-                                })}
-                              />
-                              <i
-                                className='tabler-x text-xl invisible group-hover:visible'
-                                onClick={e => handleRemoveNotification(e, id)}
-                              />
-                            </div>
+                            <Button
+                              fullWidth
+                              variant='outlined'
+                              size='small'
+                              color='primary'
+                              onClick={() => handleNotificationClick(notification)}
+                              startIcon={<i className='tabler-eye' />}
+                            >
+                              Lihat Order
+                            </Button>
                           </div>
                         )
                       })
