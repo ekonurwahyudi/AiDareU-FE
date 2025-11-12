@@ -8,7 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import Skeleton from '@mui/material/Skeleton'
 
 // Component Imports
-import EcommerceDashboard from '../../apps/tokoku/dashboard/page'
+import EcommerceDashboard from '../apps/tokoku/dashboard/page'
 import StoreSetupChecker from '@components/store-setup/StoreSetupChecker'
 
 // Skeleton Component
