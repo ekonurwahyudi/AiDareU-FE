@@ -61,19 +61,34 @@ async function fetchProductByUuid(uuid: string) {
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { subdomain, slug } = await params
 
-  // Safely get searchParams
+  // Try to get UUID from multiple sources
   let productUuid: string | undefined
+
+  // First try: Get from searchParams
   try {
     const search = await searchParams
-    productUuid = search?.uuid
+    if (search?.uuid) {
+      productUuid = search.uuid
+      console.log('[Product Metadata] UUID from searchParams:', productUuid)
+    }
   } catch (error) {
-    console.error('[Product Layout Metadata] Error getting searchParams:', error)
-    productUuid = undefined
+    console.error('[Product Metadata] Error getting searchParams:', error)
   }
 
-  console.log('[Product Layout Metadata] Subdomain:', subdomain)
-  console.log('[Product Layout Metadata] Slug:', slug)
-  console.log('[Product Layout Metadata] Product UUID:', productUuid)
+  // Second try: Check if slug contains UUID pattern (if searchParams failed)
+  // UUID pattern: 8-4-4-4-12 characters (e.g., e4d49228-d5d2-4645-8f25-847ffbc88b37)
+  if (!productUuid && slug) {
+    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+    const match = slug.match(uuidPattern)
+    if (match) {
+      productUuid = match[0]
+      console.log('[Product Metadata] UUID extracted from slug:', productUuid)
+    }
+  }
+
+  console.log('[Product Metadata] Final UUID:', productUuid)
+  console.log('[Product Metadata] Subdomain:', subdomain)
+  console.log('[Product Metadata] Slug:', slug)
 
   // Fetch store data untuk SEO settings
   const storeData = await fetchStoreData(subdomain)
