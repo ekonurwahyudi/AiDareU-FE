@@ -99,7 +99,7 @@ const LoginV1Simple = () => {
           localStorage.setItem('user_data', JSON.stringify(result.user))
           
           toast.success('Login berhasil!')
-          router.push('/dashboards/ecommerce')
+          router.push('/dashboards')
         }
       } else {
         const errorMessage = result.message || 'Login gagal'

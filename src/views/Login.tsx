@@ -171,7 +171,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           console.log('Store data:', result.user?.store)
 
           toast.success('Login berhasil!')
-          const redirectURL = searchParams.get('redirectTo') ?? '/dashboards/ecommerce'
+          const redirectURL = searchParams.get('redirectTo') ?? '/dashboards'
           router.replace(redirectURL)
         }
       } else {
@@ -198,7 +198,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
 
     if (res && res.ok && res.error === null) {
       // Vars
-      const redirectURL = searchParams.get('redirectTo') ?? '/dashboards/ecommerce'
+      const redirectURL = searchParams.get('redirectTo') ?? '/dashboards'
 
       router.replace(redirectURL)
     } else {
