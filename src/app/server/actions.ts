@@ -18,7 +18,7 @@ import { db as pricingData } from '@/fake-db/pages/pricing'
 import { db as statisticsData } from '@/fake-db/pages/widgetExamples'
 import { cookies } from 'next/headers'
 
-const API_BASE_URL = process.env.API_URL || 'http://localhost:8000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
 
 export const getEcommerceData = async () => {
   return eCommerceData
