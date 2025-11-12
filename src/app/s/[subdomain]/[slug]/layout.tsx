@@ -86,9 +86,12 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     }
   }
 
+  console.log('========================================')
+  console.log('[Product Metadata] LAYOUT CALLED!')
   console.log('[Product Metadata] Final UUID:', productUuid)
   console.log('[Product Metadata] Subdomain:', subdomain)
   console.log('[Product Metadata] Slug:', slug)
+  console.log('========================================')
 
   // Fetch store data untuk SEO settings
   const storeData = await fetchStoreData(subdomain)
@@ -117,8 +120,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   // If product data available, use it for OG tags
   if (productData) {
+    console.log('[Product Metadata] ✅ PRODUCT DATA FOUND - Using product OG tags')
     const productName = productData.nama_produk || 'Product'
     const storeName = storeData.settings?.site_title || storeData.store?.name || 'AiDareU Store'
+    console.log('[Product Metadata] Product Name:', productName)
+    console.log('[Product Metadata] Store Name:', storeName)
 
     // Clean HTML from description
     let productDescription = ''
@@ -151,6 +157,10 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         ? `${backendUrl}/storage/${storeData.seo.og_image}`
         : (storeData.settings?.logo ? `${backendUrl}/storage/${storeData.settings.logo}` : '')
     }
+
+    console.log('[Product Metadata] ✅ RETURNING PRODUCT METADATA')
+    console.log('[Product Metadata] Title:', `${productName} - ${storeName}`)
+    console.log('[Product Metadata] OG Image:', productImage)
 
     return {
       // Meta tags dari product data (prioritas produk, bukan store SEO)
