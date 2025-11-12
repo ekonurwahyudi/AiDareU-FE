@@ -678,55 +678,152 @@ const DynamicStorePage = () => {
         id="home"
         sx={{
           background: 'white',
-          // color: 'inherit',
           py: { xs: 3, md: 5 },
           position: 'relative',
           overflow: 'hidden',
-          // borderRadius: '0 0 50px 50px',
-          // margin: { xs: 1, md: 2 },
           marginTop: { xs: 1, md: 2 }
         }}
       >
         <Container maxWidth="lg">
-          <Grid container spacing={3}>
-            {/* Banner kiri (gambar saja) */}
-            <Grid item xs={12} md={8}>
-              <Box sx={{ position: 'relative', height: { xs: 280, md: 420 }, borderRadius: 3, overflow: 'hidden' }}>
-                <Box
-                  component="img"
-                  src={activeSlides.length > 0 ? activeSlides[0].gambar_slide || activeSlides[0].image || '/images/slide/slide1.png' : '/images/slide/slide1.png'}
-                  alt="Banner 1"
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </Box>
-            </Grid>
+          {/* Desktop View - Grid Layout */}
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Grid container spacing={3}>
+              {/* Banner kiri (gambar saja) */}
+              <Grid item xs={12} md={8}>
+                <Box sx={{ position: 'relative', height: { xs: 280, md: 420 }, borderRadius: 3, overflow: 'hidden' }}>
+                  <Box
+                    component="img"
+                    src={activeSlides.length > 0 ? activeSlides[0].gambar_slide || activeSlides[0].image || '/images/slide/slide1.png' : '/images/slide/slide1.png'}
+                    alt="Banner 1"
+                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </Box>
+              </Grid>
 
-            {/* Banner kanan (dua gambar) */}
-            <Grid item xs={12} md={4}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={12}>
-                  <Box sx={{ position: 'relative', height: { xs: 180, md: 200 }, borderRadius: 3, overflow: 'hidden' }}>
-                    <Box
-                      component="img"
-                      src={activeSlides.length > 1 ? activeSlides[1].gambar_slide || activeSlides[1].image || '/images/slide/slide2.png' : '/images/slide/slide2.png'}
-                      alt="Banner 2"
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={12} sm={6} md={12}>
-                  <Box sx={{ position: 'relative', height: { xs: 180, md: 200 }, borderRadius: 3, overflow: 'hidden' }}>
-                    <Box
-                      component="img"
-                      src={activeSlides.length > 2 ? activeSlides[2].gambar_slide || activeSlides[2].image || '/images/slide/slide3.png' : '/images/slide/slide3.png'}
-                      alt="Banner 3"
-                      sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  </Box>
+              {/* Banner kanan (dua gambar) */}
+              <Grid item xs={12} md={4}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
+                      <Box
+                        component="img"
+                        src={activeSlides.length > 1 ? activeSlides[1].gambar_slide || activeSlides[1].image || '/images/slide/slide2.png' : '/images/slide/slide2.png'}
+                        alt="Banner 2"
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
+                      <Box
+                        component="img"
+                        src={activeSlides.length > 2 ? activeSlides[2].gambar_slide || activeSlides[2].image || '/images/slide/slide3.png' : '/images/slide/slide3.png'}
+                        alt="Banner 3"
+                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </Box>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
+
+          {/* Mobile View - Swipeable Slider */}
+          <Box sx={{ display: { xs: 'block', md: 'none' }, position: 'relative' }}>
+            <Box
+              sx={{
+                overflow: 'hidden',
+                borderRadius: 3,
+                position: 'relative'
+              }}
+            >
+              {/* Slides Container */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  transform: `translateX(-${currentSlide * 100}%)`,
+                  transition: 'transform 0.5s ease-in-out',
+                  touchAction: 'pan-y'
+                }}
+              >
+                {activeSlides.map((slide, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      minWidth: '100%',
+                      height: 280,
+                      position: 'relative'
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={slide.gambar_slide || slide.image || '/images/slide/slide1.png'}
+                      alt={`Banner ${index + 1}`}
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover'
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Navigation Arrows */}
+              <IconButton
+                onClick={prevSlide}
+                sx={{
+                  position: 'absolute',
+                  left: 8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  width: 36,
+                  height: 36,
+                  zIndex: 2,
+                  '&:hover': { bgcolor: 'white' }
+                }}
+              >
+                <ArrowBackIcon fontSize="small" />
+              </IconButton>
+              <IconButton
+                onClick={nextSlide}
+                sx={{
+                  position: 'absolute',
+                  right: 8,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  bgcolor: 'rgba(255, 255, 255, 0.9)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  width: 36,
+                  height: 36,
+                  zIndex: 2,
+                  '&:hover': { bgcolor: 'white' }
+                }}
+              >
+                <ArrowForwardIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            {/* Dots Indicator */}
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 2 }}>
+              {activeSlides.map((_, index) => (
+                <Box
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  sx={{
+                    width: currentSlide === index ? 24 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    bgcolor: currentSlide === index ? primaryColor : '#E5E7EB',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
         </Container>
       </Box>
 
@@ -1276,97 +1373,275 @@ const DynamicStorePage = () => {
           </Box>
         
 
-        {/* Desktop View - Show all testimonials */}
+        {/* Desktop View - Carousel if more than 3, Grid if 3 or less */}
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-          <Grid container spacing={4}>
-            {activeTestimonials.map((testimonial, index) => (
-              <Grid item xs={12} md={4} key={index}>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    bgcolor: 'white',
-                    borderRadius: '20px',
-                    p: 4,
-                    height: '100%',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                    border: '1px solid rgba(0,0,0,0.05)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-5px)',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-                    }
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      mb: 3,
-                      lineHeight: 1.6,
-                      fontSize: '1rem',
-                      color: '#475569',
-                      fontStyle: 'italic'
-                    }}
-                  >
-                    "{testimonial.testimoni || testimonial.text}"
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                    <Box
-                      sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        bgcolor: '#F1F5F9',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.5rem'
-                      }}
-                    >
-                      👩
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 'bold',
-                          fontSize: '1rem',
-                          color: '#1E293B'
-                        }}
-                      >
-                        {testimonial.nama || testimonial.name}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Rating
-                          value={testimonial.rating || 5}
-                          readOnly
-                          size="small"
-                          sx={{ color: '#F59E0B' }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-
+          {activeTestimonials.length <= 3 ? (
+            // Static Grid for 3 or fewer testimonials
+            <Grid container spacing={4}>
+              {activeTestimonials.map((testimonial, index) => (
+                <Grid item xs={12} md={4} key={index}>
                   <Box
                     sx={{
-                      position: 'absolute',
-                      bottom: 16,
-                      right: 16,
-                      bgcolor: '#FEF3C7',
-                      color: '#92400E',
-                      px: 2,
-                      py: 0.5,
-                      borderRadius: '12px',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold'
+                      position: 'relative',
+                      bgcolor: 'white',
+                      borderRadius: '20px',
+                      p: 4,
+                      height: '100%',
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                      border: '1px solid rgba(0,0,0,0.05)',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-5px)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
+                      }
                     }}
                   >
-                    {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        mb: 3,
+                        lineHeight: 1.6,
+                        fontSize: '1rem',
+                        color: '#475569',
+                        fontStyle: 'italic'
+                      }}
+                    >
+                      "{testimonial.testimoni || testimonial.text}"
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: '50%',
+                          bgcolor: '#F1F5F9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.5rem'
+                        }}
+                      >
+                        👩
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            color: '#1E293B'
+                          }}
+                        >
+                          {testimonial.nama || testimonial.name}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Rating
+                            value={testimonial.rating || 5}
+                            readOnly
+                            size="small"
+                            sx={{ color: '#F59E0B' }}
+                          />
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 16,
+                        right: 16,
+                        bgcolor: '#FEF3C7',
+                        color: '#92400E',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: '12px',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                    </Box>
                   </Box>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            // Carousel for more than 3 testimonials
+            <Box sx={{ position: 'relative' }}>
+              <Box
+                sx={{
+                  overflow: 'hidden',
+                  borderRadius: '20px'
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    transform: `translateX(-${currentTestimonial * (100 / 3)}%)`,
+                    transition: 'transform 0.5s ease-in-out'
+                  }}
+                >
+                  {activeTestimonials.map((testimonial, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        minWidth: 'calc(33.333% - 21.33px)',
+                        mx: '10.67px',
+                        flex: '0 0 auto'
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          bgcolor: 'white',
+                          borderRadius: '20px',
+                          p: 4,
+                          height: '100%',
+                          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                          border: '1px solid rgba(0,0,0,0.05)',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            transform: 'translateY(-5px)',
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
+                          }
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            mb: 3,
+                            lineHeight: 1.6,
+                            fontSize: '1rem',
+                            color: '#475569',
+                            fontStyle: 'italic',
+                            minHeight: '4.8em',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical'
+                          }}
+                        >
+                          "{testimonial.testimoni || testimonial.text}"
+                        </Typography>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                          <Box
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: '50%',
+                              bgcolor: '#F1F5F9',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '1.5rem'
+                            }}
+                          >
+                            👩
+                          </Box>
+                          <Box>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: 'bold',
+                                fontSize: '1rem',
+                                color: '#1E293B'
+                              }}
+                            >
+                              {testimonial.nama || testimonial.name}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Rating
+                                value={testimonial.rating || 5}
+                                readOnly
+                                size="small"
+                                sx={{ color: '#F59E0B' }}
+                              />
+                            </Box>
+                          </Box>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            bottom: 16,
+                            right: 16,
+                            bgcolor: '#FEF3C7',
+                            color: '#92400E',
+                            px: 2,
+                            py: 0.5,
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
                 </Box>
-              </Grid>
-            ))}
-          </Grid>
+              </Box>
+
+              {/* Navigation arrows for carousel */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: 2,
+                  mt: 4
+                }}
+              >
+                <IconButton
+                  onClick={prevTestimonial}
+                  disabled={currentTestimonial === 0}
+                  sx={{
+                    bgcolor: 'white',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    width: 48,
+                    height: 48,
+                    '&:hover': { bgcolor: '#F8FAFC' },
+                    '&:disabled': { bgcolor: '#E5E7EB', opacity: 0.5 }
+                  }}
+                >
+                  <ArrowBackIcon />
+                </IconButton>
+                <IconButton
+                  onClick={nextTestimonial}
+                  disabled={currentTestimonial >= activeTestimonials.length - 3}
+                  sx={{
+                    bgcolor: 'white',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    width: 48,
+                    height: 48,
+                    '&:hover': { bgcolor: '#F8FAFC' },
+                    '&:disabled': { bgcolor: '#E5E7EB', opacity: 0.5 }
+                  }}
+                >
+                  <ArrowForwardIcon />
+                </IconButton>
+              </Box>
+
+              {/* Dots indicator for carousel */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 3 }}>
+                {Array.from({ length: Math.max(1, activeTestimonials.length - 2) }).map((_, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => setCurrentTestimonial(index)}
+                    sx={{
+                      width: currentTestimonial === index ? 24 : 8,
+                      height: 8,
+                      borderRadius: 4,
+                      bgcolor: currentTestimonial === index ? primaryColor : '#E5E7EB',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
         </Box>
 
         {/* Mobile View - Carousel */}
