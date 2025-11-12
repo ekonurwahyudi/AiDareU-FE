@@ -1,5 +1,3 @@
-'use client'
-
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 
@@ -8,7 +6,13 @@ import TokoSaya from './TokoSaya'
 import DomainToko from './DomainToko'
 import Pixel from './Pixel'
 
-const OverViewTab = ({ storeUuid }: { storeUuid?: string | null }) => {
+// Data Imports
+import { getInvoiceData } from '@/app/server/actions'
+
+const OverViewTab = async ({ storeUuid }: { storeUuid?: string | null }) => {
+  // Vars
+  const invoiceData = await getInvoiceData()
+
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
