@@ -59,13 +59,20 @@ async function fetchProductByUuid(uuid: string) {
 }
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  const { subdomain } = await params
-  const search = await searchParams
+  const { subdomain, slug } = await params
 
-  // Get UUID from searchParams (more reliable than headers)
-  const productUuid = search.uuid
+  // Safely get searchParams
+  let productUuid: string | undefined
+  try {
+    const search = await searchParams
+    productUuid = search?.uuid
+  } catch (error) {
+    console.error('[Product Layout Metadata] Error getting searchParams:', error)
+    productUuid = undefined
+  }
 
   console.log('[Product Layout Metadata] Subdomain:', subdomain)
+  console.log('[Product Layout Metadata] Slug:', slug)
   console.log('[Product Layout Metadata] Product UUID:', productUuid)
 
   // Fetch store data untuk SEO settings
@@ -84,8 +91,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   // If we have product UUID, fetch product data
   let productData = null
   if (productUuid) {
-    productData = await fetchProductByUuid(productUuid)
-    console.log('[Product Metadata] Product data loaded:', !!productData)
+    try {
+      productData = await fetchProductByUuid(productUuid)
+      console.log('[Product Metadata] Product data loaded:', !!productData)
+    } catch (error) {
+      console.error('[Product Metadata] Error fetching product:', error)
+      productData = null
+    }
   }
 
   // If product data available, use it for OG tags
