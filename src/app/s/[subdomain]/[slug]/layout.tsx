@@ -125,10 +125,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-      // Meta tags dari store SEO
-      title: storeData.seo?.meta_title || `${productName} - ${storeName}`,
-      description: storeData.seo?.deskripsi || productDescription || `${productName} at ${storeName}`,
-      keywords: storeData.seo?.keyword || productName,
+      // Meta tags dari product data (prioritas produk, bukan store SEO)
+      title: `${productName} - ${storeName}`,
+      description: productDescription || `${productName} at ${storeName}`,
+      keywords: `${productName}, ${storeData.seo?.keyword || ''}`.trim(),
 
       // Open Graph dari product data
       openGraph: {
