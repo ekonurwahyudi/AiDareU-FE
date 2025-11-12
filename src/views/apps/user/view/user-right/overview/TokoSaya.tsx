@@ -561,6 +561,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const authToken = localStorage.getItem('auth_token')
+      const storedUserData = localStorage.getItem('user_data')
 
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -569,6 +570,18 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
       if (authToken) {
         headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      // Add X-User-UUID header for authentication
+      if (storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData)
+          if (userData.uuid) {
+            headers['X-User-UUID'] = userData.uuid
+          }
+        } catch (e) {
+          console.error('Failed to parse user data:', e)
+        }
       }
 
       const res = await fetch(`${backendUrl}/api/public/stores/${selectedStoreUuid}`, {
