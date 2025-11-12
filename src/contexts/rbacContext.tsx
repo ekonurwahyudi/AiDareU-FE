@@ -136,12 +136,20 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
 
   const hasPermission = (permission: string, resource?: string): boolean => {
     if (!user) return false
-    
+
     // Superadmin has all permissions
-    if (user.roles.some(role => role.name === 'superadmin')) {
+    // Handle both array of strings and array of objects
+    const isSuperadmin = user.roles?.some(role => {
+      if (typeof role === 'string') {
+        return role === 'superadmin'
+      }
+      return role.name === 'superadmin'
+    })
+
+    if (isSuperadmin) {
       return true
     }
-    
+
     // Check specific permission
     return permissions.some(p => {
       if (resource) {
@@ -152,8 +160,15 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
   }
 
   const hasRole = (roleName: string): boolean => {
-    if (!user) return false
-    return user.roles.some(role => role.name === roleName)
+    if (!user || !user.roles) return false
+
+    // Handle both array of strings and array of objects
+    return user.roles.some(role => {
+      if (typeof role === 'string') {
+        return role === roleName
+      }
+      return role.name === roleName
+    })
   }
 
   const canAccess = (resource: string, action: string): boolean => {

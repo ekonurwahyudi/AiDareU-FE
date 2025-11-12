@@ -29,7 +29,7 @@ export interface User {
   no_hp: string
   avatar?: string
   email_verified_at?: string
-  roles: Role[]
+  roles: (Role | string)[] // Support both Role objects and string array from backend
   stores?: Store[]
   is_active: boolean
   created_at: string
