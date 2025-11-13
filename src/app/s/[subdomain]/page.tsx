@@ -443,9 +443,9 @@ const DynamicStorePage = () => {
 
   const handleProductClick = (product: Product) => {
     // Clean URL without /s/ prefix - Worker handles routing
-    // Embed UUID in slug for SSR metadata (format: slug-uuid)
+    // Embed FULL UUID in slug for reliable SSR metadata extraction
     const uuid = product.uuid || product.id
-    const slugWithUuid = `${product.slug}-${uuid.substring(0, 8)}`
+    const slugWithUuid = `${product.slug}-${uuid}`
     router.push(`/${slugWithUuid}?uuid=${uuid}`)
   }
 

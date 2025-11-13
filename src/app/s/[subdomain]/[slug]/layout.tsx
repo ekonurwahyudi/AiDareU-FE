@@ -76,13 +76,26 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   }
 
   // Second try: Check if slug contains UUID pattern (if searchParams failed)
-  // UUID pattern: 8-4-4-4-12 characters (e.g., e4d49228-d5d2-4645-8f25-847ffbc88b37)
+  // UUID pattern: Full UUID (8-4-4-4-12) or partial UUID prefix (8 chars at end)
   if (!productUuid && slug) {
-    const uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
-    const match = slug.match(uuidPattern)
+    // Try full UUID pattern first
+    const fullUuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+    let match = slug.match(fullUuidPattern)
+
     if (match) {
       productUuid = match[0]
-      console.log('[Product Metadata] UUID extracted from slug:', productUuid)
+      console.log('[Product Metadata] Full UUID extracted from slug:', productUuid)
+    } else {
+      // Try partial UUID at end of slug (e.g., "product-name-e4d49228")
+      const partialUuidPattern = /-([0-9a-f]{8})$/i
+      match = slug.match(partialUuidPattern)
+      if (match && match[1]) {
+        // We have 8-char prefix, need to fetch using this prefix
+        // Store the partial for now - backend API will need to handle prefix search
+        productUuid = match[1]
+        console.log('[Product Metadata] Partial UUID (8 chars) extracted from slug:', productUuid)
+        console.log('[Product Metadata] ⚠️  Warning: Using partial UUID - may need full UUID from query param')
+      }
     }
   }
 
