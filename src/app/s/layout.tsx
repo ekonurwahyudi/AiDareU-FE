@@ -9,10 +9,8 @@ import { CartProvider } from '@/contexts/CartContext'
 // Util Imports
 import { getSystemMode } from '@core/utils/serverHelpers'
 
-export const metadata = {
-  title: 'AiDareU Store - Premium Products',
-  description: 'Discover amazing products at AiDareU Store. Quality items with great prices.'
-}
+// Metadata is handled by child layouts (subdomain and product pages)
+// Removed static metadata to allow child layouts to properly set OG tags
 
 const StoreLayout = async ({ children }: ChildrenType) => {
   // Vars

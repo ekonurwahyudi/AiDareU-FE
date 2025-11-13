@@ -31,15 +31,16 @@ async function fetchStoreData(subdomain: string) {
   }
 }
 
-// Fetch product data by UUID
+// Fetch product data by UUID (try both physical and digital product endpoints)
 async function fetchProductByUuid(uuid: string) {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const apiUrl = `${backendUrl}/api/public/products/${uuid}`
 
-    console.log('[Product Metadata] Fetching product:', apiUrl)
+    // Try physical products first
+    let apiUrl = `${backendUrl}/api/public/products/${uuid}`
+    console.log('[Product Metadata] Fetching product (physical):', apiUrl)
 
-    const response = await fetch(apiUrl, {
+    let response = await fetch(apiUrl, {
       cache: 'no-store',
       next: { revalidate: 60 },
       headers: {
@@ -48,10 +49,37 @@ async function fetchProductByUuid(uuid: string) {
       }
     })
 
-    if (!response.ok) return null
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success && data.data) {
+        console.log('[Product Metadata] ✅ Physical product found')
+        return data.data
+      }
+    }
 
-    const data = await response.json()
-    return data.success ? data.data : null
+    // If not found, try digital products
+    apiUrl = `${backendUrl}/api/public/products-digital/${uuid}`
+    console.log('[Product Metadata] Fetching product (digital):', apiUrl)
+
+    response = await fetch(apiUrl, {
+      cache: 'no-store',
+      next: { revalidate: 60 },
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success && data.data) {
+        console.log('[Product Metadata] ✅ Digital product found')
+        return data.data
+      }
+    }
+
+    console.log('[Product Metadata] ❌ Product not found in both endpoints')
+    return null
   } catch (error) {
     console.error('[Product Metadata] Error:', error)
     return null
