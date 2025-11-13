@@ -108,26 +108,14 @@ const HeroSection = ({ mode }: { mode: SystemMode }) => {
           </div>
       </div>
       <div
-        className={classnames('relative text-center', frontCommonStyles.layoutSpacing)}
+        className='relative text-center px-4 md:px-8'
         style={{ transform: isAboveLgScreen ? transform : 'none' }}
       >
-        <div className='block relative'>
-          <img
-            src={dashboardImage}
-            alt='dashboard-image'
-            className='mli-auto w-full max-w-[1200px]'
-            style={{
-              filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))'
-            }}
-          />
-          <div className='absolute inset-0'>
-            <img
-              src={elementsImage}
-              alt='dashboard-elements'
-              className='w-full h-full object-contain'
-            />
-          </div>
-        </div>
+        <img
+          src={dashboardImage}
+          alt='dashboard-image'
+          className='mx-auto w-full max-w-[1200px]'
+        />
       </div>
     </section>
   )
