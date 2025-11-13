@@ -192,7 +192,7 @@ const HorizontalMenu = () => {
             Product Digital
           </MenuItem>
           
-          <MenuItem href="#" icon={<i className='tabler-brand-github-copilot' />}>
+          <MenuItem href="https://chat.whatsapp.com/F8mlIlncsaX1lNWuYJUQQu" target="_blank" icon={<i className='tabler-brand-github-copilot' />}>
             Join Komunitas
           </MenuItem>
           {hasRole('superadmin') && (
