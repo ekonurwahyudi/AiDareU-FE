@@ -171,12 +171,16 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     console.log('[Product Metadata] Store Name:', storeName)
 
     // Clean HTML from description
+    // Backend can return either 'deskripsi' or 'deskripsi_produk'
     let productDescription = ''
-    if (productData.deskripsi_produk) {
-      productDescription = typeof productData.deskripsi_produk === 'string'
-        ? productData.deskripsi_produk.replace(/<[^>]*>/g, '').substring(0, 160)
+    const rawDescription = productData.deskripsi_produk || productData.deskripsi
+    if (rawDescription) {
+      productDescription = typeof rawDescription === 'string'
+        ? rawDescription.replace(/<[^>]*>/g, '').trim().substring(0, 160)
         : ''
     }
+
+    console.log('[Product Metadata] Product Description:', productDescription || 'No description')
 
     // Get product image
     let productImage = ''
