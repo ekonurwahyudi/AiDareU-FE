@@ -114,13 +114,20 @@ const UsefulFeature = () => {
   }, [])
 
   return (
-    <section id='features' ref={ref} className='bg-backgroundPaper'>
+    <section
+      id='features'
+      ref={ref}
+      style={{
+        backgroundColor: '#ffffff',
+        color: '#000000'
+      }}
+    >
       <div className={classnames('flex flex-col gap-12 pbs-12 ', frontCommonStyles.layoutSpacing)}>
         <div className='flex flex-col gap-y-4 items-center justify-center'>
           <Chip size='small' variant='tonal' color='primary' label='Lengkap & Gratis' />
           <div className='flex flex-col items-center gap-y-1 justify-center flex-wrap'>
             <div className='flex items-center gap-x-2'>
-              <Typography color='text.primary' variant='h4' className='text-center'>
+              <Typography variant='h4' className='text-center' style={{ color: '#000000' }}>
                 <span className='relative z-[1] font-extrabold'>
                   Semua Ada,
                   <img
@@ -132,7 +139,7 @@ const UsefulFeature = () => {
                 Siap Jualan!
               </Typography>
             </div>
-            <Typography className='text-center text-lg font-medium'>
+            <Typography className='text-center text-lg font-medium' style={{ color: '#333333' }}>
               Tools premium untuk scale up bisnis. 100% gratis, 100% powerful.
             </Typography>
           </div>
@@ -141,14 +148,26 @@ const UsefulFeature = () => {
           <Grid container spacing={6}>
             {feature.map((item, index) => (
               <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={index}>
-                <div className='flex flex-col gap-3 justify-center items-center p-6 bg-white dark:bg-[#2B2C40] rounded-2xl border-2 border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl hover:border-primary-200 dark:hover:border-primary-800 transition-all duration-300 h-full hover:scale-[1.02]'>
-                  <div className='p-4 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/30 dark:to-primary-800/20 rounded-xl shadow-sm'>
+                <div
+                  className='flex flex-col gap-3 justify-center items-center p-6 rounded-2xl border-2 shadow-lg hover:shadow-2xl transition-all duration-300 h-full hover:scale-[1.02]'
+                  style={{
+                    backgroundColor: '#ffffff',
+                    borderColor: '#e5e7eb',
+                    color: '#000000'
+                  }}
+                >
+                  <div
+                    className='p-4 rounded-xl shadow-sm'
+                    style={{
+                      background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
+                    }}
+                  >
                     {item.icon}
                   </div>
-                  <Typography className='font-extrabold text-center' variant='h6' color='text.primary'>
+                  <Typography className='font-extrabold text-center' variant='h6' style={{ color: '#000000' }}>
                     {item.title}
                   </Typography>
-                  <Typography className='text-center text-sm leading-relaxed' color='text.secondary'>
+                  <Typography className='text-center text-sm leading-relaxed' style={{ color: '#4b5563' }}>
                     {item.description}
                   </Typography>
                 </div>

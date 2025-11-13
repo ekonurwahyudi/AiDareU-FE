@@ -3,9 +3,6 @@
 // React Imports
 import { useEffect } from 'react'
 
-// Type Imports
-import type { SystemMode } from '@core/types'
-
 // Component Imports
 import HeroSection from './HeroSection'
 // import TrustedBy from './TrustedBy'
@@ -16,9 +13,12 @@ import Faqs from './Faqs'
 import GetStarted from './GetStarted'
 import { useSettings } from '@core/hooks/useSettings'
 
-const LandingPageWrapper = ({ mode }: { mode: SystemMode }) => {
+const LandingPageWrapper = () => {
   // Hooks
   const { updatePageSettings } = useSettings()
+
+  // Always use light mode for landing page
+  const mode = 'light'
 
   // For Page specific settings
   useEffect(() => {
