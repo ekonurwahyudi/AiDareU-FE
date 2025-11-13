@@ -33,7 +33,7 @@ const trustedCompanies = [
   },
   {
     name: 'Danatara',
-    logo: '/images/logos/danatara.png',
+    logo: '/images/logos/Danantara.png',
     alt: 'Danatara'
   },
   {

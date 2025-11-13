@@ -116,7 +116,7 @@ const GetStarted = ({ mode }: { mode: SystemMode }) => {
             <img
               src='/images/front-pages/landing-page/crm-dashboard.png'
               alt='dashboard-image'
-              className='relative w-full h-auto rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700'
+              className='relative w-full h-auto'
             />
           </div>
         </div>
