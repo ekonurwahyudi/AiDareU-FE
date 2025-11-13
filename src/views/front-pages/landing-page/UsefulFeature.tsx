@@ -156,12 +156,7 @@ const UsefulFeature = () => {
                     color: '#000000'
                   }}
                 >
-                  <div
-                    className='p-4 rounded-xl shadow-sm'
-                    style={{
-                      background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
-                    }}
-                  >
+                  <div className='p-4'>
                     {item.icon}
                   </div>
                   <Typography className='font-extrabold text-center' variant='h6' style={{ color: '#000000' }}>
