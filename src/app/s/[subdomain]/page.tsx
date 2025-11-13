@@ -1379,7 +1379,7 @@ const DynamicStorePage = () => {
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
           {activeTestimonials.length <= 3 ? (
             // Static Grid for 3 or fewer testimonials
-            <Grid container spacing={4}>
+            <Grid container spacing={3} justifyContent="center">
               {activeTestimonials.map((testimonial, index) => (
                 <Grid item xs={12} md={4} key={index}>
                   <Box
@@ -1388,7 +1388,9 @@ const DynamicStorePage = () => {
                       bgcolor: 'white',
                       borderRadius: '20px',
                       p: 4,
-                      height: '100%',
+                      minHeight: '300px',
+                      display: 'flex',
+                      flexDirection: 'column',
                       boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
                       border: '1px solid rgba(0,0,0,0.05)',
                       transition: 'all 0.3s ease',
@@ -1405,7 +1407,8 @@ const DynamicStorePage = () => {
                         lineHeight: 1.6,
                         fontSize: '1rem',
                         color: '#475569',
-                        fontStyle: 'italic'
+                        fontStyle: 'italic',
+                        flex: 1
                       }}
                     >
                       "{testimonial.testimoni || testimonial.text}"
@@ -1470,121 +1473,128 @@ const DynamicStorePage = () => {
             </Grid>
           ) : (
             // Carousel for more than 3 testimonials
-            <Box sx={{ position: 'relative' }}>
-              <Box
-                sx={{
-                  overflow: 'hidden',
-                  borderRadius: '20px'
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    transform: `translateX(-${currentTestimonial * (100 / 3)}%)`,
-                    transition: 'transform 0.5s ease-in-out'
-                  }}
-                >
-                  {activeTestimonials.map((testimonial, index) => (
+            <Box sx={{ position: 'relative', px: 1 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      overflow: 'visible',
+                      position: 'relative'
+                    }}
+                  >
                     <Box
-                      key={index}
                       sx={{
-                        minWidth: 'calc(33.333% - 21.33px)',
-                        mx: '10.67px',
-                        flex: '0 0 auto'
+                        display: 'flex',
+                        gap: 3,
+                        transform: `translateX(-${currentTestimonial * (100 / 3 + 1)}%)`,
+                        transition: 'transform 0.5s ease-in-out',
+                        px: 1
                       }}
                     >
-                      <Box
-                        sx={{
-                          position: 'relative',
-                          bgcolor: 'white',
-                          borderRadius: '20px',
-                          p: 4,
-                          height: '100%',
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                          border: '1px solid rgba(0,0,0,0.05)',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateY(-5px)',
-                            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-                          }
-                        }}
-                      >
-                        <Typography
-                          variant="body1"
+                      {activeTestimonials.map((testimonial, index) => (
+                        <Box
+                          key={index}
                           sx={{
-                            mb: 3,
-                            lineHeight: 1.6,
-                            fontSize: '1rem',
-                            color: '#475569',
-                            fontStyle: 'italic',
-                            minHeight: '4.8em',
-                            overflow: 'hidden',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical'
+                            minWidth: 'calc(33.333% - 16px)',
+                            flex: '0 0 calc(33.333% - 16px)'
                           }}
                         >
-                          "{testimonial.testimoni || testimonial.text}"
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                           <Box
                             sx={{
-                              width: 50,
-                              height: 50,
-                              borderRadius: '50%',
-                              bgcolor: '#F1F5F9',
+                              position: 'relative',
+                              bgcolor: 'white',
+                              borderRadius: '20px',
+                              p: 4,
+                              minHeight: '300px',
                               display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '1.5rem'
+                              flexDirection: 'column',
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                              border: '1px solid rgba(0,0,0,0.05)',
+                              transition: 'all 0.3s ease',
+                              '&:hover': {
+                                transform: 'translateY(-5px)',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
+                              }
                             }}
                           >
-                            👩
-                          </Box>
-                          <Box>
                             <Typography
-                              variant="h6"
+                              variant="body1"
                               sx={{
-                                fontWeight: 'bold',
+                                mb: 3,
+                                lineHeight: 1.6,
                                 fontSize: '1rem',
-                                color: '#1E293B'
+                                color: '#475569',
+                                fontStyle: 'italic',
+                                flex: 1,
+                                overflow: 'hidden',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 4,
+                                WebkitBoxOrient: 'vertical'
                               }}
                             >
-                              {testimonial.nama || testimonial.name}
+                              "{testimonial.testimoni || testimonial.text}"
                             </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                              <Rating
-                                value={testimonial.rating || 5}
-                                readOnly
-                                size="small"
-                                sx={{ color: '#F59E0B' }}
-                              />
+
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                              <Box
+                                sx={{
+                                  width: 50,
+                                  height: 50,
+                                  borderRadius: '50%',
+                                  bgcolor: '#F1F5F9',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '1.5rem'
+                                }}
+                              >
+                                👩
+                              </Box>
+                              <Box>
+                                <Typography
+                                  variant="h6"
+                                  sx={{
+                                    fontWeight: 'bold',
+                                    fontSize: '1rem',
+                                    color: '#1E293B'
+                                  }}
+                                >
+                                  {testimonial.nama || testimonial.name}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <Rating
+                                    value={testimonial.rating || 5}
+                                    readOnly
+                                    size="small"
+                                    sx={{ color: '#F59E0B' }}
+                                  />
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                bottom: 16,
+                                right: 16,
+                                bgcolor: '#FEF3C7',
+                                color: '#92400E',
+                                px: 2,
+                                py: 0.5,
+                                borderRadius: '12px',
+                                fontSize: '0.75rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              {testimonial.paket || testimonial.package || 'Paket Lengkap'}
                             </Box>
                           </Box>
                         </Box>
-
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            bottom: 16,
-                            right: 16,
-                            bgcolor: '#FEF3C7',
-                            color: '#92400E',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          {testimonial.paket || testimonial.package || 'Paket Lengkap'}
-                        </Box>
-                      </Box>
+                      ))}
                     </Box>
-                  ))}
-                </Box>
-              </Box>
+                  </Box>
+                </Grid>
+              </Grid>
 
               {/* Navigation arrows for carousel */}
               <Box
