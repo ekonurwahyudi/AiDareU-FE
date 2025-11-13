@@ -59,7 +59,7 @@ export const metadata = {
     siteName: 'AiDareU',
     images: [
       {
-        url: 'https://aidareu.com/images/og-image.png',
+        url: '/images/front-pages/landing-page/hero-dashboard-light.png',
         width: 1200,
         height: 630,
         alt: 'AiDareU - Platformnya Para Entrepreneur Indonesia'
@@ -71,7 +71,7 @@ export const metadata = {
     title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
     description:
       'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report.',
-    images: ['https://aidareu.com/images/og-image.png'],
+    images: ['/images/front-pages/landing-page/hero-dashboard-light.png'],
     creator: '@aidareu'
   },
   robots: {
