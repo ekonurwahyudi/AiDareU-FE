@@ -29,7 +29,14 @@ const LandingPageWrapper = ({ mode }: { mode: SystemMode }) => {
   }, [])
 
   return (
-    <div className='bg-backgroundPaper'>
+    <div
+      className='bg-backgroundPaper'
+      style={{
+        backgroundColor: '#ffffff',
+        color: '#000000',
+        minHeight: '100vh'
+      }}
+    >
       <HeroSection mode={mode} />
       {/* <TrustedBy /> */}
       <UsefulFeature />
