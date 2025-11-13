@@ -27,7 +27,7 @@ import '@/app/globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
+  title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
   description:
     'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway. Domain gratis tersedia!',
   keywords: [
@@ -53,7 +53,7 @@ export const metadata = {
     type: 'website',
     locale: 'id_ID',
     url: 'https://aidareu.com',
-    title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
+    title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
     description:
       'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway.',
     siteName: 'AiDareU',
@@ -62,13 +62,13 @@ export const metadata = {
         url: 'https://aidareu.com/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'AiDareU - Platform Website Profesional UMKM'
+        alt: 'AiDareU - Platformnya Para Entrepreneur Indonesia'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
+    title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
     description:
       'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report.',
     images: ['https://aidareu.com/images/og-image.png'],

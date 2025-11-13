@@ -86,7 +86,7 @@ const Header = ({ mode }: { mode: Mode }) => {
                 <Button
                   component={Link}
                   variant='contained'
-                  href='/dashboards/ecommerce'
+                  href='/dashboards/'
                   startIcon={<i className='tabler-dashboard text-base sm:text-xl' />}
                   className='whitespace-nowrap text-sm sm:text-base px-3 sm:px-4'
                   size='small'
