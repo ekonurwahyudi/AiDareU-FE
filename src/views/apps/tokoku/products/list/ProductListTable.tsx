@@ -80,7 +80,7 @@ const getImageUrl = (imagePath: string): string => {
 // Utility function to extract images from product data
 const getProductImages = (imageData: any): string[] => {
   if (!imageData) return []
-  
+
   if (typeof imageData === 'string') {
     try {
       const parsed = JSON.parse(imageData)
@@ -89,8 +89,15 @@ const getProductImages = (imageData: any): string[] => {
       return [imageData]
     }
   }
-  
+
   return Array.isArray(imageData) ? imageData : []
+}
+
+// Utility function to generate product URL for storefront
+const generateProductUrl = (product: Product, subdomain: string): string => {
+  // Generate slug from product name and UUID (similar to backend logic)
+  const slug = `${product.nama_produk.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${product.uuid}`
+  return `https://${subdomain}.aidareu.com/${slug}?uuid=${product.uuid}`
 }
 
 // Style Imports
@@ -666,19 +673,35 @@ const ProductListTable = () => {
     }),
     columnHelper.accessor('actions', {
       header: 'Aksi',
-      cell: ({ row }) => (
-        <div className="flex items-center">
-          <IconButton component={Link} href={`/apps/tokoku/products/edit/${row.original.uuid}`}>
-            <i className="tabler-edit text-textSecondary" />
-          </IconButton>
-          <IconButton onClick={() => handleDeleteClick(row.original)}>
-            <i className="tabler-trash text-textSecondary" />
-          </IconButton>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const subdomain = currentStore?.subdomain
+        const productUrl = subdomain ? generateProductUrl(row.original, subdomain) : null
+
+        return (
+          <div className="flex items-center">
+            {productUrl && (
+              <IconButton
+                component="a"
+                href={productUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="View Product"
+              >
+                <i className="tabler-eye text-textSecondary" />
+              </IconButton>
+            )}
+            <IconButton component={Link} href={`/apps/tokoku/products/edit/${row.original.uuid}`} title="Edit Product">
+              <i className="tabler-edit text-textSecondary" />
+            </IconButton>
+            <IconButton onClick={() => handleDeleteClick(row.original)} title="Delete Product">
+              <i className="tabler-trash text-textSecondary" />
+            </IconButton>
+          </div>
+        )
+      },
       enableSorting: false
     })
-  ], [pagination.pageIndex, pagination.pageSize, handleStatusUpdate, handleDeleteClick])
+  ], [pagination.pageIndex, pagination.pageSize, handleStatusUpdate, handleDeleteClick, currentStore])
 
   // Table setup with server-side pagination
   const table = useReactTable({
@@ -771,17 +794,30 @@ const ProductListTable = () => {
         }
         action={
           <div className="flex gap-3">
-            <Button 
-              variant="outlined" 
+            {currentStore?.subdomain && (
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<i className="tabler-external-link" />}
+                component="a"
+                href={`https://${currentStore.subdomain}.aidareu.com`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Lihat Website
+              </Button>
+            )}
+            <Button
+              variant="outlined"
               startIcon={<i className="tabler-refresh" />}
               onClick={handleManualRefresh}
               disabled={loading}
             >
               {loading ? 'Refreshing...' : 'Refresh'}
             </Button>
-            <Button 
-              color="success" 
-              variant="tonal" 
+            <Button
+              color="success"
+              variant="tonal"
               startIcon={<i className="tabler-file-excel" />}
               onClick={handleExcelExport}
               disabled={products.length === 0 || loading}
