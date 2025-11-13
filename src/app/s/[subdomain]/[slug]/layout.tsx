@@ -24,7 +24,8 @@ async function fetchStoreData(subdomain: string) {
     if (!response.ok) return null
 
     const data = await response.json()
-    return data.success ? data.data : null
+    // Backend returns { status: "success" } or { success: true }
+    return (data.status === 'success' || data.success) ? data.data : null
   } catch (error) {
     console.error('[Product generateMetadata] Error fetching store:', error)
     return null
@@ -51,7 +52,8 @@ async function fetchProductByUuid(uuid: string) {
 
     if (response.ok) {
       const data = await response.json()
-      if (data.success && data.data) {
+      // Backend returns { status: "success", data: {...} }
+      if (data.status === 'success' && data.data) {
         console.log('[Product Metadata] ✅ Physical product found')
         return data.data
       }
@@ -72,7 +74,8 @@ async function fetchProductByUuid(uuid: string) {
 
     if (response.ok) {
       const data = await response.json()
-      if (data.success && data.data) {
+      // Backend returns { status: "success", data: {...} }
+      if (data.status === 'success' && data.data) {
         console.log('[Product Metadata] ✅ Digital product found')
         return data.data
       }
