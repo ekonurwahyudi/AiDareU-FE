@@ -27,9 +27,68 @@ import '@/app/globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'AiDareU - AI-Powered Website Builder',
+  title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
+  description:
+    'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway. Domain gratis tersedia!',
+  keywords: [
+    'website toko online gratis',
+    'buat website tanpa coding',
+    'platform UMKM Indonesia',
+    'website profesional gratis',
+    'toko online indonesia',
+    'AI mentor bisnis',
+    'SEO otomatis',
+    'payment gateway indonesia',
+    'website builder indonesia',
+    'domain gratis'
+  ],
+  authors: [{ name: 'AiDareU', url: 'https://aidareu.com' }],
+  creator: 'AiDareU',
+  publisher: 'AiDareU',
+  metadataBase: new URL('https://aidareu.com'),
+  alternates: {
+    canonical: 'https://aidareu.com'
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: 'https://aidareu.com',
+    title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
     description:
-      'AiDareU - AI-Powered Website Builder - Create stunning websites with AI assistance and drag-and-drop functionality.'
+      'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway.',
+    siteName: 'AiDareU',
+    images: [
+      {
+        url: 'https://aidareu.com/images/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'AiDareU - Platform Website Profesional UMKM'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AiDareU - Platform Website Profesional untuk UMKM Indonesia',
+    description:
+      'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report.',
+    images: ['https://aidareu.com/images/og-image.png'],
+    creator: '@aidareu'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
+    }
+  },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code'
+  }
 }
 
 const Layout = async ({ children }: ChildrenType) => {
