@@ -135,9 +135,6 @@ const UsefulFeature = () => {
       <div className={classnames('flex flex-col gap-12 pbs-12 ', frontCommonStyles.layoutSpacing)}>
         {/* Client Logos Section */}
         <div className='flex flex-col gap-y-6 items-center justify-center'>
-          <Typography variant='body2' className='text-center font-medium' style={{ color: '#64748B' }}>
-            Dipercaya oleh
-          </Typography>
           <div className='flex flex-wrap items-center justify-center gap-8 md:gap-12'>
             {clientLogos.map((logo, index) => (
               <div key={index} className='grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100'>
