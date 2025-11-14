@@ -259,22 +259,6 @@ const CustomerReviews = () => {
           </AppKeenSlider>
         </div>
       </div>
-      <Divider />
-      <div className='flex flex-wrap items-center justify-center gap-x-8 sm:gap-x-10 md:gap-x-12 gap-y-6 py-8'>
-        {clientLogos.map((client, index) => (
-          <div
-            key={index}
-            className='flex items-center justify-center grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300'
-          >
-            <img
-              src={client.src}
-              alt={client.alt}
-              className='h-8 sm:h-10 md:h-12 object-contain w-auto'
-              style={{ maxWidth: '100px', maxHeight: '48px' }}
-            />
-          </div>
-        ))}
-      </div>
     </section>
   )
 }
