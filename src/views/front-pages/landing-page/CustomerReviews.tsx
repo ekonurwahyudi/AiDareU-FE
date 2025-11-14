@@ -25,16 +25,6 @@ import Airbnb from '@assets/svg/front-pages/landing-page/Airbnb'
 import Coinbase from '@assets/svg/front-pages/landing-page/Coinbase'
 import Netflix from '@assets/svg/front-pages/landing-page/Netflix'
 
-// Client logos data
-const clientLogos = [
-  { name: 'AyoBerAKSI', src: '/images/client/AyoBerAKSI.png', alt: 'AyoBerAKSI' },
-  { name: 'BISA', src: '/images/client/Logo BISA.png', alt: 'BISA' },
-  { name: 'Telkom', src: '/images/client/telkom.png', alt: 'Telkom Indonesia' },
-  { name: 'Infranexia', src: '/images/client/Infranexia.png', alt: 'Infranexia' },
-  { name: 'Danantara', src: '/images/client/Danantara.png', alt: 'Danantara' },
-  { name: 'Asahsikecil', src: '/images/client/Asahsikecil.png', alt: 'Asahsikecil' }
-]
-
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 import styles from './styles.module.css'

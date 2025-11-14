@@ -23,6 +23,16 @@ import Document from '@assets/svg/front-pages/landing-page/Document'
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
+// Client logos data
+const clientLogos = [
+  { name: 'AyoBerAKSI', src: '/images/client/AyoBerAKSI.png', alt: 'AyoBerAKSI' },
+  { name: 'BISA', src: '/images/client/Logo BISA.png', alt: 'BISA' },
+  { name: 'Telkom', src: '/images/client/telkom.png', alt: 'Telkom Indonesia' },
+  { name: 'Infranexia', src: '/images/client/Infranexia.png', alt: 'Infranexia' },
+  { name: 'Danantara', src: '/images/client/Danantara.png', alt: 'Danantara' },
+  { name: 'Asahsikecil', src: '/images/client/Asahsikecil.png', alt: 'Asahsikecil' }
+]
+
 // Data
 const feature = [
   {
@@ -123,6 +133,25 @@ const UsefulFeature = () => {
       }}
     >
       <div className={classnames('flex flex-col gap-12 pbs-12 ', frontCommonStyles.layoutSpacing)}>
+        {/* Client Logos Section */}
+        <div className='flex flex-col gap-y-6 items-center justify-center'>
+          <Typography variant='body2' className='text-center font-medium' style={{ color: '#64748B' }}>
+            Dipercaya oleh
+          </Typography>
+          <div className='flex flex-wrap items-center justify-center gap-8 md:gap-12'>
+            {clientLogos.map((logo, index) => (
+              <div key={index} className='grayscale hover:grayscale-0 transition-all duration-300 opacity-60 hover:opacity-100'>
+                <img
+                  src={logo.src}
+                  alt={logo.alt}
+                  className='h-8 md:h-10 w-auto object-contain'
+                  style={{ maxWidth: '120px' }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className='flex flex-col gap-y-4 items-center justify-center'>
           <Chip size='small' variant='tonal' color='primary' label='Lengkap & Gratis' />
           <div className='flex flex-col items-center gap-y-1 justify-center flex-wrap'>
