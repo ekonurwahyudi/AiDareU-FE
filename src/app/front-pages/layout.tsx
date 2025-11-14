@@ -29,7 +29,7 @@ import '@assets/iconify-icons/generated-icons.css'
 export const metadata = {
   title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
   description:
-    'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway. Domain gratis tersedia!',
+    'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
   keywords: [
     'website toko online gratis',
     'buat website tanpa coding',
@@ -55,7 +55,7 @@ export const metadata = {
     url: 'https://aidareu.com',
     title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
     description:
-      'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report, Multi Payment Gateway.',
+      'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
     siteName: 'AiDareU',
     images: [
       {
@@ -70,7 +70,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
     description:
-      'Buat website toko online profesional tanpa coding dalam 5 menit. Gratis selamanya dengan AI Mentor, SEO otomatis, WhatsApp Report.',
+      'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
     images: ['/images/front-pages/landing-page/hero-dashboard-light.png'],
     creator: '@aidareu'
   },

@@ -23,9 +23,64 @@ import '@/app/globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'AiDareU - AI-Powered Website Builder',
+  title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
   description:
-    'AiDareU - AI-Powered Website Builder - Create stunning websites with AI assistance and drag-and-drop functionality.'
+    'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
+  keywords: [
+    'website toko online gratis',
+    'buat website tanpa coding',
+    'platform UMKM Indonesia',
+    'website profesional gratis',
+    'toko online indonesia',
+    'AI mentor bisnis',
+    'SEO otomatis',
+    'payment gateway indonesia',
+    'website builder indonesia',
+    'domain gratis'
+  ],
+  authors: [{ name: 'AiDareU', url: 'https://aidareu.com' }],
+  creator: 'AiDareU',
+  publisher: 'AiDareU',
+  metadataBase: new URL('https://aidareu.com'),
+  alternates: {
+    canonical: 'https://aidareu.com'
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: 'https://aidareu.com',
+    title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
+    description:
+      'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
+    siteName: 'AiDareU',
+    images: [
+      {
+        url: '/images/front-pages/landing-page/hero-dashboard-light.png',
+        width: 1200,
+        height: 630,
+        alt: 'AiDareU - Platformnya Para Entrepreneur Indonesia'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AiDareU - Platformnya Para Entrepreneur Indonesia',
+    description:
+      'AidareU adalah platformnya para entrepreneur untuk mulai dan scale up bisnis tanpa ribet—mulai dari website profesional, branding, mentoring by Calista AI, hingga manajemen toko lengkap: desain website, manajemen order & customer, optimasi Meta & Google Ads, SEO, Learning Center, serta komunitas bisnis.',
+    images: ['/images/front-pages/landing-page/hero-dashboard-light.png'],
+    creator: '@aidareu'
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
+    }
+  }
 }
 
 const RootLayout = async (props: ChildrenType) => {
