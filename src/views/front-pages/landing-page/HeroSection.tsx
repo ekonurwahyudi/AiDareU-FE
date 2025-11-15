@@ -79,7 +79,7 @@ const HeroSection = ({ mode }: { mode: SystemMode }) => {
           <Typography
             className={classnames('font-extrabold sm:text-[52px] text-4xl mbe-4 leading-tight', styles.heroText)}
           >
-            Platform Website Profesional untuk UMKM Indonesia
+            Platformnya Para Entrepreneur untuk Mulai dan Scale Up Bisnis
           </Typography>
           <Typography className='font-medium text-base sm:text-lg mbe-3' color='text.primary'>
             Jangkau Pelanggan Lebih Luas dengan Website Toko Online Sendiri, Kami siap membantu brand kamu tumbuh di era transformasi digital.

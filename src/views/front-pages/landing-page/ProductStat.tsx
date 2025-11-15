@@ -47,7 +47,7 @@ const statData: StatData[] = [
     isHover: false
   },
   {
-    title: 'Gratis Selamanya',
+    title: 'Gratis',
     value: '100%',
     svg: <Check color='var(--mui-palette-warning-main)' />,
     color: 'var(--mui-palette-warning-darkerOpacity)',

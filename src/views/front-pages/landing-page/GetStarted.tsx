@@ -82,7 +82,7 @@ const GetStarted = ({ mode }: { mode: SystemMode }) => {
             >
               Daftar Gratis!
             </Button>
-            <div className='flex items-center gap-2.5'>
+            {/* <div className='flex items-center gap-2.5'>
               <div className='flex -space-x-2'>
                 <img
                   src='/images/avatars/1.png'
@@ -106,7 +106,7 @@ const GetStarted = ({ mode }: { mode: SystemMode }) => {
                 />
               </div>
               <span className='font-semibold text-xs sm:text-sm text-gray-700 dark:text-gray-300'>500+ UMKM bergabung</span>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className='flex justify-center lg:justify-end items-center pbs-4 lg:pbs-0 z-[1] max-w-full lg:max-w-[50%] order-2'>

@@ -212,7 +212,7 @@ const UserDetails = () => {
                 variant='tonal' 
               />
             </div>
-            <div className='flex items-center justify-around flex-wrap gap-4'>
+            {/* <div className='flex items-center justify-around flex-wrap gap-4'>
               <div className='flex items-center gap-4'>
                 <CustomAvatar variant='rounded' color='primary' skin='light'>
                   <i className='tabler-box' />
@@ -231,7 +231,7 @@ const UserDetails = () => {
                   <Typography>Billing Revenue</Typography>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div>
             <Typography variant='h5'>Details</Typography>

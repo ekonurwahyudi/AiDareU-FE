@@ -783,53 +783,65 @@ const ProductListTable = () => {
   return (
     <Card>
       {/* Header: title kiri, tombol kanan */}
-      <CardHeader
-        title={
-          <div className="flex items-center gap-2">
-            <Typography variant="h5">My Products</Typography>
-            {loading && products.length > 0 && (
-              <CircularProgress size={16} className="text-primary" />
-            )}
-          </div>
-        }
-        action={
-          <div className="flex gap-3">
-            {currentStore?.subdomain && (
-              <Button
-                variant="outlined"
-                color="primary"
-                startIcon={<i className="tabler-external-link" />}
-                component="a"
-                href={`https://${currentStore.subdomain}.aidareu.com`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Lihat Website
-              </Button>
-            )}
+      <div className="flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
+        <div className="flex items-center gap-2">
+          <Typography variant="h5">My Products</Typography>
+          {loading && products.length > 0 && (
+            <CircularProgress size={16} className="text-primary" />
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-end items-center">
+          {currentStore?.subdomain && (
             <Button
               variant="outlined"
-              startIcon={<i className="tabler-refresh" />}
-              onClick={handleManualRefresh}
-              disabled={loading}
+              color="primary"
+              startIcon={<i className="tabler-external-link text-lg" />}
+              component="a"
+              href={`https://${currentStore.subdomain}.aidareu.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="small"
+              className="text-xs sm:text-sm whitespace-nowrap"
             >
-              {loading ? 'Refreshing...' : 'Refresh'}
+              <span className="hidden sm:inline">Lihat Website</span>
+              <span className="sm:hidden">Website</span>
             </Button>
-            <Button
-              color="success"
-              variant="tonal"
-              startIcon={<i className="tabler-file-excel" />}
-              onClick={handleExcelExport}
-              disabled={products.length === 0 || loading}
-            >
-              Export
-            </Button>
-            <Button variant="contained" component={Link} href="/apps/tokoku/products/add" startIcon={<i className="tabler-plus" />}>
-              Add Product
-            </Button>
-          </div>
-        }
-      />
+          )}
+          <Button
+            variant="outlined"
+            startIcon={<i className="tabler-refresh text-lg" />}
+            onClick={handleManualRefresh}
+            disabled={loading}
+            size="small"
+            className="text-xs sm:text-sm whitespace-nowrap"
+          >
+            <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+            <span className="sm:hidden">Refresh</span>
+          </Button>
+          <Button
+            color="success"
+            variant="tonal"
+            startIcon={<i className="tabler-file-excel text-lg" />}
+            onClick={handleExcelExport}
+            disabled={products.length === 0 || loading}
+            size="small"
+            className="text-xs sm:text-sm whitespace-nowrap"
+          >
+            Export
+          </Button>
+          <Button
+            variant="contained"
+            component={Link}
+            href="/apps/tokoku/products/add"
+            startIcon={<i className="tabler-plus text-lg" />}
+            size="small"
+            className="text-xs sm:text-sm whitespace-nowrap"
+          >
+            <span className="hidden sm:inline">Add Product</span>
+            <span className="sm:hidden">Add</span>
+          </Button>
+        </div>
+      </div>
 
       <Divider />
 
