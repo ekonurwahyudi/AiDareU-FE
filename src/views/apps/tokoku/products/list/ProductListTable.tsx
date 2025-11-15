@@ -795,13 +795,13 @@ const ProductListTable = () => {
             <Button
               variant="outlined"
               color="primary"
-              startIcon={<i className="tabler-external-link text-lg" />}
+              startIcon={<i className='tabler-external-link' />}
               component="a"
               href={`https://${currentStore.subdomain}.aidareu.com`}
               target="_blank"
               rel="noopener noreferrer"
               size="small"
-              className="text-xs sm:text-sm whitespace-nowrap"
+              sx={{ minWidth: { xs: '90px', sm: '120px' } }}
             >
               <span className="hidden sm:inline">Lihat Website</span>
               <span className="sm:hidden">Website</span>
@@ -809,23 +809,23 @@ const ProductListTable = () => {
           )}
           <Button
             variant="outlined"
-            startIcon={<i className="tabler-refresh text-lg" />}
+            startIcon={<i className='tabler-refresh' />}
             onClick={handleManualRefresh}
             disabled={loading}
             size="small"
-            className="text-xs sm:text-sm whitespace-nowrap"
+            sx={{ minWidth: { xs: '90px', sm: '100px' } }}
           >
             <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
             <span className="sm:hidden">Refresh</span>
           </Button>
           <Button
+            variant="outlined"
             color="success"
-            variant="tonal"
-            startIcon={<i className="tabler-file-excel text-lg" />}
+            startIcon={<i className='tabler-file-excel' />}
             onClick={handleExcelExport}
             disabled={products.length === 0 || loading}
             size="small"
-            className="text-xs sm:text-sm whitespace-nowrap"
+            sx={{ minWidth: '90px' }}
           >
             Export
           </Button>
@@ -833,9 +833,9 @@ const ProductListTable = () => {
             variant="contained"
             component={Link}
             href="/apps/tokoku/products/add"
-            startIcon={<i className="tabler-plus text-lg" />}
+            startIcon={<i className='tabler-plus' />}
             size="small"
-            className="text-xs sm:text-sm whitespace-nowrap"
+            sx={{ minWidth: { xs: '90px', sm: '120px' } }}
           >
             <span className="hidden sm:inline">Add Product</span>
             <span className="sm:hidden">Add</span>
