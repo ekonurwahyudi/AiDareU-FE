@@ -1,15 +1,8 @@
 'use client'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-
-// Hook Imports
-import { useRBAC } from '@/contexts/rbacContext'
 
 type Props = {
   searchValue: string
@@ -20,45 +13,21 @@ const ProductDigitalHeader = (props: Props) => {
   // Props
   const { searchValue, setSearchValue } = props
 
-  // Hooks
-  const { hasRole } = useRBAC()
-
   return (
-    <Card>
-      <CardContent className='flex flex-wrap justify-between items-center gap-4'>
-        <div>
-          <Typography variant='h5' className='mbe-1'>
-            Digital Products Library
-          </Typography>
-          <Typography>Browse and download our collection of digital products</Typography>
-        </div>
-        <div className='flex flex-wrap gap-4 items-center'>
-          <TextField
-            placeholder='Search products...'
-            size='small'
-            value={searchValue}
-            onChange={e => setSearchValue(e.target.value)}
-            className='is-[250px]'
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <i className='tabler-search' />
-                </InputAdornment>
-              )
-            }}
-          />
-          {hasRole('superadmin') && (
-            <Button
-              variant='contained'
-              color='primary'
-              startIcon={<i className='tabler-plus' />}
-            >
-              Add Product
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <TextField
+      placeholder='Search products...'
+      size='small'
+      value={searchValue}
+      onChange={e => setSearchValue(e.target.value)}
+      className='is-full sm:is-[250px]'
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position='start'>
+            <i className='tabler-search' />
+          </InputAdornment>
+        )
+      }}
+    />
   )
 }
 

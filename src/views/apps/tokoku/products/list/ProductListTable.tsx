@@ -793,39 +793,55 @@ const ProductListTable = () => {
           </div>
         }
         action={
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-end">
             {currentStore?.subdomain && (
               <Button
                 variant="outlined"
                 color="primary"
-                startIcon={<i className="tabler-external-link" />}
+                startIcon={<i className="tabler-external-link text-lg" />}
                 component="a"
                 href={`https://${currentStore.subdomain}.aidareu.com`}
                 target="_blank"
                 rel="noopener noreferrer"
+                size="small"
+                className="text-xs sm:text-sm"
               >
-                Lihat Website
+                <span className="hidden sm:inline">Lihat Website</span>
+                <span className="sm:hidden">Website</span>
               </Button>
             )}
             <Button
               variant="outlined"
-              startIcon={<i className="tabler-refresh" />}
+              startIcon={<i className="tabler-refresh text-lg" />}
               onClick={handleManualRefresh}
               disabled={loading}
+              size="small"
+              className="text-xs sm:text-sm"
             >
-              {loading ? 'Refreshing...' : 'Refresh'}
+              <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
+              <span className="sm:hidden">Refresh</span>
             </Button>
             <Button
               color="success"
               variant="tonal"
-              startIcon={<i className="tabler-file-excel" />}
+              startIcon={<i className="tabler-file-excel text-lg" />}
               onClick={handleExcelExport}
               disabled={products.length === 0 || loading}
+              size="small"
+              className="text-xs sm:text-sm"
             >
               Export
             </Button>
-            <Button variant="contained" component={Link} href="/apps/tokoku/products/add" startIcon={<i className="tabler-plus" />}>
-              Add Product
+            <Button
+              variant="contained"
+              component={Link}
+              href="/apps/tokoku/products/add"
+              startIcon={<i className="tabler-plus text-lg" />}
+              size="small"
+              className="text-xs sm:text-sm"
+            >
+              <span className="hidden sm:inline">Add Product</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </div>
         }

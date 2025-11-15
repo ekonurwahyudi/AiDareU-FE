@@ -54,6 +54,7 @@ type ChipColorType = {
 type Props = {
   productData?: ProductDigital[]
   searchValue: string
+  searchComponent?: React.ReactNode
 }
 
 const chipColor: { [key: string]: ChipColorType } = {
@@ -73,7 +74,7 @@ const chipColor: { [key: string]: ChipColorType } = {
 
 const ProductDigitalCard = (props: Props) => {
   // Props
-  const { productData, searchValue } = props
+  const { productData, searchValue, searchComponent } = props
 
   // Hooks
   const router = useRouter()
@@ -183,8 +184,9 @@ const ProductDigitalCard = (props: Props) => {
             <Typography variant='h5'>Product Digital</Typography>
             <Typography>Total {data.length} products available</Typography>
           </div>
-          <div className='flex flex-wrap items-center gap-y-4 gap-x-4'>
-            <FormControl fullWidth size='small' className='is-[250px] flex-auto'>
+          <div className='flex flex-wrap items-center gap-y-3 gap-x-3'>
+            {searchComponent}
+            <FormControl size='small' className='is-full sm:is-[200px]'>
               <Select
                 fullWidth
                 id='select-category'
@@ -207,6 +209,7 @@ const ProductDigitalCard = (props: Props) => {
               color='primary'
               startIcon={<i className='tabler-plus' />}
               onClick={handleAddProduct}
+              size='small'
             >
               Add Product
             </Button>)}

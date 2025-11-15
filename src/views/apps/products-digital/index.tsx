@@ -3,9 +3,6 @@
 // React Imports
 import { useState } from 'react'
 
-// MUI Imports
-import Grid from '@mui/material/Grid2'
-
 // Component Imports
 import ProductDigitalHeader from './ProductDigitalHeader'
 import ProductDigitalCard from './ProductDigitalCard'
@@ -22,14 +19,11 @@ const ProductDigitalList = ({ productData }: Props) => {
   const [searchValue, setSearchValue] = useState('')
 
   return (
-    <Grid container spacing={6}>
-      <Grid size={12}>
-        <ProductDigitalHeader searchValue={searchValue} setSearchValue={setSearchValue} />
-      </Grid>
-      <Grid size={12}>
-        <ProductDigitalCard productData={productData} searchValue={searchValue} />
-      </Grid>
-    </Grid>
+    <ProductDigitalCard
+      productData={productData}
+      searchValue={searchValue}
+      searchComponent={<ProductDigitalHeader searchValue={searchValue} setSearchValue={setSearchValue} />}
+    />
   )
 }
 
