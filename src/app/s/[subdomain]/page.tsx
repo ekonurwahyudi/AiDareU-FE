@@ -339,7 +339,9 @@ const DynamicStorePage = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
         const apiUrl = `${backendUrl}/api/store/${subdomain}`
 
-        console.log('Fetching store data from:', apiUrl)
+        console.log('[CLIENT] NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
+        console.log('[CLIENT] Subdomain from params:', subdomain)
+        console.log('[CLIENT] Fetching store data from:', apiUrl)
 
         const response = await fetch(apiUrl, {
           cache: 'no-store', // Prevent caching issues
@@ -349,12 +351,13 @@ const DynamicStorePage = () => {
           }
         })
 
-        console.log('Store API response status:', response.status)
-        console.log('Store API content-type:', response.headers.get('content-type'))
+        console.log('[CLIENT] Store API response status:', response.status)
+        console.log('[CLIENT] Store API content-type:', response.headers.get('content-type'))
 
         if (!response.ok) {
           const errorText = await response.text()
-          console.error('Store API error response:', errorText)
+          console.error('[CLIENT] ❌ Store API error response:', errorText)
+          console.error('[CLIENT] ❌ Response status:', response.status)
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
@@ -368,8 +371,10 @@ const DynamicStorePage = () => {
 
         const data = await response.json()
 
+        console.log('[CLIENT] ✅ Response data:', data)
+
         if (data.success && data.data) {
-          console.log('Store data fetched from API:', data.data)
+          console.log('[CLIENT] ✅ Store data fetched successfully')
           setStoreData(data.data)
           setStoreLoading(false) // Mark store data as loaded
           setStoreNotFound(false)
@@ -399,12 +404,13 @@ const DynamicStorePage = () => {
           }
         } else {
           // Store not found or inactive
-          console.error('Store not found:', subdomain)
+          console.error('[CLIENT] ❌ Store not found or data.success is false:', subdomain)
+          console.error('[CLIENT] ❌ Response data:', data)
           setStoreNotFound(true)
           setStoreLoading(false)
         }
       } catch (error) {
-        console.error('Error fetching store data:', error)
+        console.error('[CLIENT] ❌ Error fetching store data:', error)
         setStoreNotFound(true)
         setStoreLoading(false)
       } finally {
