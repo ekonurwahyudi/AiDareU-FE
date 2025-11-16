@@ -1409,7 +1409,7 @@ const DynamicStorePage = () => {
                     <Typography
                       variant="body1"
                       sx={{
-                        mb: 2,
+                        mb: 1,
                         lineHeight: 1.6,
                         fontSize: '1rem',
                         color: '#475569',
@@ -1419,7 +1419,7 @@ const DynamicStorePage = () => {
                       "{testimonial.testimoni || testimonial.text}"
                     </Typography>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Box
                         sx={{
                           width: 50,
@@ -1524,7 +1524,7 @@ const DynamicStorePage = () => {
                             <Typography
                               variant="body1"
                               sx={{
-                                mb: 2,
+                                mb: 1,
                                 lineHeight: 1.6,
                                 fontSize: '1rem',
                                 color: '#475569',
@@ -1538,7 +1538,7 @@ const DynamicStorePage = () => {
                               "{testimonial.testimoni || testimonial.text}"
                             </Typography>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Box
                                 sx={{
                                   width: 50,
@@ -1694,7 +1694,7 @@ const DynamicStorePage = () => {
                     <Typography
                       variant="body1"
                       sx={{
-                        mb: 2,
+                        mb: 1,
                         lineHeight: 1.6,
                         fontSize: '0.9rem',
                         color: '#475569',
@@ -1704,7 +1704,7 @@ const DynamicStorePage = () => {
                       "{testimonial.testimoni || testimonial.text}"
                     </Typography>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <Box
                         sx={{
                           width: 45,

@@ -204,9 +204,9 @@ export default function OrderConfirmationPage() {
 
     // Get bank account details
     const bankAccount = orderData.bankAccount || orderData.bank_account
-    const bankName = bankAccount?.nama_bank || 'N/A'
-    const accountNumber = bankAccount?.nomor_rekening || 'N/A'
-    const accountName = bankAccount?.nama_pemilik || 'N/A'
+    const bankName = bankAccount?.bank_name || bankAccount?.bankName || 'N/A'
+    const accountNumber = bankAccount?.account_number || bankAccount?.accountNumber || 'N/A'
+    const accountName = bankAccount?.account_holder_name || bankAccount?.accountHolderName || 'N/A'
 
     // Build product list
     const products = orderData.detailOrders || []
@@ -240,7 +240,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
   const handleWhatsAppClick = () => {
     const message = generateWhatsAppMessage()
-    const storePhone = orderData?.store?.no_hp_toko || storeData?.store?.no_hp_toko || ''
+    const storePhone = orderData?.store?.no_hp_toko || orderData?.store?.phone || storeData?.store?.no_hp_toko || storeData?.store?.phone || ''
     const phoneNumber = storePhone.replace(/[^0-9]/g, '')
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`
     window.open(whatsappUrl, '_blank')
