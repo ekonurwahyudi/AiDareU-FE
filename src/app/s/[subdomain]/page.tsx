@@ -1434,7 +1434,7 @@ const DynamicStorePage = () => {
                       >
                         👩
                       </Box>
-                      <Box>
+                      <Box sx={{ flex: 1 }}>
                         <Typography
                           variant="h6"
                           sx={{
@@ -1454,23 +1454,22 @@ const DynamicStorePage = () => {
                           />
                         </Box>
                       </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 16,
-                        right: 16,
-                        bgcolor: '#FEF3C7',
-                        color: '#92400E',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: '12px',
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                      {testimonial.lokasi && (
+                        <Box
+                          sx={{
+                            bgcolor: '#DBEAFE',
+                            color: '#1E40AF',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            flexShrink: 0
+                          }}
+                        >
+                          {testimonial.lokasi}
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </Grid>
@@ -1554,7 +1553,7 @@ const DynamicStorePage = () => {
                               >
                                 👩
                               </Box>
-                              <Box>
+                              <Box sx={{ flex: 1 }}>
                                 <Typography
                                   variant="h6"
                                   sx={{
@@ -1574,23 +1573,22 @@ const DynamicStorePage = () => {
                                   />
                                 </Box>
                               </Box>
-                            </Box>
-
-                            <Box
-                              sx={{
-                                position: 'absolute',
-                                bottom: 16,
-                                right: 16,
-                                bgcolor: '#FEF3C7',
-                                color: '#92400E',
-                                px: 2,
-                                py: 0.5,
-                                borderRadius: '12px',
-                                fontSize: '0.75rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                              {testimonial.lokasi && (
+                                <Box
+                                  sx={{
+                                    bgcolor: '#DBEAFE',
+                                    color: '#1E40AF',
+                                    px: 1.5,
+                                    py: 0.5,
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold',
+                                    flexShrink: 0
+                                  }}
+                                >
+                                  {testimonial.lokasi}
+                                </Box>
+                              )}
                             </Box>
                           </Box>
                         </Box>
@@ -1721,7 +1719,7 @@ const DynamicStorePage = () => {
                       >
                         👩
                       </Box>
-                      <Box>
+                      <Box sx={{ flex: 1 }}>
                         <Typography
                           variant="h6"
                           sx={{
@@ -1741,23 +1739,22 @@ const DynamicStorePage = () => {
                           />
                         </Box>
                       </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 12,
-                        right: 12,
-                        bgcolor: '#FEF3C7',
-                        color: '#92400E',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: '12px',
-                        fontSize: '0.7rem',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {testimonial.paket || testimonial.package || 'Paket Lengkap'}
+                      {testimonial.lokasi && (
+                        <Box
+                          sx={{
+                            bgcolor: '#DBEAFE',
+                            color: '#1E40AF',
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: '12px',
+                            fontSize: '0.7rem',
+                            fontWeight: 'bold',
+                            flexShrink: 0
+                          }}
+                        >
+                          {testimonial.lokasi}
+                        </Box>
+                      )}
                     </Box>
                   </Box>
                 </Box>

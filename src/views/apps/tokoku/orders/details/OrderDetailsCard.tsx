@@ -35,7 +35,8 @@ type Order = {
 
 // Utility function to generate proper image URLs
 const getImageUrl = (imagePath: string): string => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  // Use BACKEND_URL for storage files, not API_URL
+  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
   return `${baseUrl}/storage/${imagePath}`
 }
 

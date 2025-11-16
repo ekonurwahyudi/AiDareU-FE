@@ -320,25 +320,50 @@ export default function InvoicePage() {
             </Box>
 
             {/* Table Body */}
-            {orderData.detail_orders?.map((item: any, index: number) => (
-              <Box
-                key={item.id}
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '3fr 1fr 1fr 1fr',
-                  gap: 2,
-                  p: 2,
-                  borderBottom: index < orderData.detail_orders.length - 1 ? '1px solid #e0e0e0' : 'none'
-                }}
-              >
-                <Typography variant="body2">{item.product?.nama_produk || item.product?.name || 'Product'}</Typography>
-                <Typography variant="body2" sx={{ textAlign: 'center' }}>{formatRupiah(item.price)}</Typography>
-                <Typography variant="body2" sx={{ textAlign: 'center' }}>{item.quantity}</Typography>
-                <Typography variant="body2" sx={{ textAlign: 'right', fontWeight: 600 }}>
-                  {formatRupiah(item.price * item.quantity)}
-                </Typography>
-              </Box>
-            ))}
+            {orderData.detail_orders?.map((item: any, index: number) => {
+              const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+              const productImage = item.product?.foto_produk || item.product?.fotoProduk || item.foto_produk
+              const imageUrl = productImage
+                ? `${backendUrl}/storage/${productImage}`
+                : '/images/placeholder-product.png'
+
+              return (
+                <Box
+                  key={item.id}
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '3fr 1fr 1fr 1fr',
+                    gap: 2,
+                    p: 2,
+                    borderBottom: index < orderData.detail_orders.length - 1 ? '1px solid #e0e0e0' : 'none',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <img
+                      src={imageUrl}
+                      alt={item.product?.nama_produk || 'Product'}
+                      style={{
+                        width: 50,
+                        height: 50,
+                        objectFit: 'cover',
+                        borderRadius: '4px',
+                        border: '1px solid #e0e0e0'
+                      }}
+                      onError={(e: any) => {
+                        e.target.src = '/images/placeholder-product.png'
+                      }}
+                    />
+                    <Typography variant="body2">{item.product?.nama_produk || item.product?.name || 'Product'}</Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ textAlign: 'center' }}>{formatRupiah(item.price)}</Typography>
+                  <Typography variant="body2" sx={{ textAlign: 'center' }}>{item.quantity}</Typography>
+                  <Typography variant="body2" sx={{ textAlign: 'right', fontWeight: 600 }}>
+                    {formatRupiah(item.price * item.quantity)}
+                  </Typography>
+                </Box>
+              )
+            })}
           </Box>
         </Box>
 
