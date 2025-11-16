@@ -72,6 +72,12 @@ export async function middleware(request: NextRequest) {
 
   console.log(`[Middleware] 📥 Request: ${hostname}${url.pathname}`)
 
+  // Skip if already processed by Cloudflare Worker (path starts with /s/)
+  if (url.pathname.startsWith('/s/')) {
+    console.log(`[Middleware] ⏭️  Already rewritten by Cloudflare Worker, skipping`)
+    return NextResponse.next()
+  }
+
   // Skip internal/system domains
   if (
     hostname.includes('localhost') ||
@@ -83,8 +89,19 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Handle subdomain.aidareu.com requests
-  if (hostname.includes('.aidareu.com') && !hostname.startsWith('www.')) {
+  // Skip static assets
+  if (
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/static/') ||
+    url.pathname.startsWith('/images/') ||
+    url.pathname.includes('.')
+  ) {
+    console.log(`[Middleware] ⏭️  Skipping static asset: ${url.pathname}`)
+    return NextResponse.next()
+  }
+
+  // Handle subdomain.aidareu.com requests (only if NOT already handled by Worker)
+  if (hostname.includes('.aidareu.com') && !hostname.startsWith('www.') && hostname !== 'aidareu.com') {
     const subdomain = hostname.split('.')[0]
 
     if (subdomain && subdomain !== 'www' && subdomain !== 'panel' && subdomain !== 'api') {
@@ -95,6 +112,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Handle custom domain requests (aidareu.site, etc)
+  // NOTE: This will ONLY run if Cloudflare Worker didn't handle it
   if (!hostname.includes('aidareu.com') && !hostname.includes('localhost')) {
     const subdomain = await getSubdomainFromDomain(hostname)
 
