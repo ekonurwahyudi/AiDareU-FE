@@ -21,8 +21,13 @@ async function getSubdomainFromDomain(hostname: string): Promise<string | null> 
   try {
     console.log(`[Middleware] ⏳ Cache MISS: Fetching ${hostname} from API...`)
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-    const url = `${apiUrl}/api/public/stores/by-domain/${hostname}`
+    // Get base URL without trailing /api
+    let baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
+    // Remove trailing /api if exists to avoid double /api/api
+    baseUrl = baseUrl.replace(/\/api\/?$/, '')
+
+    const url = `${baseUrl}/api/public/stores/by-domain/${hostname}`
 
     console.log(`[Middleware] 🔍 Calling: ${url}`)
 
