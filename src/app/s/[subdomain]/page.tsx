@@ -1409,12 +1409,11 @@ const DynamicStorePage = () => {
                     <Typography
                       variant="body1"
                       sx={{
-                        mb: 3,
+                        mb: 2,
                         lineHeight: 1.6,
                         fontSize: '1rem',
                         color: '#475569',
-                        fontStyle: 'italic',
-                        flex: 1
+                        fontStyle: 'italic'
                       }}
                     >
                       "{testimonial.testimoni || testimonial.text}"
@@ -1526,12 +1525,11 @@ const DynamicStorePage = () => {
                             <Typography
                               variant="body1"
                               sx={{
-                                mb: 3,
+                                mb: 2,
                                 lineHeight: 1.6,
                                 fontSize: '1rem',
                                 color: '#475569',
                                 fontStyle: 'italic',
-                                flex: 1,
                                 overflow: 'hidden',
                                 display: '-webkit-box',
                                 WebkitLineClamp: 4,
@@ -1698,7 +1696,7 @@ const DynamicStorePage = () => {
                     <Typography
                       variant="body1"
                       sx={{
-                        mb: 3,
+                        mb: 2,
                         lineHeight: 1.6,
                         fontSize: '0.9rem',
                         color: '#475569',
