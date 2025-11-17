@@ -105,6 +105,17 @@ const HeroSection = ({ mode }: { mode: SystemMode }) => {
             >
               Buat Website Gratis
             </Button>
+            <Button
+              component={Link}
+              size='large'
+              href='https://aidareu.site/'
+              target='_blank'
+              variant='outlined'
+              color='secondary'
+              className='pli-10 plb-4 text-lg font-bold'
+            >
+              Lihat Demo
+            </Button>
           </div>
       </div>
       <div

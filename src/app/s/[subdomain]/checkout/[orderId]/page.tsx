@@ -662,9 +662,26 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         const quantity = item.quantity || 1
                         const price = item.price || 0
                         const subtotal = quantity * price
-                        const productImage = product.foto_produk || product.fotoProduk
                         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-                        const imageUrl = productImage ? `${backendUrl}/storage/${productImage}` : '/images/placeholder-product.png'
+
+                        // Parse image from JSON string
+                        const productImageRaw = product.foto_produk || product.fotoProduk
+                        let imageUrl = '/images/placeholder-product.png'
+
+                        if (productImageRaw) {
+                          try {
+                            const images = JSON.parse(productImageRaw)
+                            if (Array.isArray(images) && images.length > 0) {
+                              imageUrl = `${backendUrl}/storage/${images[0]}`
+                            } else if (typeof productImageRaw === 'string' && !productImageRaw.startsWith('[')) {
+                              // If it's a plain string (not JSON array)
+                              imageUrl = `${backendUrl}/storage/${productImageRaw}`
+                            }
+                          } catch (e) {
+                            // If parsing fails, treat as plain string
+                            imageUrl = `${backendUrl}/storage/${productImageRaw}`
+                          }
+                        }
 
                         return (
                           <Box key={index} sx={{ mb: 2, pb: 2, borderBottom: index < detailOrders.length - 1 ? '1px solid #e0e0e0' : 'none' }}>

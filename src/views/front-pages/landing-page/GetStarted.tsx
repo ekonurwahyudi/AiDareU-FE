@@ -71,7 +71,7 @@ const GetStarted = ({ mode }: { mode: SystemMode }) => {
               </div>
             </div>
           </div>
-          <div className='flex flex-col gap-4 items-center lg:items-start w-full lg:w-auto'>
+          <div className='flex flex-col sm:flex-row gap-4 items-center lg:items-start w-full lg:w-auto'>
             <Button
               component={Link}
               href='/registrasi'
@@ -81,6 +81,16 @@ const GetStarted = ({ mode }: { mode: SystemMode }) => {
               startIcon={<i className='tabler-rocket' />}
             >
               Daftar Gratis!
+            </Button>
+            <Button
+              component={Link}
+              href='https://aidareu.site/'
+              target='_blank'
+              variant='outlined'
+              size='large'
+              className='pli-8 plb-3.5 text-base font-bold whitespace-nowrap border-2'
+            >
+              Lihat Demo
             </Button>
             {/* <div className='flex items-center gap-2.5'>
               <div className='flex -space-x-2'>

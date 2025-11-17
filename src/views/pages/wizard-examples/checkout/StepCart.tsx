@@ -474,7 +474,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
           <div className='border rounded'>
             {cartItems.map((product: CartItem, index: number) => (
               <Box
-                key={product.id}
+                key={product.uuid || product.id}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -586,7 +586,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                       onChange={(e) => {
                         const newQuantity = parseInt(e.target.value) || 1
                         if (newQuantity > 0) {
-                          updateCartQuantity(product.id, newQuantity)
+                          updateCartQuantity(product.uuid || product.id, newQuantity)
                         }
                       }}
                       inputProps={{ min: 1 }}
@@ -604,7 +604,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                 {/* Delete Button */}
                 <IconButton
                   size='small'
-                  onClick={() => removeFromCart(product.id)}
+                  onClick={() => removeFromCart(product.uuid || product.id)}
                   sx={{
                     color: primaryColor,
                     border: `1px solid ${primaryColor}`,
