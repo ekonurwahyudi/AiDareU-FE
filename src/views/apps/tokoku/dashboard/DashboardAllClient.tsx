@@ -89,8 +89,10 @@ const DashboardAllClient = () => {
       if (revenueRes.status === 'fulfilled' && revenueRes.value.ok) {
         const revData = await revenueRes.value.json()
         console.log('Revenue Response:', revData)
-        if (revData.status === 'success') {
+        if (revData.status === 'success' && revData.data) {
           setRevenueData(revData.data)
+        } else {
+          console.warn('Revenue data is empty or failed:', revData)
         }
       } else {
         console.error('Revenue failed:', revenueRes)
@@ -100,8 +102,10 @@ const DashboardAllClient = () => {
       if (productsRes.status === 'fulfilled' && productsRes.value.ok) {
         const prodData = await productsRes.value.json()
         console.log('Popular Products Response:', prodData)
-        if (prodData.status === 'success') {
+        if (prodData.status === 'success' && prodData.data) {
           setPopularProducts(prodData.data)
+        } else {
+          console.warn('Popular Products data is empty or failed:', prodData)
         }
       } else {
         console.error('Popular Products failed:', productsRes)
@@ -111,8 +115,10 @@ const DashboardAllClient = () => {
       if (storesRes.status === 'fulfilled' && storesRes.value.ok) {
         const storesData = await storesRes.value.json()
         console.log('Popular Stores Response:', storesData)
-        if (storesData.status === 'success') {
+        if (storesData.status === 'success' && storesData.data) {
           setPopularStores(storesData.data)
+        } else {
+          console.warn('Popular Stores data is empty or failed:', storesData)
         }
       } else {
         console.error('Popular Stores failed:', storesRes)
