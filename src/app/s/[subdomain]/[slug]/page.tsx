@@ -874,7 +874,12 @@ function ProductDetailPage() {
 
     const storeName = storeData.store.nama_toko || storeData.store.name || 'Toko'
     const productName = product.name
-    const storePhone = storeData.store.no_hp_toko || storeData.store.phone || ''
+    const storePhone = storeData.store.phone || ''
+
+    if (!storePhone) {
+      alert('Nomor WhatsApp toko belum tersedia')
+      return
+    }
 
     // Clean phone number - remove all non-numeric characters
     let phoneNumber = storePhone.replace(/[^0-9]/g, '')
@@ -898,11 +903,6 @@ function ProductDetailPage() {
 ${currentUrl}`
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
-
-    console.log('Store Phone:', storePhone)
-    console.log('Cleaned Phone Number:', phoneNumber)
-    console.log('WhatsApp URL:', whatsappUrl)
-
     window.open(whatsappUrl, '_blank')
   }
 
@@ -1463,7 +1463,7 @@ ${currentUrl}`
               <IconButton
                 onClick={handleWhatsAppClick}
                 sx={{
-                  border: '1px solid #E2E8F0',
+                  border: `1px solid ${primaryColor}`,
                   color: primaryColor,
                   width: { xs: 44, md: 44 },
                   height: { xs: 44, md: 44 },
@@ -1482,8 +1482,8 @@ ${currentUrl}`
                 onClick={handleAddToCart}
                 disabled={!product.inStock}
                 sx={{
-                  borderColor: '#E2E8F0',
-                  color: '#64748B',
+                  borderColor: primaryColor,
+                  color: primaryColor,
                   minWidth: { xs: 44, md: 100 },
                   width: { xs: 44, md: 'auto' },
                   height: { xs: 44, md: 44 },
@@ -1495,8 +1495,8 @@ ${currentUrl}`
                   '& .MuiButton-startIcon': { m: 0 },
                   '&:hover': {
                     bgcolor: '#F8FAFC',
-                    borderColor: '#CBD5E0',
-                    color: '#1E293B'
+                    borderColor: primaryColor,
+                    color: primaryColor
                   }
                 }}
                 startIcon={

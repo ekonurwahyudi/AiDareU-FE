@@ -496,7 +496,12 @@ const DynamicStorePage = () => {
   const handleWhatsAppContact = () => {
     if (!storeData?.store) return
 
-    const storePhone = storeData.store.no_hp_toko || storeData.store.phone || ''
+    const storePhone = storeData.store.phone || ''
+
+    if (!storePhone) {
+      alert('Nomor WhatsApp toko belum tersedia')
+      return
+    }
 
     // Clean phone number - remove all non-numeric characters
     let phoneNumber = storePhone.replace(/[^0-9]/g, '')

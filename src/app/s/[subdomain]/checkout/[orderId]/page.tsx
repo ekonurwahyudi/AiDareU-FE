@@ -240,8 +240,25 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
   const handleWhatsAppClick = () => {
     const message = generateWhatsAppMessage()
-    const storePhone = orderData?.store?.no_hp_toko || orderData?.store?.phone || storeData?.store?.no_hp_toko || storeData?.store?.phone || ''
-    const phoneNumber = storePhone.replace(/[^0-9]/g, '')
+    const storePhone = orderData?.store?.phone || storeData?.store?.phone || ''
+
+    if (!storePhone) {
+      alert('Nomor WhatsApp toko belum tersedia')
+      return
+    }
+
+    let phoneNumber = storePhone.replace(/[^0-9]/g, '')
+
+    // If phone starts with 0, replace with 62
+    if (phoneNumber.startsWith('0')) {
+      phoneNumber = '62' + phoneNumber.substring(1)
+    }
+
+    // If phone doesn't start with 62, add it
+    if (!phoneNumber.startsWith('62')) {
+      phoneNumber = '62' + phoneNumber
+    }
+
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`
     window.open(whatsappUrl, '_blank')
   }
