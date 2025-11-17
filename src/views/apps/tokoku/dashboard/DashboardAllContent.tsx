@@ -9,6 +9,7 @@ import LineAreaYearlySalesChart from '@views/dashboards/crm/LineAreaYearlySalesC
 import CardStatVertical from '@/components/card-statistics/Vertical'
 import RevenueReport from '@/views/apps/tokoku/dashboard/RevenueReport'
 import PopularProducts from '@/views/apps/tokoku/dashboard/PopularProducts'
+import PopularStores from '@/views/apps/tokoku/dashboard/PopularStores'
 
 interface DashboardStats {
   total_orders: number
@@ -37,13 +38,21 @@ interface PopularProduct {
   revenue: number
 }
 
+interface PopularStore {
+  uuid: string
+  name: string
+  total_orders: number
+  total_revenue: number
+}
+
 interface DashboardContentProps {
   dashboardStats?: DashboardStats | null
   revenueData?: RevenueData[] | null
   popularProducts?: PopularProduct[] | null
+  popularStores?: PopularStore[] | null
 }
 
-const DashboardAllContent = ({ dashboardStats, revenueData, popularProducts }: DashboardContentProps) => {
+const DashboardAllContent = ({ dashboardStats, revenueData, popularProducts, popularStores }: DashboardContentProps) => {
   // Safe access with defaults
   const stats = dashboardStats || {
     total_orders: 0,
@@ -103,11 +112,14 @@ const DashboardAllContent = ({ dashboardStats, revenueData, popularProducts }: D
           avatarSize={44}
         />
       </Grid>
-      <Grid size={{ xs: 12, lg: 8 }}>
+      <Grid size={{ xs: 12, lg: 4 }}>
         <RevenueReport revenueData={revenueData || []} />
       </Grid>
       <Grid size={{ xs: 12, lg: 4 }}>
         <PopularProducts products={popularProducts} />
+      </Grid>
+      <Grid size={{ xs: 12, lg: 4 }}>
+        <PopularStores stores={popularStores} />
       </Grid>
     </>
   )

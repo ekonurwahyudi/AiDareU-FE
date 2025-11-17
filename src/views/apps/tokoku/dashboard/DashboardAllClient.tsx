@@ -18,6 +18,7 @@ const DashboardAllClient = () => {
   const [dashboardStats, setDashboardStats] = useState<any>(null)
   const [revenueData, setRevenueData] = useState<any>(null)
   const [popularProducts, setPopularProducts] = useState<any>(null)
+  const [popularStores, setPopularStores] = useState<any>(null)
 
   useEffect(() => {
     fetchDashboardData()
@@ -50,7 +51,7 @@ const DashboardAllClient = () => {
       }
 
       // Fetch all dashboard data in parallel - without store_uuid filter
-      const [statsRes, revenueRes, productsRes] = await Promise.allSettled([
+      const [statsRes, revenueRes, productsRes, storesRes] = await Promise.allSettled([
         fetch(`${apiUrl}/dashboard/stats/all`, {
           headers,
           credentials: 'include',
@@ -62,6 +63,11 @@ const DashboardAllClient = () => {
           cache: 'no-store'
         }),
         fetch(`${apiUrl}/dashboard/popular-products/all?limit=5`, {
+          headers,
+          credentials: 'include',
+          cache: 'no-store'
+        }),
+        fetch(`${apiUrl}/dashboard/popular-stores/all?limit=5`, {
           headers,
           credentials: 'include',
           cache: 'no-store'
@@ -89,6 +95,14 @@ const DashboardAllClient = () => {
         const prodData = await productsRes.value.json()
         if (prodData.status === 'success') {
           setPopularProducts(prodData.data)
+        }
+      }
+
+      // Process popular stores
+      if (storesRes.status === 'fulfilled' && storesRes.value.ok) {
+        const storesData = await storesRes.value.json()
+        if (storesData.status === 'success') {
+          setPopularStores(storesData.data)
         }
       }
 
@@ -145,6 +159,7 @@ const DashboardAllClient = () => {
         dashboardStats={dashboardStats}
         revenueData={revenueData}
         popularProducts={popularProducts}
+        popularStores={popularStores}
       />
     </Grid>
   )
