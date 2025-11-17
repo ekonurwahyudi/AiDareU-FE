@@ -8,8 +8,7 @@ import CardContent from '@mui/material/CardContent'
 import Skeleton from '@mui/material/Skeleton'
 
 // Component Imports
-import EcommerceDashboard from '../../apps/tokoku/dashboard/page'
-import StoreSetupChecker from '@components/store-setup/StoreSetupChecker'
+import DashboardAllClient from '@/views/apps/tokoku/dashboard/DashboardAllClient'
 
 // Skeleton Component
 const DashboardSkeleton = () => (
@@ -87,14 +86,12 @@ const DashboardSkeleton = () => (
   </Grid>
 )
 
-const DashboardECommerce = () => {
+const DashboardAll = () => {
   return (
-    <StoreSetupChecker>
-      <Suspense fallback={<DashboardSkeleton />}>
-        <EcommerceDashboard />
-      </Suspense>
-    </StoreSetupChecker>
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardAllClient />
+    </Suspense>
   )
 }
 
-export default DashboardECommerce
+export default DashboardAll
