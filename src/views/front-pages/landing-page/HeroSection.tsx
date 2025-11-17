@@ -96,23 +96,19 @@ const HeroSection = ({ mode }: { mode: SystemMode }) => {
         <div className='flex items-center justify-center gap-4 relative flex-wrap'>
             <Button
               component={Link}
-              size='large'
               href='/registrasi'
               variant='contained'
               color='primary'
-              className='pli-10 plb-4 text-lg font-bold'
               startIcon={<i className='tabler-rocket' />}
             >
               Buat Website Gratis
             </Button>
             <Button
               component={Link}
-              size='large'
               href='https://aidareu.site/'
               target='_blank'
-              variant='outlined'
-              color='secondary'
-              className='pli-10 plb-4 text-lg font-bold'
+              variant='contained'
+              color='success'
             >
               Lihat Demo
             </Button>

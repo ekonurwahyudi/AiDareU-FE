@@ -37,6 +37,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CloseIcon from '@mui/icons-material/Close'
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 
 // Store Components
 import StoreHeader from '@/components/store/StoreHeader'
@@ -868,6 +869,26 @@ function ProductDetailPage() {
     router.push(`/checkout`)
   }
 
+  const handleWhatsAppClick = () => {
+    if (!product || !storeData?.store) return
+
+    const storeName = storeData.store.nama_toko || storeData.store.name || 'Toko'
+    const productName = product.name
+    const storePhone = storeData.store.no_hp_toko || storeData.store.phone || ''
+    const phoneNumber = storePhone.replace(/[^0-9]/g, '')
+
+    // Get current URL
+    const currentUrl = window.location.href
+
+    // Build WhatsApp message with line break
+    const message = `Halo toko ${storeName}, saya ingin bertanya tentang produk ${productName} ini?
+
+${currentUrl}`
+
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
+  }
+
   if (loading || storeLoading) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#FAFBFC' }}>
@@ -1422,6 +1443,22 @@ function ProductDetailPage() {
 
             {/* Action Buttons */}
             <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, width: { xs: '100%', md: 'auto' } }}>
+              <IconButton
+                onClick={handleWhatsAppClick}
+                sx={{
+                  bgcolor: '#25D366',
+                  color: 'white',
+                  width: { xs: 44, md: 44 },
+                  height: { xs: 44, md: 44 },
+                  borderRadius: '12px',
+                  '&:hover': {
+                    bgcolor: '#128C7E'
+                  }
+                }}
+              >
+                <WhatsAppIcon fontSize="small" />
+              </IconButton>
+
               <Button
                 variant="outlined"
                 onClick={handleAddToCart}

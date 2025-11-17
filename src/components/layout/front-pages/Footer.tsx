@@ -54,7 +54,7 @@ const Footer = ({ mode }: { mode: Mode }) => {
             </Link>
           </Typography>
           <div className='flex gap-1.5 items-center'>
-            <IconButton component={Link} size='small' href='https://www.instagram.com/aidareu/' target='_blank'>
+            <IconButton component={Link} size='small' href='https://www.instagram.com/aidareu.official/' target='_blank'>
               <i className='tabler-brand-instagram-filled text-white text-lg' />
             </IconButton>
             <IconButton component={Link} size='small' href='#' target='_blank'>

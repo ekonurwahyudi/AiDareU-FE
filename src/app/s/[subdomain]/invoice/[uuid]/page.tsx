@@ -322,10 +322,25 @@ export default function InvoicePage() {
             {/* Table Body */}
             {orderData.detail_orders?.map((item: any, index: number) => {
               const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-              const productImage = item.product?.foto_produk || item.product?.fotoProduk || item.foto_produk
-              const imageUrl = productImage
-                ? `${backendUrl}/storage/${productImage}`
-                : '/images/placeholder-product.png'
+
+              // Parse image from JSON string
+              const productImageRaw = item.product?.foto_produk || item.product?.fotoProduk || item.foto_produk
+              let imageUrl = '/images/placeholder-product.png'
+
+              if (productImageRaw) {
+                try {
+                  const images = JSON.parse(productImageRaw)
+                  if (Array.isArray(images) && images.length > 0) {
+                    imageUrl = `${backendUrl}/storage/${images[0]}`
+                  } else if (typeof productImageRaw === 'string' && !productImageRaw.startsWith('[')) {
+                    // If it's a plain string (not JSON array)
+                    imageUrl = `${backendUrl}/storage/${productImageRaw}`
+                  }
+                } catch (e) {
+                  // If parsing fails, treat as plain string
+                  imageUrl = `${backendUrl}/storage/${productImageRaw}`
+                }
+              }
 
               return (
                 <Box
