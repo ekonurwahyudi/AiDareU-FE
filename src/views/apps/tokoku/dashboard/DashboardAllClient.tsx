@@ -77,33 +77,45 @@ const DashboardAllClient = () => {
       // Process stats
       if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
         const statsData = await statsRes.value.json()
+        console.log('Stats Response:', statsData)
         if (statsData.status === 'success') {
           setDashboardStats(statsData.data)
         }
+      } else {
+        console.error('Stats failed:', statsRes)
       }
 
       // Process revenue
       if (revenueRes.status === 'fulfilled' && revenueRes.value.ok) {
         const revData = await revenueRes.value.json()
+        console.log('Revenue Response:', revData)
         if (revData.status === 'success') {
           setRevenueData(revData.data)
         }
+      } else {
+        console.error('Revenue failed:', revenueRes)
       }
 
       // Process popular products
       if (productsRes.status === 'fulfilled' && productsRes.value.ok) {
         const prodData = await productsRes.value.json()
+        console.log('Popular Products Response:', prodData)
         if (prodData.status === 'success') {
           setPopularProducts(prodData.data)
         }
+      } else {
+        console.error('Popular Products failed:', productsRes)
       }
 
       // Process popular stores
       if (storesRes.status === 'fulfilled' && storesRes.value.ok) {
         const storesData = await storesRes.value.json()
+        console.log('Popular Stores Response:', storesData)
         if (storesData.status === 'success') {
           setPopularStores(storesData.data)
         }
+      } else {
+        console.error('Popular Stores failed:', storesRes)
       }
 
     } catch (error) {

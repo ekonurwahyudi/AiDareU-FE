@@ -20,6 +20,8 @@ interface PopularProductsProps {
 }
 
 const PopularProducts = ({ products }: PopularProductsProps) => {
+  console.log('PopularProducts received data:', products)
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',

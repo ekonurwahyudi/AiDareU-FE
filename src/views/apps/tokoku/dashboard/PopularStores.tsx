@@ -21,6 +21,8 @@ type PopularStoreType = {
 }
 
 const PopularStores = ({ stores }: { stores?: PopularStoreType[] | null }) => {
+  console.log('PopularStores received data:', stores)
+
   // States
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 

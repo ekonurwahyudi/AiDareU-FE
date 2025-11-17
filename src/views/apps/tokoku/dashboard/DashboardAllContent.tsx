@@ -53,6 +53,13 @@ interface DashboardContentProps {
 }
 
 const DashboardAllContent = ({ dashboardStats, revenueData, popularProducts, popularStores }: DashboardContentProps) => {
+  console.log('DashboardAllContent received:', {
+    dashboardStats,
+    revenueData,
+    popularProducts,
+    popularStores
+  })
+
   // Safe access with defaults
   const stats = dashboardStats || {
     total_orders: 0,
