@@ -18,6 +18,7 @@ type PopularStoreType = {
   name: string
   total_orders: number
   total_revenue: number
+  subdomain?: string
 }
 
 const PopularStores = ({ stores }: { stores?: PopularStoreType[] | null }) => {
@@ -78,9 +79,22 @@ const PopularStores = ({ stores }: { stores?: PopularStoreType[] | null }) => {
                 <i className='tabler-building-store text-primary text-xl' />
               </div>
               <div className='flex flex-col flex-1'>
-                <Typography variant='body2' className='font-medium'>
-                  {store.name}
-                </Typography>
+                <div className='flex items-center gap-2'>
+                  <Typography variant='body2' className='font-medium'>
+                    {store.name}
+                  </Typography>
+                  {store.subdomain && (
+                    <a
+                      href={`https://${store.subdomain}.aidareu.com`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-xs bg-success text-white px-2 py-0.5 rounded no-underline hover:opacity-80'
+                      style={{ fontSize: '0.65rem' }}
+                    >
+                      Lihat Toko
+                    </a>
+                  )}
+                </div>
                 <div className='flex items-center gap-2'>
                   <Typography variant='caption' color='text.secondary'>
                     {store.total_orders} Orders

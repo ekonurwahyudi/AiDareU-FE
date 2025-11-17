@@ -43,6 +43,7 @@ interface PopularStore {
   name: string
   total_orders: number
   total_revenue: number
+  subdomain?: string
 }
 
 interface DashboardContentProps {

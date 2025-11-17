@@ -78,7 +78,7 @@ const feature = [
   {
     icon: <Document color='var(--mui-palette-primary-main)' />,
     title: 'Learning Center Pro',
-    description: 'Materi lengkap: copywriting, ads, design, SEO. Dari newbie sampai pro. Gratis akses selamanya.'
+    description: 'Materi lengkap: copywriting, ads, design, SEO. Dari newbie sampai pro. Gratis.'
   },
   {
     icon: <Paper color='var(--mui-palette-primary-main)' />,
