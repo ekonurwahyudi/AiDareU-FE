@@ -492,6 +492,32 @@ const DynamicStorePage = () => {
   // Get primary color from store settings
   const primaryColor = storeData?.settings?.primary_color || '#E91E63'
 
+  // Handle WhatsApp contact
+  const handleWhatsAppContact = () => {
+    if (!storeData?.store) return
+
+    const storePhone = storeData.store.no_hp_toko || storeData.store.phone || ''
+
+    // Clean phone number - remove all non-numeric characters
+    let phoneNumber = storePhone.replace(/[^0-9]/g, '')
+
+    // If phone starts with 0, replace with 62
+    if (phoneNumber.startsWith('0')) {
+      phoneNumber = '62' + phoneNumber.substring(1)
+    }
+
+    // If phone doesn't start with 62, add it
+    if (!phoneNumber.startsWith('62')) {
+      phoneNumber = '62' + phoneNumber
+    }
+
+    const storeName = storeData.store.nama_toko || storeData.store.name || 'Toko'
+    const message = `Halo ${storeName}, saya ingin bertanya tentang produk Anda`
+
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
+  }
+
   // Show loading skeleton while store data is loading
   if (storeLoading) {
     return (
@@ -2007,7 +2033,7 @@ const DynamicStorePage = () => {
                       '&.MuiButton-root': { boxShadow: 'none' },
                       '&.MuiButton-contained': { boxShadow: 'none' }
                     }}
-                    onClick={() => window.open('https://wa.me/628121555423', '_blank')}
+                    onClick={handleWhatsAppContact}
                   >
                     Hubungi Kami
                   </Button>

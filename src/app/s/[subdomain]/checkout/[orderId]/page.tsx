@@ -668,6 +668,12 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         const productImageRaw = product.foto_produk || product.fotoProduk
                         let imageUrl = '/images/placeholder-product.png'
 
+                        // Debug logging
+                        if (index === 0) {
+                          console.log('[Checkout Order] Product:', product)
+                          console.log('[Checkout Order] Product Image Raw:', productImageRaw)
+                        }
+
                         if (productImageRaw) {
                           try {
                             const images = JSON.parse(productImageRaw)
@@ -681,6 +687,11 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                             // If parsing fails, treat as plain string
                             imageUrl = `${backendUrl}/storage/${productImageRaw}`
                           }
+                        }
+
+                        // Debug logging
+                        if (index === 0) {
+                          console.log('[Checkout Order] Final Image URL:', imageUrl)
                         }
 
                         return (

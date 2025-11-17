@@ -327,6 +327,13 @@ export default function InvoicePage() {
               const productImageRaw = item.product?.foto_produk || item.product?.fotoProduk || item.foto_produk
               let imageUrl = '/images/placeholder-product.png'
 
+              // Debug logging
+              if (index === 0) {
+                console.log('[Invoice] Item:', item)
+                console.log('[Invoice] Product:', item.product)
+                console.log('[Invoice] Product Image Raw:', productImageRaw)
+              }
+
               if (productImageRaw) {
                 try {
                   const images = JSON.parse(productImageRaw)
@@ -340,6 +347,11 @@ export default function InvoicePage() {
                   // If parsing fails, treat as plain string
                   imageUrl = `${backendUrl}/storage/${productImageRaw}`
                 }
+              }
+
+              // Debug logging
+              if (index === 0) {
+                console.log('[Invoice] Final Image URL:', imageUrl)
               }
 
               return (

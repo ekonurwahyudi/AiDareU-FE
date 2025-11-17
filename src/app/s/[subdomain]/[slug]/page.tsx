@@ -875,7 +875,19 @@ function ProductDetailPage() {
     const storeName = storeData.store.nama_toko || storeData.store.name || 'Toko'
     const productName = product.name
     const storePhone = storeData.store.no_hp_toko || storeData.store.phone || ''
-    const phoneNumber = storePhone.replace(/[^0-9]/g, '')
+
+    // Clean phone number - remove all non-numeric characters
+    let phoneNumber = storePhone.replace(/[^0-9]/g, '')
+
+    // If phone starts with 0, replace with 62
+    if (phoneNumber.startsWith('0')) {
+      phoneNumber = '62' + phoneNumber.substring(1)
+    }
+
+    // If phone doesn't start with 62, add it
+    if (!phoneNumber.startsWith('62')) {
+      phoneNumber = '62' + phoneNumber
+    }
 
     // Get current URL
     const currentUrl = window.location.href
@@ -886,6 +898,11 @@ function ProductDetailPage() {
 ${currentUrl}`
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+
+    console.log('Store Phone:', storePhone)
+    console.log('Cleaned Phone Number:', phoneNumber)
+    console.log('WhatsApp URL:', whatsappUrl)
+
     window.open(whatsappUrl, '_blank')
   }
 
@@ -1446,13 +1463,14 @@ ${currentUrl}`
               <IconButton
                 onClick={handleWhatsAppClick}
                 sx={{
-                  bgcolor: '#25D366',
-                  color: 'white',
+                  border: '1px solid #E2E8F0',
+                  color: primaryColor,
                   width: { xs: 44, md: 44 },
                   height: { xs: 44, md: 44 },
                   borderRadius: '12px',
                   '&:hover': {
-                    bgcolor: '#128C7E'
+                    bgcolor: '#F8FAFC',
+                    borderColor: primaryColor
                   }
                 }}
               >
