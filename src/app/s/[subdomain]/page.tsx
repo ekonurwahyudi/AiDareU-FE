@@ -1174,9 +1174,33 @@ const DynamicStorePage = () => {
                       </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, flexWrap: 'wrap' }}>
-                      {product.salePrice ? (
-                        <>
+                    {/* Hide price for affiliate products */}
+                    {product.jenis_produk !== 'affiliate' && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, flexWrap: 'wrap' }}>
+                        {product.salePrice ? (
+                          <>
+                            <Typography
+                              variant="h6"
+                              sx={{
+                                fontWeight: '700',
+                                color: '#50c878',
+                                fontSize: { xs: '1rem', sm: '1.125rem' }
+                              }}
+                            >
+                              {formatRupiah(product.salePrice)}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                textDecoration: 'line-through',
+                                color: '#94A3B8',
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                              }}
+                            >
+                              {formatRupiah(product.price)}
+                            </Typography>
+                          </>
+                        ) : (
                           <Typography
                             variant="h6"
                             sx={{
@@ -1185,32 +1209,11 @@ const DynamicStorePage = () => {
                               fontSize: { xs: '1rem', sm: '1.125rem' }
                             }}
                           >
-                            {formatRupiah(product.salePrice)}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              textDecoration: 'line-through',
-                              color: '#94A3B8',
-                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
-                            }}
-                          >
                             {formatRupiah(product.price)}
                           </Typography>
-                        </>
-                      ) : (
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: '700',
-                            color: '#50c878',
-                            fontSize: { xs: '1rem', sm: '1.125rem' }
-                          }}
-                        >
-                          {formatRupiah(product.price)}
-                        </Typography>
-                      )}
-                    </Box>
+                        )}
+                      </Box>
+                    )}
 
 
                     <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
