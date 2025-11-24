@@ -93,35 +93,42 @@ const WhatsAppFloat = () => {
               <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', color: 'white' }}>
                 Customer Support
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Chip
-                  label="Online"
-                  size="small"
-                  sx={{
-                    bgcolor: '#4ade80',
-                    color: 'white',
-                    fontWeight: 500,
-                    height: 20,
-                    fontSize: '0.75rem',
-                    '& .MuiChip-label': {
-                      px: 1
-                    }
-                  }}
-                />
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    bgcolor: '#ff3b30',
-                    borderRadius: '50%',
-                    animation: 'pulse 2s ease-in-out infinite',
-                    '@keyframes pulse': {
-                      '0%, 100%': { opacity: 1 },
-                      '50%': { opacity: 0.5 }
-                    }
-                  }}
-                />
-              </Box>
+              <Chip
+                icon={
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      bgcolor: '#ff3b30',
+                      borderRadius: '50%',
+                      animation: 'pulse 2s ease-in-out infinite',
+                      '@keyframes pulse': {
+                        '0%, 100%': { opacity: 1 },
+                        '50%': { opacity: 0.5 }
+                      },
+                      ml: 0.5
+                    }}
+                  />
+                }
+                label="Online"
+                size="small"
+                sx={{
+                  bgcolor: '#4ade80',
+                  color: 'white',
+                  fontWeight: 500,
+                  height: 20,
+                  fontSize: '0.75rem',
+                  '& .MuiChip-label': {
+                    pl: 0.5,
+                    pr: 1
+                  },
+                  '& .MuiChip-icon': {
+                    ml: 1,
+                    mr: -0.5,
+                    color: 'inherit'
+                  }
+                }}
+              />
             </Box>
             <IconButton
               onClick={handleToggle}
