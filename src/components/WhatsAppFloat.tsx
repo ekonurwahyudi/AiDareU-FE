@@ -1,15 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { Box, IconButton, Paper, Typography, TextField, Avatar, Fade } from '@mui/material'
+import { Box, IconButton, Paper, Typography, TextField, Avatar, Fade, Chip } from '@mui/material'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
+import { useSession } from 'next-auth/react'
 
 const WhatsAppFloat = () => {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const phoneNumber = '628121555423' // Format internasional tanpa +
+
+  // Get user name from session
+  const userName = session?.user?.name || 'User'
 
   const handleToggle = () => {
     setIsOpen(!isOpen)
@@ -65,7 +70,7 @@ const WhatsAppFloat = () => {
             }}
           >
             <Avatar
-              src="/images/cs-avatar.png"
+              src="/images/avatars/1.png"
               sx={{
                 width: 50,
                 height: 50,
@@ -76,27 +81,23 @@ const WhatsAppFloat = () => {
               CS
             </Avatar>
             <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', color: 'white' }}>
                 Customer Support
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Box
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    bgcolor: '#4ade80',
-                    borderRadius: '50%',
-                    animation: 'pulse 2s ease-in-out infinite',
-                    '@keyframes pulse': {
-                      '0%, 100%': { opacity: 1 },
-                      '50%': { opacity: 0.5 }
-                    }
-                  }}
-                />
-                <Typography variant="caption" sx={{ fontSize: '0.875rem' }}>
-                  Online
-                </Typography>
-              </Box>
+              <Chip
+                label="Online"
+                size="small"
+                sx={{
+                  bgcolor: '#4ade80',
+                  color: 'white',
+                  fontWeight: 500,
+                  height: 20,
+                  fontSize: '0.75rem',
+                  '& .MuiChip-label': {
+                    px: 1
+                  }
+                }}
+              />
             </Box>
             <IconButton
               onClick={handleToggle}
@@ -162,10 +163,10 @@ const WhatsAppFloat = () => {
               }}
             >
               <Typography variant="body2" sx={{ mb: 1, fontSize: '0.95rem' }}>
-                Hi there 👋
+                Hi, {userName} 👋
               </Typography>
               <Typography variant="body2" sx={{ fontSize: '0.95rem' }}>
-                How can I help you?
+                Ada yang bisa kami bantu? 😊
               </Typography>
             </Box>
           </Box>
@@ -193,7 +194,7 @@ const WhatsAppFloat = () => {
                 fullWidth
                 multiline
                 maxRows={3}
-                placeholder="Enter Your Message..."
+                placeholder="Ketik pertanyaanmu disini..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
