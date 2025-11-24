@@ -97,16 +97,15 @@ const WhatsAppFloat = () => {
                 icon={
                   <Box
                     sx={{
-                      width: 8,
-                      height: 8,
+                      width: 6,
+                      height: 6,
                       bgcolor: '#ff3b30',
                       borderRadius: '50%',
                       animation: 'pulse 2s ease-in-out infinite',
                       '@keyframes pulse': {
                         '0%, 100%': { opacity: 1 },
                         '50%': { opacity: 0.5 }
-                      },
-                      ml: 0.5
+                      }
                     }}
                   />
                 }
@@ -123,8 +122,8 @@ const WhatsAppFloat = () => {
                     pr: 1
                   },
                   '& .MuiChip-icon': {
-                    ml: 1,
-                    mr: -0.5,
+                    ml: 0.75,
+                    mr: -0.25,
                     color: 'inherit'
                   }
                 }}
