@@ -8,7 +8,7 @@ import { useRBAC } from '@/contexts/rbacContext'
 export interface ProductFormData {
   nama_produk: string
   deskripsi: string
-  jenis_produk: 'digital' | 'fisik'
+  jenis_produk: 'digital' | 'fisik' | 'affiliate' | 'jasa'
   url_produk?: string
   harga_produk: number | ''
   harga_diskon: number | ''
@@ -104,8 +104,8 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       newErrors.category_id = 'Kategori wajib dipilih'
     }
 
-    if (formData.jenis_produk === 'digital' && !formData.url_produk?.trim()) {
-      newErrors.url_produk = 'URL produk wajib diisi untuk produk digital'
+    if ((formData.jenis_produk === 'digital' || formData.jenis_produk === 'affiliate') && !formData.url_produk?.trim()) {
+      newErrors.url_produk = 'URL produk wajib diisi untuk produk digital dan affiliate'
     }
 
     if (formData.jenis_produk === 'fisik' && (!formData.stock || formData.stock < 0)) {

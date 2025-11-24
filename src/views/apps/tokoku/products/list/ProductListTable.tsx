@@ -481,7 +481,9 @@ const ProductListTable = () => {
         'Nama Produk': product.nama_produk,
         'SKU': product.sku,
         'Kategori': product.category?.judul_kategori || '-',
-        'Jenis Produk': product.jenis_produk === 'digital' ? 'Digital' : 'Fisik',
+        'Jenis Produk': product.jenis_produk === 'digital' ? 'Digital' :
+                        product.jenis_produk === 'fisik' ? 'Fisik' :
+                        product.jenis_produk === 'affiliate' ? 'Affiliate' : 'Jasa',
         'Harga': product.harga_produk.toLocaleString('id-ID'),
         'Harga Diskon': product.harga_diskon ? product.harga_diskon.toLocaleString('id-ID') : '-',
         'Stock': product.stock,
@@ -591,15 +593,24 @@ const ProductListTable = () => {
       header: 'Jenis Produk',
       cell: ({ row }) => {
         const productType = row.original.jenis_produk
-        const isDigital = productType === 'digital'
-        
+
+        // Define display config for each product type
+        const typeConfig = {
+          digital: { label: 'Digital', icon: 'tabler-cloud', color: 'info' as const },
+          fisik: { label: 'Fisik', icon: 'tabler-package', color: 'success' as const },
+          affiliate: { label: 'Affiliate', icon: 'tabler-link', color: 'warning' as const },
+          jasa: { label: 'Jasa', icon: 'tabler-briefcase', color: 'primary' as const }
+        }
+
+        const config = typeConfig[productType] || typeConfig.fisik
+
         return (
           <div className="flex items-center gap-4">
-            <CustomAvatar skin="light" color={isDigital ? 'info' : 'success'} size={30}>
-              <i className={classnames(isDigital ? 'tabler-cloud' : 'tabler-package', 'text-lg')} />
+            <CustomAvatar skin="light" color={config.color} size={30}>
+              <i className={classnames(config.icon, 'text-lg')} />
             </CustomAvatar>
             <Typography color="text.primary">
-              {isDigital ? 'Digital' : 'Fisik'}
+              {config.label}
             </Typography>
           </div>
         )

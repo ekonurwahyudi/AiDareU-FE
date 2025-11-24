@@ -838,10 +838,10 @@ const ProductInformation = () => {
   }
 
   const handleProductTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const jenis = e.target.value as 'digital' | 'fisik'
-    setFormData({ 
+    const jenis = e.target.value as 'digital' | 'fisik' | 'affiliate' | 'jasa'
+    setFormData({
       jenis_produk: jenis,
-      url_produk: jenis === 'fisik' ? '' : formData.url_produk // Clear URL if switching to physical
+      url_produk: (jenis === 'fisik' || jenis === 'jasa') ? '' : formData.url_produk // Clear URL if switching to physical or jasa
     })
   }
 
@@ -894,16 +894,18 @@ const ProductInformation = () => {
             >
               <MenuItem value='digital'>Produk Digital</MenuItem>
               <MenuItem value='fisik'>Produk Fisik</MenuItem>
+              <MenuItem value='affiliate'>Produk Affiliate</MenuItem>
+              <MenuItem value='jasa'>Produk Jasa</MenuItem>
             </CustomTextField>
           </Grid>
 
-          {/* Muncul hanya jika Produk Digital */}
-          {formData.jenis_produk === 'digital' && (
+          {/* URL field for Digital and Affiliate products */}
+          {(formData.jenis_produk === 'digital' || formData.jenis_produk === 'affiliate') && (
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField 
-                fullWidth 
-                label='Url Produk' 
-                placeholder='https://www.tokoku.com' 
+              <CustomTextField
+                fullWidth
+                label={formData.jenis_produk === 'affiliate' ? 'URL Produk (Link Affiliate)' : 'URL Produk'}
+                placeholder='https://www.tokoku.com'
                 value={formData.url_produk || ''}
                 onChange={handleUrlChange}
                 error={!!errors.url_produk}
@@ -914,14 +916,14 @@ const ProductInformation = () => {
             </Grid>
           )}
 
-          {/* Show stock field for physical products */}
+          {/* Stock field only for physical products */}
           {formData.jenis_produk === 'fisik' && (
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField 
-                fullWidth 
+              <CustomTextField
+                fullWidth
                 type="number"
-                label='Stock' 
-                placeholder='0' 
+                label='Stock'
+                placeholder='0'
                 value={formData.stock || ''}
                 onChange={(e) => setFormData({ stock: parseInt(e.target.value) || 0 })}
                 error={!!errors.stock}
