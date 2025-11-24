@@ -1,20 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Box, IconButton, Paper, Typography, TextField, Avatar, Fade, Chip } from '@mui/material'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
-import { useSession } from 'next-auth/react'
 
 const WhatsAppFloat = () => {
-  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
+  const [userName, setUserName] = useState('User')
   const phoneNumber = '628121555423' // Format internasional tanpa +
 
-  // Get user name from session
-  const userName = session?.user?.name || 'User'
+  // Get user name from localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('user_data')
+    if (userData) {
+      try {
+        const user = JSON.parse(userData)
+        setUserName(user.name || user.username || 'User')
+      } catch (error) {
+        console.error('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   const handleToggle = () => {
     setIsOpen(!isOpen)
