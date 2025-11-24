@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Box, IconButton, Paper, Typography, TextField, Avatar, Fade, Chip } from '@mui/material'
+import { Box, IconButton, Paper, Typography, TextField, Avatar, Fade } from '@mui/material'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
@@ -78,56 +78,49 @@ const WhatsAppFloat = () => {
               gap: 2
             }}
           >
-            <Avatar
-              src="/images/avatars/1.png"
-              sx={{
-                width: 50,
-                height: 50,
-                border: '3px solid rgba(255,255,255,0.3)',
-                position: 'relative'
-              }}
-            >
-              CS
-            </Avatar>
+            <Box sx={{ position: 'relative' }}>
+              <Avatar
+                src="/images/avatars/1.png"
+                sx={{
+                  width: 50,
+                  height: 50,
+                  border: '3px solid rgba(255,255,255,0.3)'
+                }}
+              >
+                CS
+              </Avatar>
+              {/* Pulse dot at bottom right of avatar */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 2,
+                  right: 2,
+                  width: 10,
+                  height: 10,
+                  bgcolor: '#4ade80',
+                  borderRadius: '50%',
+                  border: '2px solid white',
+                  animation: 'pulse 2s ease-in-out infinite',
+                  '@keyframes pulse': {
+                    '0%, 100%': {
+                      transform: 'scale(1)',
+                      opacity: 1
+                    },
+                    '50%': {
+                      transform: 'scale(1.1)',
+                      opacity: 0.8
+                    }
+                  }
+                }}
+              />
+            </Box>
             <Box sx={{ flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', color: 'white' }}>
                 Customer Support
               </Typography>
-              <Chip
-                icon={
-                  <Box
-                    sx={{
-                      width: 6,
-                      height: 6,
-                      bgcolor: '#ff3b30',
-                      borderRadius: '50%',
-                      animation: 'pulse 2s ease-in-out infinite',
-                      '@keyframes pulse': {
-                        '0%, 100%': { opacity: 1 },
-                        '50%': { opacity: 0.5 }
-                      }
-                    }}
-                  />
-                }
-                label="Online"
-                size="small"
-                sx={{
-                  bgcolor: '#4ade80',
-                  color: 'white',
-                  fontWeight: 500,
-                  height: 20,
-                  fontSize: '0.75rem',
-                  '& .MuiChip-label': {
-                    pl: 0.5,
-                    pr: 1
-                  },
-                  '& .MuiChip-icon': {
-                    ml: 0.75,
-                    mr: -0.25,
-                    color: 'inherit'
-                  }
-                }}
-              />
+              <Typography variant="caption" sx={{ fontSize: '0.875rem', color: 'white' }}>
+                Online
+              </Typography>
             </Box>
             <IconButton
               onClick={handleToggle}
