@@ -93,20 +93,35 @@ const WhatsAppFloat = () => {
               <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem', color: 'white' }}>
                 Customer Support
               </Typography>
-              <Chip
-                label="Online"
-                size="small"
-                sx={{
-                  bgcolor: '#4ade80',
-                  color: 'white',
-                  fontWeight: 500,
-                  height: 20,
-                  fontSize: '0.75rem',
-                  '& .MuiChip-label': {
-                    px: 1
-                  }
-                }}
-              />
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Chip
+                  label="Online"
+                  size="small"
+                  sx={{
+                    bgcolor: '#4ade80',
+                    color: 'white',
+                    fontWeight: 500,
+                    height: 20,
+                    fontSize: '0.75rem',
+                    '& .MuiChip-label': {
+                      px: 1
+                    }
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    bgcolor: '#ff3b30',
+                    borderRadius: '50%',
+                    animation: 'pulse 2s ease-in-out infinite',
+                    '@keyframes pulse': {
+                      '0%, 100%': { opacity: 1 },
+                      '50%': { opacity: 0.5 }
+                    }
+                  }}
+                />
+              </Box>
             </Box>
             <IconButton
               onClick={handleToggle}
@@ -202,7 +217,7 @@ const WhatsAppFloat = () => {
               <TextField
                 fullWidth
                 multiline
-                maxRows={3}
+                maxRows={2}
                 placeholder="Ketik pertanyaanmu disini..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
