@@ -39,10 +39,21 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
   return (
     <Box
       sx={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: { xs: 8, md: 12 },
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        pt: { xs: 12, md: 15 },
+        pb: { xs: 8, md: 10 },
+        background: 'linear-gradient(180deg, #F4F5FA 0%, #FFFFFF 100%)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 30% 50%, rgba(102, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(118, 75, 162, 0.08) 0%, transparent 50%)',
+          pointerEvents: 'none'
+        }
       }}
     >
       <Container maxWidth="lg">
@@ -50,30 +61,36 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
         <Box
           sx={{
             textAlign: 'center',
-            color: 'white',
-            mb: 6
+            mb: 6,
+            position: 'relative',
+            zIndex: 1
           }}
         >
-          <PublicIcon sx={{ fontSize: { xs: 60, md: 80 }, mb: 2, opacity: 0.9 }} />
+          <PublicIcon sx={{ fontSize: { xs: 60, md: 80 }, mb: 2, color: '#667eea' }} />
           <Typography
             variant="h1"
             sx={{
               fontWeight: 800,
               mb: 2,
               fontSize: { xs: '2rem', sm: '2.5rem', md: '3.5rem' },
-              lineHeight: 1.2
+              lineHeight: 1.2,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
             }}
           >
             Cek Ketersediaan Domain
           </Typography>
           <Typography
-            variant="h5"
+            variant="h6"
             sx={{
-              opacity: 0.95,
               maxWidth: 700,
               mx: 'auto',
-              fontSize: { xs: '1rem', sm: '1.25rem' },
-              fontWeight: 400
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              fontWeight: 500,
+              color: 'text.secondary',
+              lineHeight: 1.6
             }}
           >
             Temukan domain sempurna untuk bisnis online Anda. Gratis untuk domain lokal Indonesia!
@@ -88,7 +105,10 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
             bgcolor: 'white',
             borderRadius: 4,
             p: { xs: 2, sm: 3 },
-            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            boxShadow: '0 8px 40px rgba(102, 126, 234, 0.12)',
+            border: '1px solid rgba(102, 126, 234, 0.08)',
+            position: 'relative',
+            zIndex: 1
           }}
         >
           <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' } }}>

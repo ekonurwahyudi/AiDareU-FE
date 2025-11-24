@@ -49,57 +49,40 @@ const DomainCheckerWrapper = () => {
     setSearchPerformed(true)
 
     try {
-      // Call WHOIS API untuk cek ketersediaan domain
+      // Check domain availability using DNS lookup
       const domainResults: DomainResult[] = await Promise.all(
         extensions.map(async ({ ext, isFree, price }) => {
           try {
-            // Gunakan API WHOIS untuk cek domain
-            const response = await fetch(
-              `https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_YOUR_API_KEY&domainName=${domain}.${ext}`
-            )
+            const fullDomain = `${domain}.${ext}`
+
+            // Try to resolve DNS - if it resolves, domain is taken
+            const response = await fetch(`https://dns.google/resolve?name=${fullDomain}&type=A`)
 
             if (response.ok) {
               const data = await response.json()
+
+              // If Status is 0 (NOERROR) and has Answer, domain exists (taken)
+              // If Status is 3 (NXDOMAIN), domain doesn't exist (available)
+              const isTaken = data.Status === 0 && data.Answer && data.Answer.length > 0
+
               return {
                 extension: ext,
-                available: data.DomainInfo?.domainAvailability === 'AVAILABLE',
+                available: !isTaken,
                 price,
                 isFree
               }
             }
 
-            // Fallback: jika API gagal, gunakan logic sederhana
-            // Domain dianggap available jika bukan domain populer
-            const popularDomains = [
-              'google',
-              'facebook',
-              'youtube',
-              'amazon',
-              'twitter',
-              'instagram',
-              'linkedin',
-              'microsoft',
-              'apple',
-              'netflix',
-              'aidareu',
-              'tokopedia',
-              'shopee',
-              'bukalapak',
-              'gojek',
-              'grab'
-            ]
-
-            const isPopular = popularDomains.includes(domain.toLowerCase())
-
+            // Fallback if DNS API fails
             return {
               extension: ext,
-              available: !isPopular,
+              available: true,
               price,
               isFree
             }
           } catch (err) {
             console.error(`Error checking ${domain}.${ext}:`, err)
-            // Default: anggap tersedia jika error
+            // On error, assume available
             return {
               extension: ext,
               available: true,
