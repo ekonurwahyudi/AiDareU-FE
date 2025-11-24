@@ -1,7 +1,7 @@
 // Component Imports
 import DomainCheckerWrapper from '@views/front-pages/domain-checker'
 
-const DomainCheckerPage = async () => {
+function DomainCheckerPage() {
   return <DomainCheckerWrapper />
 }
 
