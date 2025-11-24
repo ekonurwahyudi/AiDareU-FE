@@ -122,7 +122,8 @@ interface Product {
   slug?: string
   uuid?: string
   storeUuid?: string // tambahkan UUID Store di product
-  jenis_produk?: string // Tipe produk: 'digital' atau 'fisik'
+  jenis_produk?: 'digital' | 'fisik' | 'affiliate' | 'jasa' // Tipe produk
+  url_produk?: string // URL produk untuk digital dan affiliate
 }
 
 // CartItem interface is now imported from CartContext
@@ -448,6 +449,14 @@ const DynamicStorePage = () => {
   }
 
   const handleProductClick = (product: Product) => {
+    // Check if product is affiliate type
+    if (product.jenis_produk === 'affiliate' && product.url_produk) {
+      // Redirect to external affiliate URL
+      window.open(product.url_produk, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    // For other product types: navigate to product detail page
     // Clean URL without /s/ prefix - Worker handles routing
     // Embed FULL UUID in slug for reliable SSR metadata extraction
     const uuid = product.uuid || product.id
@@ -1224,7 +1233,7 @@ const DynamicStorePage = () => {
                         }}
                         onClick={() => handleProductClick(product)}
                       >
-                        Lihat Produk
+                        {product.jenis_produk === 'affiliate' ? 'Beli Sekarang' : 'Lihat Produk'}
                       </Button>
                       <IconButton
                         sx={{
