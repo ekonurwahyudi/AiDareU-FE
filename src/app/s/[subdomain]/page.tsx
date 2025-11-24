@@ -1236,7 +1236,7 @@ const DynamicStorePage = () => {
                         }}
                         onClick={() => handleProductClick(product)}
                       >
-                        {product.jenis_produk === 'affiliate' ? 'Beli Sekarang' : 'Lihat Produk'}
+                        {product.jenis_produk === 'affiliate' ? 'Lihat Produk' : 'Lihat Produk'}
                       </Button>
                       {/* Hide cart button for affiliate products */}
                       {product.jenis_produk !== 'affiliate' && (

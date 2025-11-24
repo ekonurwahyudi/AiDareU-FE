@@ -18,6 +18,7 @@ import VerticalFooter from '@components/layout/vertical/Footer'
 import HorizontalFooter from '@components/layout/horizontal/Footer'
 import ScrollToTop from '@core/components/scroll-to-top'
 import AuthGuard from '@/hocs/AuthGuard'
+import WhatsAppFloat from '@components/WhatsAppFloat'
 
 // Config Imports
 
@@ -60,6 +61,7 @@ const Layout = async (props: ChildrenType) => {
             <i className='tabler-arrow-up' />
           </Button>
         </ScrollToTop>
+        <WhatsAppFloat />
       </AuthGuard>
     </Providers>
   )
