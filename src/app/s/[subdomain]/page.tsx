@@ -298,7 +298,7 @@ const DynamicStorePage = () => {
     handleCartClick
   } = useCart()
 
-  const addToCart = (productId: string, event: React.MouseEvent) => {
+  const addToCart = (productId: string, event: any) => {
     event.stopPropagation()
     const product = products.find(p => p.id === productId)
     if (!product) {
@@ -1235,23 +1235,26 @@ const DynamicStorePage = () => {
                       >
                         {product.jenis_produk === 'affiliate' ? 'Beli Sekarang' : 'Lihat Produk'}
                       </Button>
-                      <IconButton
-                        sx={{
-                          bgcolor: '#F8F9FA',
-                          border: '1px solid #E2E8F0',
-                          borderRadius: 2,
-                          width: 40,
-                          height: 40,
-                          '&:hover': {
-                            bgcolor: '#E91E63',
-                            color: 'white',
-                            borderColor: '#E91E63'
-                          }
-                        }}
-                        onClick={(e) => addToCart(product.id, e)}
-                      >
-                        <ShoppingCartIcon fontSize="small" />
-                      </IconButton>
+                      {/* Hide cart button for affiliate products */}
+                      {product.jenis_produk !== 'affiliate' && (
+                        <IconButton
+                          sx={{
+                            bgcolor: '#F8F9FA',
+                            border: '1px solid #E2E8F0',
+                            borderRadius: 2,
+                            width: 40,
+                            height: 40,
+                            '&:hover': {
+                              bgcolor: '#E91E63',
+                              color: 'white',
+                              borderColor: '#E91E63'
+                            }
+                          }}
+                          onClick={(e: any) => addToCart(product.id, e)}
+                        >
+                          <ShoppingCartIcon fontSize="small" />
+                        </IconButton>
+                      )}
                     </Box>
                   </CardContent>
                 </ProductCard>
