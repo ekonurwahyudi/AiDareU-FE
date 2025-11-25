@@ -49,31 +49,90 @@ const DomainCheckerWrapper = () => {
     setSearchPerformed(true)
 
     try {
-      // Check domain availability using DNS lookup
+      // Check domain availability
       const domainResults: DomainResult[] = await Promise.all(
         extensions.map(async ({ ext, isFree, price }) => {
           try {
             const fullDomain = `${domain}.${ext}`
 
-            // Try to resolve DNS - if it resolves, domain is taken
-            const response = await fetch(`https://dns.google/resolve?name=${fullDomain}&type=A`)
+            // Method 1: Check DNS records first (quick check)
+            const dnsResponse = await fetch(`https://dns.google/resolve?name=${fullDomain}&type=A`)
 
-            if (response.ok) {
-              const data = await response.json()
+            if (dnsResponse.ok) {
+              const dnsData = await dnsResponse.json()
 
-              // If Status is 0 (NOERROR) and has Answer, domain exists (taken)
-              // If Status is 3 (NXDOMAIN), domain doesn't exist (available)
-              const isTaken = data.Status === 0 && data.Answer && data.Answer.length > 0
+              // If DNS resolves successfully, domain is definitely taken
+              const hasDNS = dnsData.Status === 0 && dnsData.Answer && dnsData.Answer.length > 0
 
-              return {
-                extension: ext,
-                available: !isTaken,
-                price,
-                isFree
+              if (hasDNS) {
+                return {
+                  extension: ext,
+                  available: false, // Domain has DNS = definitely taken
+                  price,
+                  isFree
+                }
               }
             }
 
-            // Fallback if DNS API fails
+            // Method 2: For .id domains, check WHOIS via rdap
+            if (ext.includes('.id')) {
+              try {
+                // Use RDAP (Registration Data Access Protocol) for .id domains
+                const rdapResponse = await fetch(`https://rdap.pandi.id/rdap/domain/${fullDomain}`)
+
+                if (rdapResponse.ok) {
+                  const rdapData = await rdapResponse.json()
+
+                  // If RDAP returns valid data, domain is registered
+                  const isRegistered = rdapData.objectClassName === 'domain' ||
+                                      (rdapData.events && rdapData.events.length > 0)
+
+                  return {
+                    extension: ext,
+                    available: !isRegistered,
+                    price,
+                    isFree
+                  }
+                } else if (rdapResponse.status === 404) {
+                  // 404 means domain not found = available
+                  return {
+                    extension: ext,
+                    available: true,
+                    price,
+                    isFree
+                  }
+                }
+              } catch (rdapErr) {
+                console.log(`RDAP check failed for ${fullDomain}, falling back`)
+              }
+            }
+
+            // Method 3: For .com, check via RDAP
+            if (ext === 'com') {
+              try {
+                const rdapResponse = await fetch(`https://rdap.verisign.com/com/v1/domain/${fullDomain}`)
+
+                if (rdapResponse.ok) {
+                  return {
+                    extension: ext,
+                    available: false, // Found in RDAP = registered
+                    price,
+                    isFree
+                  }
+                } else if (rdapResponse.status === 404) {
+                  return {
+                    extension: ext,
+                    available: true, // Not found = available
+                    price,
+                    isFree
+                  }
+                }
+              } catch (rdapErr) {
+                console.log(`RDAP check failed for ${fullDomain}`)
+              }
+            }
+
+            // Fallback: If no DNS and RDAP check inconclusive, assume available
             return {
               extension: ext,
               available: true,
@@ -82,7 +141,7 @@ const DomainCheckerWrapper = () => {
             }
           } catch (err) {
             console.error(`Error checking ${domain}.${ext}:`, err)
-            // On error, assume available
+            // On error, assume available to be safe
             return {
               extension: ext,
               available: true,

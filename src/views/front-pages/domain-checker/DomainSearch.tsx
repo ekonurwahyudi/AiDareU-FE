@@ -66,7 +66,6 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
             zIndex: 1
           }}
         >
-          <PublicIcon sx={{ fontSize: { xs: 60, md: 80 }, mb: 2, color: '#667eea' }} />
           <Typography
             variant="h1"
             sx={{
@@ -142,14 +141,14 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
                 minWidth: { xs: '100%', sm: 180 },
                 height: 56,
                 borderRadius: 2,
-                bgcolor: '#667eea',
-                '&:hover': { bgcolor: '#5568d3' },
+                bgcolor: '#E91E63',
+                '&:hover': { bgcolor: '#C2185B' },
                 fontSize: '1rem',
                 fontWeight: 600,
                 textTransform: 'none'
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Cek Sekarang'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Cek Domain'}
             </Button>
           </Box>
 
