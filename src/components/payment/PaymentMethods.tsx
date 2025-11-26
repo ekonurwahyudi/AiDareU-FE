@@ -39,21 +39,28 @@ interface PaymentMethodsProps {
   selectedPayment?: BankAccount | null
 }
 
-// Bank color mapping
-const getBankColor = (bankCode: string): string => {
-  const bankColors: Record<string, string> = {
-    'BCA': '#003d82', // Navy blue
-    'BRI': '#0052cc', // Blue
-    'Mandiri': '#ffc107', // Yellow
-    'BNI': '#ff5722', // Orange
-    'BSI': '#4caf50', // Green
-    'Permata': '#9c27b0', // Purple
-    'Danamon': '#3f51b5', // Indigo
-    'CIMB': '#e91e63', // Pink
-    'Maybank': '#795548' // Brown
-  }
-
-  return bankColors[bankCode] || '#6c757d' // Default gray
+// Bank logo mapping (sesuai dengan RekeningBank.tsx)
+const BANK_LOGOS: Record<string, string> = {
+  'BCA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1199px-Bank_Central_Asia.svg.png',
+  'BNI': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg/300px-Bank_Negara_Indonesia_logo_%282004%29.svg.png',
+  'BRI': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/BANK_BRI_logo.svg/189px-BANK_BRI_logo.svg.png',
+  'BSI': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bank_Syariah_Indonesia.svg/330px-Bank_Syariah_Indonesia.svg.png',
+  'Mandiri': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/320px-Bank_Mandiri_logo_2016.svg.png',
+  'CIMB Niaga': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/CIMB_Niaga_logo.svg/330px-CIMB_Niaga_logo.svg.png',
+  'Danamon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Danamon.svg/330px-Danamon.svg.png',
+  'Permata Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Permata_Bank_(2024).svg/330px-Permata_Bank_(2024).svg.png',
+  'BTN': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/BTN_2024.svg/330px-BTN_2024.svg.png',
+  'Panin Bank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Logo_Panin_Bank.svg/330px-Logo_Panin_Bank.svg.png',
+  'OCBC': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Logo-ocbc.svg/330px-Logo-ocbc.svg.png',
+  'Bank Mega': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Bank_Mega_2013.svg/330px-Bank_Mega_2013.svg.png',
+  'Bank Jago': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Logo-jago.svg/120px-Logo-jago.svg.png',
+  'Jenius': 'https://upload.wikimedia.org/wikipedia/id/thumb/8/89/Jenius-logo.png/330px-Jenius-logo.png',
+  'SeaBank': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/SeaBank.svg/252px-SeaBank.svg.png',
+  'Linkaja': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/LinkAja.svg/92px-LinkAja.svg.png',
+  'Gopay': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/320px-Gopay_logo.svg.png',
+  'OVO': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/320px-Logo_ovo_purple.svg.png',
+  'Dana': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/320px-Logo_dana_blue.svg.png',
+  'ShopeePay': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shopee_logo.svg/320px-Shopee_logo.svg.png'
 }
 
 const PaymentMethods = ({
@@ -185,19 +192,26 @@ const PaymentMethods = ({
                   {/* Bank Logo/Icon */}
                   <Box
                     sx={{
-                      width: 48,
-                      height: 48,
-                      bgcolor: getBankColor(account.bank_code),
+                      width: 60,
+                      height: 40,
+                      bgcolor: 'white',
+                      border: '1px solid #E2E8F0',
                       borderRadius: '8px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '12px'
+                      p: 1
                     }}
                   >
-                    {account.bank_code}
+                    <img
+                      src={BANK_LOGOS[account.bank_name] || BANK_LOGOS['BCA']}
+                      alt={account.bank_name}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                    />
                   </Box>
 
                   {/* Bank Info */}
