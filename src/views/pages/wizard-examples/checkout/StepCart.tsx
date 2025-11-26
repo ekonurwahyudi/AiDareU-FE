@@ -807,9 +807,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                         </IconButton>
 
                         {/* Product Image */}
-                        {product.image_url ? (
+                        {(product.gambar_produk || product.image) ? (
                           <img
-                            src={product.image_url}
+                            src={product.gambar_produk || product.image}
                             alt={product.nama_produk || product.name}
                             style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                           />
@@ -824,7 +824,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                           variant='body2'
                           sx={{
                             fontWeight: 600,
-                            mb: 0.5,
+                            mb: 2,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             display: '-webkit-box',
@@ -838,45 +838,16 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                           {product.nama_produk || product.name}
                         </Typography>
 
-                        {/* Store Name & Rating */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                          <Box
-                            sx={{
-                              width: 20,
-                              height: 20,
-                              borderRadius: '50%',
-                              bgcolor: primaryColor,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            <Typography sx={{ fontSize: '0.7rem', color: 'white', fontWeight: 'bold' }}>
-                              {subdomain.charAt(0).toUpperCase()}
-                            </Typography>
-                          </Box>
-                          <Typography variant='caption' sx={{ color: '#6B7280', fontSize: '0.75rem' }}>
-                            {subdomain}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
-                            <i className='tabler-star-filled' style={{ fontSize: '14px', color: '#FCD34D' }} />
-                            <Typography variant='caption' sx={{ fontWeight: 600, fontSize: '0.75rem' }}>
-                              {product.rating || '4.9'}
-                            </Typography>
-                          </Box>
-                        </Box>
-
-                        {/* Price Section */}
-                        <Box sx={{ mb: 2 }}>
+                        {/* Price Section - Horizontal Layout */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                           {hasDiscount ? (
-                            <Box>
+                            <>
                               <Typography
                                 variant='body2'
                                 sx={{
                                   fontWeight: 'bold',
                                   color: '#22C55E',
-                                  fontSize: '1rem',
-                                  mb: 0.5
+                                  fontSize: '1rem'
                                 }}
                               >
                                 {formatRupiah(hargaJual)}
@@ -891,7 +862,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                               >
                                 {formatRupiah(hargaAsli)}
                               </Typography>
-                            </Box>
+                            </>
                           ) : (
                             <Typography
                               variant='body2'
