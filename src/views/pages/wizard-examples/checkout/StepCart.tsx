@@ -737,8 +737,8 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                     <Card
                       key={product.uuid || product.id}
                       sx={{
-                        minWidth: 250,
-                        maxWidth: 250,
+                        minWidth: 180,
+                        maxWidth: 180,
                         cursor: 'pointer',
                         transition: 'all 0.3s',
                         border: '1px solid #F1F5F9',
@@ -755,7 +755,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                         sx={{
                           position: 'relative',
                           width: '100%',
-                          height: 200,
+                          height: 160,
                           bgcolor: '#f5f5f5',
                           display: 'flex',
                           alignItems: 'center',
@@ -771,13 +771,14 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                             size="small"
                             sx={{
                               position: 'absolute',
-                              top: 12,
-                              left: 12,
+                              top: 8,
+                              left: 8,
                               bgcolor: '#fdc700',
                               color: '#804b08',
                               fontWeight: 'bold',
                               zIndex: 1,
-                              fontSize: '0.75rem'
+                              fontSize: '0.65rem',
+                              height: '20px'
                             }}
                           />
                         )}
@@ -790,20 +791,20 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                           }}
                           sx={{
                             position: 'absolute',
-                            top: 12,
-                            right: 12,
+                            top: 8,
+                            right: 8,
                             bgcolor: 'white',
                             color: 'text.secondary',
                             zIndex: 1,
-                            width: 36,
-                            height: 36,
+                            width: 30,
+                            height: 30,
                             '&:hover': {
                               bgcolor: 'white',
                               color: primaryColor
                             }
                           }}
                         >
-                          <i className='tabler-heart' style={{ fontSize: '18px' }} />
+                          <i className='tabler-heart' style={{ fontSize: '16px' }} />
                         </IconButton>
 
                         {/* Product Image */}
@@ -818,27 +819,29 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                         )}
                       </Box>
 
-                      <CardContent sx={{ p: 2.5, bgcolor: 'white' }}>
+                      <CardContent sx={{ p: 1.5, bgcolor: 'white' }}>
                         {/* Product Name */}
                         <Typography
                           variant='body2'
                           sx={{
                             fontWeight: 600,
-                            mb: 2,
+                            mb: 1.5,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
+                            minHeight: 35,
                             color: '#1F2937',
-                            fontSize: '0.875rem'
+                            fontSize: '0.75rem',
+                            lineHeight: 1.3
                           }}
                         >
                           {product.nama_produk || product.name}
                         </Typography>
 
                         {/* Price Section - Horizontal Layout */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, flexWrap: 'wrap' }}>
                           {hasDiscount ? (
                             <>
                               <Typography
@@ -846,7 +849,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                                 sx={{
                                   fontWeight: 'bold',
                                   color: '#22C55E',
-                                  fontSize: '1rem'
+                                  fontSize: '0.875rem'
                                 }}
                               >
                                 {formatRupiah(hargaJual)}
@@ -856,7 +859,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                                 sx={{
                                   textDecoration: 'line-through',
                                   color: '#9CA3AF',
-                                  fontSize: '0.75rem'
+                                  fontSize: '0.7rem'
                                 }}
                               >
                                 {formatRupiah(hargaAsli)}
@@ -868,7 +871,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                               sx={{
                                 fontWeight: 'bold',
                                 color: '#1F2937',
-                                fontSize: '1rem'
+                                fontSize: '0.875rem'
                               }}
                             >
                               {formatRupiah(hargaJual)}
@@ -882,15 +885,16 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                           size='small'
                           fullWidth
                           onClick={() => handleProductClick(product)}
-                          startIcon={<i className='tabler-eye' style={{ fontSize: '16px' }} />}
+                          startIcon={<i className='tabler-eye' style={{ fontSize: '14px' }} />}
                           sx={{
                             bgcolor: primaryColor,
                             color: 'white',
                             fontWeight: 600,
                             textTransform: 'none',
                             borderRadius: '8px',
-                            py: 1,
-                            height: 40,
+                            py: 0.75,
+                            fontSize: '0.75rem',
+                            height: 32,
                             boxShadow: 'none',
                             '&:hover': {
                               bgcolor: primaryColor,
