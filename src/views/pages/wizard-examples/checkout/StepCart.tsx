@@ -1,9 +1,9 @@
 // React Imports
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
 import Grid from '@mui/material/Grid2'
@@ -50,10 +50,15 @@ interface StepCartProps {
 const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: StepCartProps) => {
   const params = useParams()
   const subdomain = (params?.subdomain as string) || 'store'
+  const router = useRouter()
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
   // States
   const [openCollapse, setOpenCollapse] = useState<boolean>(true)
   const [openFade, setOpenFade] = useState<boolean>(true)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [recommendedProducts, setRecommendedProducts] = useState<any[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(false)
 
   // Customer Information States
   const [customerInfo, setCustomerInfo] = useState({
@@ -92,6 +97,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   // Load provinces on component mount
   useEffect(() => {
     loadProvinces()
+    loadRecommendedProducts()
   }, [])
 
   // Load cities when province changes
@@ -194,6 +200,57 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       setDistricts([]) // Set empty array on error
     } finally {
       setLoadingDistricts(false)
+    }
+  }
+
+  const loadRecommendedProducts = async () => {
+    setLoadingProducts(true)
+    try {
+      const storeUuid = getStoreUuid()
+      if (!storeUuid) return
+
+      const response = await fetch(`/api/store/${subdomain}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.success && data.data.products) {
+        // Filter out products that are already in cart
+        const cartProductIds = cartItems.map((item: CartItem) => item.uuid || item.id)
+        const filteredProducts = data.data.products
+          .filter((product: any) => !cartProductIds.includes(product.uuid || product.id))
+          .slice(0, 10) // Limit to 10 products
+
+        setRecommendedProducts(filteredProducts)
+      }
+    } catch (error) {
+      console.error('Error loading recommended products:', error)
+    } finally {
+      setLoadingProducts(false)
+    }
+  }
+
+  // Handle product click
+  const handleProductClick = (product: any) => {
+    const uuid = product.uuid || product.id
+    const slugWithUuid = `${product.slug}-${uuid}`
+    router.push(`/${slugWithUuid}?uuid=${uuid}`)
+  }
+
+  // Scroll carousel left
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+    }
+  }
+
+  // Scroll carousel right
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' })
     }
   }
 
@@ -622,16 +679,135 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             ))}
           </div>
         )}
-        {cartItems.length > 0 && (
-          <Typography
-            href="/"
-            component={Link}
-            className='flex items-center justify-between gap-4 plb-2 pli-5 border rounded'
-            sx={{ borderColor: primaryColor, color: primaryColor }}
-          >
-            Tambah lebih banyak produk dari toko
-            <DirectionalIcon ltrIconClass='tabler-arrow-right' rtlIconClass='tabler-arrow-left' className='text-base' />
-          </Typography>
+        {cartItems.length > 0 && recommendedProducts.length > 0 && (
+          <Box sx={{ mt: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant='h6' sx={{ fontWeight: 'bold' }}>
+                Produk Menarik Lainnya
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  size='small'
+                  onClick={scrollLeft}
+                  sx={{
+                    border: `1px solid ${primaryColor}`,
+                    color: primaryColor,
+                    '&:hover': { bgcolor: `${primaryColor}15` }
+                  }}
+                >
+                  <i className='tabler-chevron-left' />
+                </IconButton>
+                <IconButton
+                  size='small'
+                  onClick={scrollRight}
+                  sx={{
+                    border: `1px solid ${primaryColor}`,
+                    color: primaryColor,
+                    '&:hover': { bgcolor: `${primaryColor}15` }
+                  }}
+                >
+                  <i className='tabler-chevron-right' />
+                </IconButton>
+              </Box>
+            </Box>
+
+            <Box
+              ref={scrollContainerRef}
+              sx={{
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                '&::-webkit-scrollbar': { display: 'none' },
+                pb: 2
+              }}
+            >
+              {loadingProducts ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', py: 4 }}>
+                  <CircularProgress size={30} sx={{ color: primaryColor }} />
+                </Box>
+              ) : (
+                recommendedProducts.map((product: any) => (
+                  <Card
+                    key={product.uuid || product.id}
+                    sx={{
+                      minWidth: 200,
+                      maxWidth: 200,
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      border: '1px solid #e0e0e0',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        borderColor: primaryColor
+                      }
+                    }}
+                    onClick={() => handleProductClick(product)}
+                  >
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: 150,
+                        bgcolor: '#f5f5f5',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.nama_produk || product.name}
+                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                        />
+                      ) : (
+                        <Typography sx={{ fontSize: '3rem' }}>📦</Typography>
+                      )}
+                    </Box>
+                    <CardContent sx={{ p: 2 }}>
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          fontWeight: 'medium',
+                          mb: 1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          minHeight: 40
+                        }}
+                      >
+                        {product.nama_produk || product.name}
+                      </Typography>
+                      <Typography
+                        variant='body2'
+                        sx={{ fontWeight: 'bold', color: primaryColor, mb: 2 }}
+                      >
+                        {formatRupiah(product.harga_jual || product.price || 0)}
+                      </Typography>
+                      <Button
+                        variant='outlined'
+                        size='small'
+                        fullWidth
+                        sx={{
+                          borderColor: primaryColor,
+                          color: primaryColor,
+                          '&:hover': {
+                            borderColor: primaryColor,
+                            bgcolor: `${primaryColor}15`
+                          }
+                        }}
+                      >
+                        Lihat Produk
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </Box>
+          </Box>
         )}
 
         {/* Customer Information Section */}
