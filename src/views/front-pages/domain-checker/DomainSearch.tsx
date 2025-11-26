@@ -56,7 +56,7 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
         }
       }}
     >
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 3, sm: 3, md: 4 } }}>
         {/* Header */}
         <Box
           sx={{
@@ -92,7 +92,7 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
               lineHeight: 1.6
             }}
           >
-            Temukan domain sempurna untuk bisnis online Anda. Gratis untuk domain lokal Indonesia!
+            Temukan domain untuk bisnis Anda. Gratis untuk domain lokal Indonesia!
           </Typography>
         </Box>
 
@@ -103,7 +103,7 @@ const DomainSearch = ({ onSearch, loading, error }: DomainSearchProps) => {
             mx: 'auto',
             bgcolor: 'white',
             borderRadius: 4,
-            p: { xs: 2, sm: 3 },
+            p: { xs: 3, sm: 3, md: 3 },
             boxShadow: '0 8px 40px rgba(102, 126, 234, 0.12)',
             border: '1px solid rgba(102, 126, 234, 0.08)',
             position: 'relative',

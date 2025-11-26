@@ -31,7 +31,7 @@ interface DomainResultsProps {
 const DomainResults = ({ domain, results, onClaim }: DomainResultsProps) => {
   return (
     <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 3, sm: 3, md: 4 } }}>
         <Typography
           variant="h3"
           sx={{

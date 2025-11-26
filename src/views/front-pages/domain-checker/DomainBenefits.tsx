@@ -10,7 +10,7 @@ const DomainBenefits = () => {
   const benefits = [
     {
       icon: <CheckCircleIcon sx={{ fontSize: 56, color: '#22c55e' }} />,
-      title: 'Domain Gratis',
+      title: 'Gratis 1 Tahun',
       description: 'Dapatkan domain .web.id, .biz.id, dan .my.id secara gratis untuk bisnis Anda'
     },
     {
@@ -32,7 +32,7 @@ const DomainBenefits = () => {
 
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'white' }}>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 3, sm: 3, md: 4 } }}>
         <Typography
           variant="h3"
           sx={{
@@ -42,7 +42,7 @@ const DomainBenefits = () => {
             fontSize: { xs: '1.75rem', md: '2.5rem' }
           }}
         >
-          Kenapa Memilih Domain dari Kami?
+          Yuk claim domain Gratismu!
         </Typography>
         <Typography
           variant="body1"
@@ -53,7 +53,7 @@ const DomainBenefits = () => {
             fontSize: { xs: '0.95rem', md: '1.1rem' }
           }}
         >
-          Solusi domain terbaik untuk mengembangkan bisnis online Anda
+          Scaleup brandmu dengan domain sendiri!
         </Typography>
 
         <Grid container spacing={4}>

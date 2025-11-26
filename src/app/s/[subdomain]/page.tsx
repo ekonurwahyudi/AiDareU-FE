@@ -27,8 +27,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 
 // Store Components
 import StoreHeader from '@/components/store/StoreHeader'
-import StoreFooter from '@/components/store/StoreFooter'
-import CartDrawer from '@/components/store/CartDrawer'
+import OptimizedImage from '@/components/OptimizedImage'
+import { LazyStoreFooter, LazyCartDrawer } from '@/components/LazyComponents'
 
 // Add keyframes for pulse animation
 const pulseKeyframes = `
@@ -739,11 +739,13 @@ const DynamicStorePage = () => {
               {/* Banner kiri (gambar saja) */}
               <Grid item xs={12} md={8}>
                 <Box sx={{ position: 'relative', height: { xs: 280, md: 420 }, borderRadius: 3, overflow: 'hidden' }}>
-                  <Box
-                    component="img"
+                  <OptimizedImage
                     src={activeSlides.length > 0 ? activeSlides[0].gambar_slide || activeSlides[0].image || '/images/slide/slide1.png' : '/images/slide/slide1.png'}
                     alt="Banner 1"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 66vw"
+                    objectFit="cover"
                   />
                 </Box>
               </Grid>
@@ -753,21 +755,25 @@ const DynamicStorePage = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12}>
                     <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
-                      <Box
-                        component="img"
+                      <OptimizedImage
                         src={activeSlides.length > 1 ? activeSlides[1].gambar_slide || activeSlides[1].image || '/images/slide/slide2.png' : '/images/slide/slide2.png'}
                         alt="Banner 2"
-                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        fill
+                        priority
+                        sizes="33vw"
+                        objectFit="cover"
                       />
                     </Box>
                   </Grid>
                   <Grid item xs={12}>
                     <Box sx={{ position: 'relative', height: 200, borderRadius: 3, overflow: 'hidden' }}>
-                      <Box
-                        component="img"
+                      <OptimizedImage
                         src={activeSlides.length > 2 ? activeSlides[2].gambar_slide || activeSlides[2].image || '/images/slide/slide3.png' : '/images/slide/slide3.png'}
                         alt="Banner 3"
-                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        fill
+                        priority
+                        sizes="33vw"
+                        objectFit="cover"
                       />
                     </Box>
                   </Grid>
@@ -803,15 +809,13 @@ const DynamicStorePage = () => {
                       position: 'relative'
                     }}
                   >
-                    <Box
-                      component="img"
+                    <OptimizedImage
                       src={slide.gambar_slide || slide.image || '/images/slide/slide1.png'}
                       alt={`Banner ${index + 1}`}
-                      sx={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
+                      fill
+                      priority={index === 0}
+                      sizes="100vw"
+                      objectFit="cover"
                     />
                   </Box>
                 ))}
@@ -1069,40 +1073,33 @@ const DynamicStorePage = () => {
                         overflow: 'hidden',
                         borderRadius: '12px 12px 0 0',
                         border: '1px solid #F1F5F9',
-                        borderBottom: 'none'
+                        borderBottom: 'none',
+                        position: 'relative'
                       }}
                     >
                       {product.image && product.image !== '/placeholder.jpg' ? (
-                        <img
+                        <OptimizedImage
                           src={product.image}
                           alt={product.name}
-                          style={{
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 25vw"
+                          objectFit="cover"
+                          quality={75}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
                             width: '100%',
                             height: '100%',
-                            objectFit: 'cover'
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: { xs: '4rem', sm: '6rem', md: '8rem' }
                           }}
-                          onError={(e) => {
-                            const imgEl = e.currentTarget as HTMLImageElement
-                            imgEl.style.display = 'none'
-                            const nextEl = imgEl.nextElementSibling as HTMLElement | null
-                            if (nextEl) {
-                              nextEl.style.display = 'flex'
-                            }
-                          }}
-                        />
-                      ) : null}
-                      <Box
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          display: product.image && product.image !== '/placeholder.jpg' ? 'none' : 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: { xs: '4rem', sm: '6rem', md: '8rem' }
-                        }}
-                      >
-                        {getProductIcon(product.name)}
-                      </Box>
+                        >
+                          {getProductIcon(product.name)}
+                        </Box>
+                      )}
                     </Box>
                   </Box>
 
@@ -1291,14 +1288,13 @@ const DynamicStorePage = () => {
                 display: { xs: 'none', md: 'block' }
               }}
             >
-              <Box
-                component="img"
+              <OptimizedImage
                 src="/images/step/garis.svg"
                 alt="connecting line"
-                sx={{
-                  width: '100%',
-                  height: 'auto'
-                }}
+                width={1200}
+                height={100}
+                sizes="90vw"
+                style={{ width: '100%', height: 'auto' }}
               />
             </Box>
 
@@ -1353,15 +1349,14 @@ const DynamicStorePage = () => {
                         position: 'relative'
                       }}
                     >
-                      <Box
-                        component="img"
+                      <OptimizedImage
                         src={step.image}
                         alt={`${step.title} image`}
-                        sx={{
-                          width: '70%',
-                          height: '70%',
-                          objectFit: 'contain'
-                        }}
+                        width={140}
+                        height={126}
+                        sizes="(max-width: 640px) 120px, (max-width: 960px) 140px, 200px"
+                        objectFit="contain"
+                        style={{ width: '70%', height: '70%' }}
                       />
                     </Box>
 
@@ -2000,14 +1995,20 @@ const DynamicStorePage = () => {
                       position: 'relative',
                       height: { xs: 120, md: 140 },
                       borderRadius: 3,
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
                     }}
                   >
-                    <Box
-                      component="img"
+                    <OptimizedImage
                       src="/images/store/cs.png"
                       alt="Customer Service"
-                      sx={{ width: '87%', ml:5, height: '100%', objectFit: 'cover' }}
+                      width={140}
+                      height={140}
+                      sizes="(max-width: 768px) 120px, 140px"
+                      objectFit="cover"
+                      style={{ width: '87%', marginLeft: '40px' }}
                     />
                   </Box>
                 </Grid>
@@ -2073,9 +2074,9 @@ const DynamicStorePage = () => {
 
       
 
-      <StoreFooter />
+      <LazyStoreFooter />
 
-      <CartDrawer
+      <LazyCartDrawer
         open={cartDrawerOpen}
         onClose={() => setCartDrawerOpen(false)}
         cartItems={cartItems}
