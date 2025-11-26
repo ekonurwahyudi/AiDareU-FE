@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 // Next.js Imports
 import Link from 'next/link'
+import { useRouter, usePathname } from 'next/navigation'
 
 // MUI Imports
 import {
@@ -113,6 +114,8 @@ const StoreHeader = ({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -123,14 +126,37 @@ const StoreHeader = ({
   ]
 
   const handleMenuClick = (href: string) => {
-    if (href.startsWith('#')) {
-      // Smooth scroll to section
-      const element = document.querySelector(href)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
-    }
     setMobileMenuOpen(false)
+
+    // If clicking "Home" menu
+    if (href === '/') {
+      router.push(href)
+      return
+    }
+
+    // Extract section ID from href (e.g., "/#products" -> "products")
+    const sectionId = href.replace('/#', '')
+
+    // Check if we're on the home page
+    const isHomePage = pathname === '/' || pathname.startsWith('/s/')
+
+    if (isHomePage) {
+      // If on home page, just scroll to section
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    } else {
+      // If on another page, navigate to home then scroll
+      router.push('/')
+      // Wait for navigation to complete, then scroll
+      setTimeout(() => {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    }
   }
 
   const handleCartClick = () => {
