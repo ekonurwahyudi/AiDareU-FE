@@ -42,6 +42,12 @@ const formatEstimatedDelivery = (dateString: string): string => {
   }
 }
 
+// Courier logo mapping
+const COURIER_LOGOS: Record<string, string> = {
+  'JNE': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/New_Logo_JNE.png/330px-New_Logo_JNE.png',
+  'J&T': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/J%26T_Express_logo.svg/330px-J%26T_Express_logo.svg.png'
+}
+
 // Types
 interface ShippingOption {
   courier: string
@@ -231,19 +237,26 @@ const ShippingOptions = ({
                   {/* Courier Logo/Icon */}
                   <Box
                     sx={{
-                      width: 48,
-                      height: 48,
-                      bgcolor: option.courier === 'JNE' ? '#1e3a8a' : '#E91E63',
+                      width: 60,
+                      height: 40,
+                      bgcolor: 'white',
+                      border: '1px solid #E2E8F0',
                       borderRadius: '8px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '12px'
+                      p: 1
                     }}
                   >
-                    {option.courier}
+                    <img
+                      src={COURIER_LOGOS[option.courier] || COURIER_LOGOS['JNE']}
+                      alt={option.courier}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain'
+                      }}
+                    />
                   </Box>
 
                   {/* Service Info */}
