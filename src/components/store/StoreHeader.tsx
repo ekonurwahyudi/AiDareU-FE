@@ -115,11 +115,11 @@ const StoreHeader = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const menuItems = [
-    { label: 'Home', href: '#home' },
-    { label: 'Produk', href: '#products' },
-    { label: 'Testimoni', href: '#testimonial' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Kontak', href: '#contact' }
+    { label: 'Home', href: '/' },
+    { label: 'Produk', href: '/#products' },
+    { label: 'Testimoni', href: '/#testimonial' },
+    { label: 'FAQ', href: '/#faq' },
+    { label: 'Kontak', href: '/#contact' }
   ]
 
   const handleMenuClick = (href: string) => {
