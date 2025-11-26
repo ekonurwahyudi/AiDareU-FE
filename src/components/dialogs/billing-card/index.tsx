@@ -234,17 +234,29 @@ const BillingCard = ({ open, setOpen, data, onSuccess, storeUuid }: { open: bool
                 <MenuItem value="">-- Pilih Bank --</MenuItem>
                 {bankOptions.map((bank, idx) => (
                  <MenuItem key={idx} value={bank.name}>
-                    <Box className="flex items-center gap-2">
-                      <img
-                        src={bank.logo}
-                        alt={bank.name}
-                        style={{
-                          height: 20,
-                          width: 'auto',
-                          objectFit: 'contain',
-                          display: 'block'
+                    <Box className="flex items-center gap-3">
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
-                      />
+                      >
+                        <img
+                          src={bank.logo}
+                          alt={bank.name}
+                          style={{
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            width: 'auto',
+                            height: 'auto',
+                            objectFit: 'contain',
+                            display: 'block'
+                          }}
+                        />
+                      </Box>
                       <span>{bank.name}</span>
                     </Box>
                   </MenuItem>
