@@ -727,84 +727,213 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                   <CircularProgress size={30} sx={{ color: primaryColor }} />
                 </Box>
               ) : (
-                recommendedProducts.map((product: any) => (
-                  <Card
-                    key={product.uuid || product.id}
-                    sx={{
-                      minWidth: 200,
-                      maxWidth: 200,
-                      cursor: 'pointer',
-                      transition: 'all 0.3s',
-                      border: '1px solid #e0e0e0',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        borderColor: primaryColor
-                      }
-                    }}
-                    onClick={() => handleProductClick(product)}
-                  >
-                    <Box
+                recommendedProducts.map((product: any) => {
+                  const hargaAsli = product.harga || product.price || 0
+                  const hargaJual = product.harga_jual || product.salePrice || hargaAsli
+                  const hasDiscount = hargaJual < hargaAsli
+                  const discountPercent = hasDiscount ? Math.round(((hargaAsli - hargaJual) / hargaAsli) * 100) : 0
+
+                  return (
+                    <Card
+                      key={product.uuid || product.id}
                       sx={{
-                        width: '100%',
-                        height: 150,
-                        bgcolor: '#f5f5f5',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden'
+                        minWidth: 250,
+                        maxWidth: 250,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        border: '1px solid #F1F5F9',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
+                          borderColor: '#E2E8F0'
+                        }
                       }}
                     >
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.nama_produk || product.name}
-                          style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                        />
-                      ) : (
-                        <Typography sx={{ fontSize: '3rem' }}>📦</Typography>
-                      )}
-                    </Box>
-                    <CardContent sx={{ p: 2 }}>
-                      <Typography
-                        variant='body2'
+                      <Box
                         sx={{
-                          fontWeight: 'medium',
-                          mb: 1,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          minHeight: 40
+                          position: 'relative',
+                          width: '100%',
+                          height: 200,
+                          bgcolor: '#f5f5f5',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden'
                         }}
+                        onClick={() => handleProductClick(product)}
                       >
-                        {product.nama_produk || product.name}
-                      </Typography>
-                      <Typography
-                        variant='body2'
-                        sx={{ fontWeight: 'bold', color: primaryColor, mb: 2 }}
-                      >
-                        {formatRupiah(product.harga_jual || product.price || 0)}
-                      </Typography>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        fullWidth
-                        sx={{
-                          borderColor: primaryColor,
-                          color: primaryColor,
-                          '&:hover': {
-                            borderColor: primaryColor,
-                            bgcolor: `${primaryColor}15`
-                          }
-                        }}
-                      >
-                        Lihat Produk
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))
+                        {/* Discount Badge */}
+                        {hasDiscount && (
+                          <Chip
+                            label={`${discountPercent}%`}
+                            size="small"
+                            sx={{
+                              position: 'absolute',
+                              top: 12,
+                              left: 12,
+                              bgcolor: '#fdc700',
+                              color: '#804b08',
+                              fontWeight: 'bold',
+                              zIndex: 1,
+                              fontSize: '0.75rem'
+                            }}
+                          />
+                        )}
+
+                        {/* Favorite Icon */}
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            // Toggle favorite logic here
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            bgcolor: 'white',
+                            color: 'text.secondary',
+                            zIndex: 1,
+                            width: 36,
+                            height: 36,
+                            '&:hover': {
+                              bgcolor: 'white',
+                              color: primaryColor
+                            }
+                          }}
+                        >
+                          <i className='tabler-heart' style={{ fontSize: '18px' }} />
+                        </IconButton>
+
+                        {/* Product Image */}
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.nama_produk || product.name}
+                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                          />
+                        ) : (
+                          <Typography sx={{ fontSize: '4rem' }}>📦</Typography>
+                        )}
+                      </Box>
+
+                      <CardContent sx={{ p: 2.5, bgcolor: 'white' }}>
+                        {/* Product Name */}
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            fontWeight: 600,
+                            mb: 0.5,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            minHeight: 40,
+                            color: '#1F2937',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          {product.nama_produk || product.name}
+                        </Typography>
+
+                        {/* Store Name & Rating */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                          <Box
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              bgcolor: primaryColor,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <Typography sx={{ fontSize: '0.7rem', color: 'white', fontWeight: 'bold' }}>
+                              {subdomain.charAt(0).toUpperCase()}
+                            </Typography>
+                          </Box>
+                          <Typography variant='caption' sx={{ color: '#6B7280', fontSize: '0.75rem' }}>
+                            {subdomain}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
+                            <i className='tabler-star-filled' style={{ fontSize: '14px', color: '#FCD34D' }} />
+                            <Typography variant='caption' sx={{ fontWeight: 600, fontSize: '0.75rem' }}>
+                              {product.rating || '4.9'}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Price Section */}
+                        <Box sx={{ mb: 2 }}>
+                          {hasDiscount ? (
+                            <Box>
+                              <Typography
+                                variant='body2'
+                                sx={{
+                                  fontWeight: 'bold',
+                                  color: '#22C55E',
+                                  fontSize: '1rem',
+                                  mb: 0.5
+                                }}
+                              >
+                                {formatRupiah(hargaJual)}
+                              </Typography>
+                              <Typography
+                                variant='caption'
+                                sx={{
+                                  textDecoration: 'line-through',
+                                  color: '#9CA3AF',
+                                  fontSize: '0.75rem'
+                                }}
+                              >
+                                {formatRupiah(hargaAsli)}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 'bold',
+                                color: '#1F2937',
+                                fontSize: '1rem'
+                              }}
+                            >
+                              {formatRupiah(hargaJual)}
+                            </Typography>
+                          )}
+                        </Box>
+
+                        {/* View Product Button */}
+                        <Button
+                          variant='contained'
+                          size='small'
+                          fullWidth
+                          onClick={() => handleProductClick(product)}
+                          startIcon={<i className='tabler-eye' style={{ fontSize: '16px' }} />}
+                          sx={{
+                            bgcolor: primaryColor,
+                            color: 'white',
+                            fontWeight: 600,
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            py: 1,
+                            boxShadow: 'none',
+                            '&:hover': {
+                              bgcolor: primaryColor,
+                              opacity: 0.9,
+                              boxShadow: 'none'
+                            }
+                          }}
+                        >
+                          Lihat Produk
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )
+                })
               )}
             </Box>
           </Box>
