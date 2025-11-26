@@ -50,24 +50,24 @@ const initialCardData: BillingCardData = {
   badgeColor: 'primary'
 }
 
-// Logo bank online sementara (gunakan URL gambar)
+// Logo bank (sesuai dengan RekeningBank.tsx)
 const bankOptions = [
   { name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/1199px-Bank_Central_Asia.svg.png' },
-  { name: 'BNI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/300px-BNI_logo.svg.png?20240305030303' },
+  { name: 'BNI', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Bank_Negara_Indonesia_logo_%282004%29.svg/300px-Bank_Negara_Indonesia_logo_%282004%29.svg.png' },
   { name: 'BRI', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/BANK_BRI_logo.svg/189px-BANK_BRI_logo.svg.png' },
+  { name: 'BSI', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bank_Syariah_Indonesia.svg/330px-Bank_Syariah_Indonesia.svg.png' },
   { name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/320px-Bank_Mandiri_logo_2016.svg.png' },
-  { name: 'CIMB Niaga', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/c/c1/CIMB_Niaga_logo.svg/320px-CIMB_Niaga_logo.svg.png' },
-  { name: 'Danamon', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Bank_Danamon_logo.svg/320px-Bank_Danamon_logo.svg.png' },
-  { name: 'Permata Bank', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/a/a8/Permata_Bank_logo.svg/320px-Permata_Bank_logo.svg.png' },
-  { name: 'BTN', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/8/84/Bank_BTN_logo.svg/320px-Bank_BTN_logo.svg.png' },
-  { name: 'BSI', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/6/68/Bank_Syariah_Indonesia.svg/320px-Bank_Syariah_Indonesia.svg.png' },
-  { name: 'Panin Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Panin_Bank_logo.svg/320px-Panin_Bank_logo.svg.png' },
-  { name: 'OCBC NISP', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/OCBC_NISP_logo.svg/320px-OCBC_NISP_logo.svg.png' },
-  { name: 'Maybank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Maybank_Logo.svg/320px-Maybank_Logo.svg.png' },
-  { name: 'Bank Mega', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Bank_Mega_Logo.svg/320px-Bank_Mega_Logo.svg.png' },
-  { name: 'Bank Jago', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Bank_Jago_logo.svg/320px-Bank_Jago_logo.svg.png' },
-  { name: 'Jenius (BTPN)', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Jenius_logo.svg/320px-Jenius_logo.svg.png' },
-  { name: 'SeaBank', logo: 'https://seeklogo.com/images/S/seabank-logo-91E5B85976-seeklogo.com.png' },
+  { name: 'CIMB Niaga', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/CIMB_Niaga_logo.svg/330px-CIMB_Niaga_logo.svg.png' },
+  { name: 'Danamon', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Danamon.svg/330px-Danamon.svg.png' },
+  { name: 'Permata Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Permata_Bank_(2024).svg/330px-Permata_Bank_(2024).svg.png' },
+  { name: 'BTN', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/BTN_2024.svg/330px-BTN_2024.svg.png' },
+  { name: 'Panin Bank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Logo_Panin_Bank.svg/330px-Logo_Panin_Bank.svg.png' },
+  { name: 'OCBC', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Logo-ocbc.svg/330px-Logo-ocbc.svg.png' },
+  { name: 'Bank Mega', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Bank_Mega_2013.svg/330px-Bank_Mega_2013.svg.png' },
+  { name: 'Bank Jago', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Logo-jago.svg/120px-Logo-jago.svg.png' },
+  { name: 'Jenius', logo: 'https://upload.wikimedia.org/wikipedia/id/thumb/8/89/Jenius-logo.png/330px-Jenius-logo.png' },
+  { name: 'SeaBank', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/SeaBank.svg/252px-SeaBank.svg.png' },
+  { name: 'Linkaja', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/LinkAja.svg/92px-LinkAja.svg.png' },
   { name: 'Gopay', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/320px-Gopay_logo.svg.png' },
   { name: 'OVO', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/320px-Logo_ovo_purple.svg.png' },
   { name: 'Dana', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/320px-Logo_dana_blue.svg.png' },
