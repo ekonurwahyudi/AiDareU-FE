@@ -830,7 +830,6 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            minHeight: 40,
                             color: '#1F2937',
                             fontSize: '0.875rem'
                           }}
@@ -891,6 +890,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                             textTransform: 'none',
                             borderRadius: '8px',
                             py: 1,
+                            height: 40,
                             boxShadow: 'none',
                             '&:hover': {
                               bgcolor: primaryColor,
