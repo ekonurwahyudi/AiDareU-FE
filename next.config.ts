@@ -29,6 +29,20 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.aidareu.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'aidareu.com',
+      },
+    ],
   },
 
   // swcMinify deprecated in Next.js 15
