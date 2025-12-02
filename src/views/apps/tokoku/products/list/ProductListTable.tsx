@@ -204,7 +204,7 @@ const ProductListTable = () => {
   const [deleting, setDeleting] = useState(false)
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 10
   })
   const [totalRows, setTotalRows] = useState(0)
   // States for smart refresh management
@@ -304,8 +304,11 @@ const ProductListTable = () => {
       }
 
       const result = await response.json()
-      
+
       console.log('Products fetched successfully:', result)
+      console.log('Pagination state - Page:', pagination.pageIndex + 1, 'PageSize:', pagination.pageSize)
+      console.log('API Response - Total:', result.data?.total, 'Data count:', result.data?.data?.length)
+
       if (result.status === 'success') {
         setProducts(result.data.data || [])
         setTotalRows(result.data.total || 0)
