@@ -307,11 +307,18 @@ const ProductListTable = () => {
 
       console.log('Products fetched successfully:', result)
       console.log('Pagination state - Page:', pagination.pageIndex + 1, 'PageSize:', pagination.pageSize)
+      console.log('API Response - Full data structure:', result.data)
       console.log('API Response - Total:', result.data?.total, 'Data count:', result.data?.data?.length)
 
       if (result.status === 'success') {
-        setProducts(result.data.data || [])
-        setTotalRows(result.data.total || 0)
+        // Laravel paginate returns: { data: [...], total: X, per_page: Y, current_page: Z }
+        const productsData = result.data.data || []
+        const total = result.data.total || result.data.meta?.total || 0
+
+        console.log('Setting products:', productsData.length, 'Total rows:', total)
+
+        setProducts(productsData)
+        setTotalRows(total)
         setLastFetchTime(now) // Track successful fetch time
       } else {
         throw new Error(result.message || 'Failed to fetch products')
