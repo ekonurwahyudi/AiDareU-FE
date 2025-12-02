@@ -278,6 +278,7 @@ const DynamicStorePage = () => {
   const [loading, setLoading] = useState(true)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0)
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [showAllProducts, setShowAllProducts] = useState(false)
 
   // Store data from database
   const [storeData, setStoreData] = useState<any>(null)
@@ -996,7 +997,7 @@ const DynamicStorePage = () => {
               </Grid>
             ))
           ) : (
-            products.slice(0, 8).map((product) => (
+            (showAllProducts ? products : products.slice(0, 8)).map((product) => (
               <Grid item xs={6} sm={6} md={4} lg={3} key={product.id}>
                 <ProductCard
                   onClick={() => handleProductClick(product)}
@@ -1262,6 +1263,33 @@ const DynamicStorePage = () => {
             ))
           )}
         </Grid>
+
+        {/* Show All Products Button - Only show if there are more than 8 products */}
+        {!loading && products.length > 8 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => setShowAllProducts(!showAllProducts)}
+              sx={{
+                borderColor: primaryColor,
+                color: primaryColor,
+                px: 6,
+                py: 1.5,
+                borderRadius: 3,
+                fontSize: '1rem',
+                fontWeight: 600,
+                textTransform: 'none',
+                '&:hover': {
+                  borderColor: primaryColor,
+                  bgcolor: `${primaryColor}11`
+                }
+              }}
+            >
+              {showAllProducts ? 'Tampilkan Lebih Sedikit' : `Tampilkan Semua Produk (${products.length})`}
+            </Button>
+          </Box>
+        )}
         </Container>
       </Box>
       {/* Shopping Steps */}

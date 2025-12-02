@@ -204,7 +204,7 @@ const ProductListTable = () => {
   const [deleting, setDeleting] = useState(false)
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 25
   })
   const [totalRows, setTotalRows] = useState(0)
   // States for smart refresh management
@@ -870,11 +870,13 @@ const ProductListTable = () => {
             select
             value={pagination.pageSize}
             onChange={e => setPagination(prev => ({ ...prev, pageSize: Number(e.target.value), pageIndex: 0 }))}
-            className="w-[80px]"
+            className="w-[100px]"
           >
             <MenuItem value="10">10</MenuItem>
             <MenuItem value="25">25</MenuItem>
             <MenuItem value="50">50</MenuItem>
+            <MenuItem value="100">100</MenuItem>
+            <MenuItem value="1000">All</MenuItem>
           </CustomTextField>
 
           {/* Kanan bawah: Search + Filter */}
