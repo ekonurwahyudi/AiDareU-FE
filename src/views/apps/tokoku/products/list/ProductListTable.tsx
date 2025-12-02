@@ -739,7 +739,8 @@ const ProductListTable = () => {
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true, // Enable server-side pagination
     manualFiltering: true,  // Enable server-side filtering
-    pageCount: Math.ceil(totalRows / pagination.pageSize)
+    pageCount: Math.ceil(totalRows / pagination.pageSize),
+    rowCount: totalRows // Total rows from server for pagination display
   })
 
   // Skeleton loading component
