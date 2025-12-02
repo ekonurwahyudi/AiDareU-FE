@@ -1066,7 +1066,7 @@ const DynamicStorePage = () => {
                     <Box
                       sx={{
                         width: '100%',
-                        height: { xs: 180, sm: 220, md: 260 },
+                        aspectRatio: '1 / 1',
                         bgcolor: '#FAFBFC',
                         display: 'flex',
                         alignItems: 'center',
