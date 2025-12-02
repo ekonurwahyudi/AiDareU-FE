@@ -997,7 +997,7 @@ const DynamicStorePage = () => {
               </Grid>
             ))
           ) : (
-            (showAllProducts ? products : products.slice(0, 8)).map((product) => (
+            (showAllProducts ? products : products.slice(0, 10)).map((product) => (
               <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
                 <ProductCard
                   onClick={() => handleProductClick(product)}
@@ -1265,8 +1265,8 @@ const DynamicStorePage = () => {
           )}
         </Grid>
 
-        {/* Show All Products Button - Only show if there are more than 8 products */}
-        {!loading && products.length > 8 && (
+        {/* Show All Products Button - Only show if there are more than 10 products */}
+        {!loading && products.length > 10 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
             <Button
               variant="outlined"
