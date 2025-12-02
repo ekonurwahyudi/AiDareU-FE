@@ -998,7 +998,7 @@ const DynamicStorePage = () => {
             ))
           ) : (
             (showAllProducts ? products : products.slice(0, 8)).map((product) => (
-              <Grid item xs={6} sm={6} md={4} lg={3} key={product.id}>
+              <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
                 <ProductCard
                   onClick={() => handleProductClick(product)}
                   sx={{
@@ -1129,7 +1129,8 @@ const DynamicStorePage = () => {
                             width: 16,
                             height: 16,
                             borderRadius: '50%',
-                            bgcolor: '#E91E63',
+                            bgcolor: 'white',
+                            border: '1px solid #E2E8F0',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
