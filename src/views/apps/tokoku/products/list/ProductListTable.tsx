@@ -230,15 +230,16 @@ const ProductListTable = () => {
       return
     }
 
-    // Implement aggressive caching - keep data fresh for 5 minutes to avoid loading delays
+    // Cache disabled for pagination to work correctly
+    // Pagination changes require fresh data from server
     const now = Date.now()
-    const timeSinceLastFetch = now - lastFetchTime
-    const cacheTimeout = 300000 // 5 minutes - extended for instant loading experience
-    
-    if (!forceRefresh && timeSinceLastFetch < cacheTimeout && products.length > 0) {
-      console.log('Using cached data, last fetch was', Math.round(timeSinceLastFetch / 1000), 'seconds ago')
-      return // Return immediately without loading indicator for instant display
-    }
+
+    // Only use cache if explicitly not forcing refresh and no pagination changes
+    // For now, we disable cache to ensure pagination works correctly
+    // if (!forceRefresh && timeSinceLastFetch < cacheTimeout && products.length > 0) {
+    //   console.log('Using cached data, last fetch was', Math.round(timeSinceLastFetch / 1000), 'seconds ago')
+    //   return
+    // }
 
     try {
       // Only show loading for fresh requests, not cached data
