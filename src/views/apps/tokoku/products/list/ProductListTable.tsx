@@ -329,7 +329,7 @@ const ProductListTable = () => {
     } finally {
       setLoading(false)
     }
-  }, [currentStore?.uuid, currentStore?.id, debouncedSearch, debouncedStatusFilter, debouncedCategoryFilter, pagination])
+  }, [currentStore?.uuid, currentStore?.id, debouncedSearch, debouncedStatusFilter, debouncedCategoryFilter, pagination.pageIndex, pagination.pageSize])
 
   // Fetch categories (cached for session)
   const fetchCategories = useCallback(async () => {
