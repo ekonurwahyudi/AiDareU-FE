@@ -12,7 +12,8 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
     "postinstall": "npm run build:icons",
-    "removeI18n": "tsx src/remove-translation-scripts/index.ts"
+    "removeI18n": "tsx src/remove-translation-scripts/index.ts",
+    "generate:sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",

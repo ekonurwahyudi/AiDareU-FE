@@ -1,0 +1,25 @@
+# robots.txt for AiDareU
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /apps/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /auth/
+
+# Allow public store pages
+Allow: /s/
+Allow: /store/
+Allow: /domain-checker
+Allow: /front-pages/
+
+# Sitemap location
+Sitemap: https://aidareu.com/sitemap.xml
+Sitemap: https://app.aidareu.com/sitemap.xml
+
+# Crawl-delay (optional, helps prevent server overload)
+Crawl-delay: 1
