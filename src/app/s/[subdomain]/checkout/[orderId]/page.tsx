@@ -71,6 +71,7 @@ export default function OrderConfirmationPage() {
   const [storeLoading, setStoreLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [primaryColor, setPrimaryColor] = useState('#E91E63')
+  const [products, setProducts] = useState<any[]>([])
 
   // Fetch store data
   useEffect(() => {
@@ -89,6 +90,10 @@ export default function OrderConfirmationPage() {
           if (data.data.settings?.primary_color) {
             setPrimaryColor(data.data.settings.primary_color)
           }
+          // Set products for search functionality
+          if (data.data.products) {
+            setProducts(data.data.products)
+          }
         }
       } catch (error) {
         console.error('Error fetching store data:', error)
@@ -101,6 +106,13 @@ export default function OrderConfirmationPage() {
       fetchStoreData()
     }
   }, [subdomain])
+
+  // Handle product click from search
+  const handleProductClick = (product: any) => {
+    const uuid = product.uuid || product.id
+    const slugWithUuid = `${product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${uuid}`
+    window.location.href = `/s/${subdomain}/${slugWithUuid}?uuid=${uuid}`
+  }
 
   // Fetch order details
   useEffect(() => {
@@ -534,6 +546,8 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
+        products={products}
+        onProductClick={handleProductClick}
       />
 
       <Box sx={{ flex: 1, py: { xs: 3, md: 6 }, bgcolor: '#FAFBFC' }}>

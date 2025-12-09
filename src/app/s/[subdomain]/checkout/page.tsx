@@ -34,6 +34,7 @@ const CheckoutPage = () => {
   // Store data state
   const [storeData, setStoreData] = useState<any>(null)
   const [storeLoading, setStoreLoading] = useState(true)
+  const [products, setProducts] = useState<any[]>([])
 
   // Fetch store data from API
   useEffect(() => {
@@ -48,6 +49,10 @@ const CheckoutPage = () => {
 
         if (data.success && data.data) {
           setStoreData(data.data)
+          // Set products for search functionality
+          if (data.data.products) {
+            setProducts(data.data.products)
+          }
         }
       } catch (error) {
         console.error('Error fetching store data:', error)
@@ -60,6 +65,13 @@ const CheckoutPage = () => {
       fetchStoreData()
     }
   }, [subdomain])
+
+  // Handle product click from search
+  const handleProductClick = (product: any) => {
+    const uuid = product.uuid || product.id
+    const slugWithUuid = `${product.slug || product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${uuid}`
+    window.location.href = `/s/${subdomain}/${slugWithUuid}?uuid=${uuid}`
+  }
 
   // Update metadata untuk halaman checkout
   useStoreMetadata({
@@ -207,6 +219,8 @@ const CheckoutPage = () => {
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
+        products={products}
+        onProductClick={handleProductClick}
       />
 
       <Box sx={{ flex: 1, py: { xs: 3, md: 6 }, bgcolor: '#FAFBFC' }}>
