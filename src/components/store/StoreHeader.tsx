@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 // Next.js Imports
 import Link from 'next/link'
@@ -24,7 +24,12 @@ import {
   ListItem,
   ListItemText,
   useMediaQuery,
-  useTheme
+  useTheme,
+  TextField,
+  InputAdornment,
+  Paper,
+  ClickAwayListener,
+  Popper
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
@@ -32,6 +37,7 @@ import { styled } from '@mui/material/styles'
 import MenuIcon from '@mui/icons-material/Menu'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import CloseIcon from '@mui/icons-material/Close'
+import SearchIcon from '@mui/icons-material/Search'
 
 // Components
 import CartDropdown from './CartDropdown'
@@ -88,6 +94,16 @@ interface CartItem {
   quantity: number
 }
 
+interface Product {
+  id: string
+  uuid: string
+  name: string
+  price: number
+  salePrice?: number
+  image: string
+  jenis_produk?: string
+}
+
 interface StoreHeaderProps {
   cartItemCount?: number
   onCartClick?: () => void
@@ -98,6 +114,8 @@ interface StoreHeaderProps {
   storeName?: string
   storeLogo?: string
   primaryColor?: string
+  products?: Product[]
+  onProductClick?: (product: Product) => void
 }
 
 const StoreHeader = ({
@@ -109,13 +127,23 @@ const StoreHeader = ({
   storeLogo,
   onUpdateQuantity,
   onAddToCart,
-  primaryColor = '#E91E63'
+  primaryColor = '#E91E63',
+  products = [],
+  onProductClick
 }: StoreHeaderProps) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+
+  // Filter products based on search query
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  ).slice(0, 5) // Limit to 5 results
 
   const menuItems = [
     { label: 'Home', href: '/' },
@@ -159,10 +187,30 @@ const StoreHeader = ({
     }
   }
 
-  const handleCartClick = () => {
-    if (onCartClick) {
-      onCartClick()
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
+    setSearchQuery(value)
+    setSearchOpen(value.length > 0)
+  }
+
+  const handleProductSelect = (product: Product) => {
+    setSearchQuery('')
+    setSearchOpen(false)
+    if (onProductClick) {
+      onProductClick(product)
     }
+  }
+
+  const handleSearchClose = () => {
+    setSearchOpen(false)
+  }
+
+  const formatRupiah = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(price)
   }
 
   return (
@@ -207,6 +255,135 @@ const StoreHeader = ({
                 ))}
               </Box>
             )}
+
+            {/* Search Box */}
+            <Box sx={{ position: 'relative', display: { xs: 'none', md: 'block' }, mx: 2 }} ref={searchRef}>
+              <ClickAwayListener onClickAway={handleSearchClose}>
+                <Box>
+                  <TextField
+                    size="small"
+                    placeholder="Cari produk..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    sx={{
+                      width: 250,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        bgcolor: 'white',
+                        '&:hover fieldset': {
+                          borderColor: primaryColor
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: primaryColor
+                        }
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: 'text.secondary' }} />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+
+                  {/* Search Results Dropdown */}
+                  {searchOpen && filteredProducts.length > 0 && (
+                    <Paper
+                      sx={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        mt: 1,
+                        maxHeight: 400,
+                        overflowY: 'auto',
+                        zIndex: 1300,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        borderRadius: 2
+                      }}
+                    >
+                      {filteredProducts.map((product) => (
+                        <Box
+                          key={product.id}
+                          onClick={() => handleProductSelect(product)}
+                          sx={{
+                            p: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 2,
+                            cursor: 'pointer',
+                            borderBottom: '1px solid #f0f0f0',
+                            '&:hover': {
+                              bgcolor: `${primaryColor}11`
+                            },
+                            '&:last-child': {
+                              borderBottom: 'none'
+                            }
+                          }}
+                        >
+                          <Box
+                            component="img"
+                            src={product.image}
+                            alt={product.name}
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              objectFit: 'cover',
+                              borderRadius: 1,
+                              bgcolor: '#f5f5f5'
+                            }}
+                          />
+                          <Box sx={{ flex: 1 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: 600,
+                                color: 'text.primary',
+                                mb: 0.5
+                              }}
+                            >
+                              {product.name}
+                            </Typography>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: primaryColor,
+                                fontWeight: 700
+                              }}
+                            >
+                              {formatRupiah(product.salePrice || product.price)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Paper>
+                  )}
+
+                  {/* No Results */}
+                  {searchOpen && searchQuery.length > 0 && filteredProducts.length === 0 && (
+                    <Paper
+                      sx={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        mt: 1,
+                        p: 3,
+                        zIndex: 1300,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        borderRadius: 2,
+                        textAlign: 'center'
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        Produk tidak ditemukan
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
+              </ClickAwayListener>
+            </Box>
 
             {/* Cart Button */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

@@ -717,6 +717,8 @@ const DynamicStorePage = () => {
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateCartQuantity}
         onAddToCart={addToCart}
+        products={products}
+        onProductClick={handleProductClick}
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
