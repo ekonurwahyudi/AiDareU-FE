@@ -435,6 +435,7 @@ function ProductDetailPage() {
   } = useCart()
 
   const [product, setProduct] = useState<Product | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isFavorite, setIsFavorite] = useState(false)
@@ -774,6 +775,9 @@ function ProductDetailPage() {
           console.log('Product list fetched, searching by slug')
           const transformedProducts: Product[] = data.data.data.map(transformProduct)
 
+          // Set all products for search functionality
+          setProducts(transformedProducts)
+
           console.log('Looking for slug:', slug)
           console.log('Available slugs:', transformedProducts.map(p => p.slug))
 
@@ -973,7 +977,15 @@ ${currentUrl}`
   if (error || !product) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-        <StoreHeader cartItemCount={getTotalItems()} onCartClick={handleCartClick} />
+        <StoreHeader
+          cartItemCount={getTotalItems()}
+          onCartClick={handleCartClick}
+          products={products}
+          onProductClick={(clickedProduct) => {
+            const productSlug = `${clickedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${clickedProduct.uuid}`
+            router.push(`/s/${subdomain}/${productSlug}?uuid=${clickedProduct.uuid}`)
+          }}
+        />
         <Container maxWidth="lg" sx={{ py: 8 }}>
           <Alert severity="error" sx={{ mb: 4 }}>
             {error || 'Produk tidak ditemukan'}
@@ -1049,6 +1061,12 @@ ${currentUrl}`
         cartItems={cartItems}
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateCartQuantity}
+        products={products}
+        onProductClick={(clickedProduct) => {
+          // Navigate to product detail page
+          const productSlug = `${clickedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${clickedProduct.uuid}`
+          router.push(`/s/${subdomain}/${productSlug}?uuid=${clickedProduct.uuid}`)
+        }}
         onAddToCart={handleAddToCart}
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
