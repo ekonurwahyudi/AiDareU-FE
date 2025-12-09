@@ -134,6 +134,7 @@ const StoreHeader = ({
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
@@ -388,13 +389,22 @@ const StoreHeader = ({
             {/* Cart Button */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {isMobile && (
-                <IconButton
-                  color="inherit"
-                  onClick={() => setMobileMenuOpen(true)}
-                  sx={{ mr: 1 }}
-                >
-                  <MenuIcon />
-                </IconButton>
+                <>
+                  <IconButton
+                    color="inherit"
+                    onClick={() => setMobileSearchOpen(true)}
+                    sx={{ mr: 0.5 }}
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                  <IconButton
+                    color="inherit"
+                    onClick={() => setMobileMenuOpen(true)}
+                    sx={{ mr: 1 }}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </>
               )}
 
               {/* Desktop: Use CartDropdown, Mobile: Use CartDrawer button */}
@@ -513,6 +523,140 @@ const StoreHeader = ({
             </ListItem>
           ))}
         </List>
+      </Drawer>
+
+      {/* Mobile Search Drawer */}
+      <Drawer
+        anchor="top"
+        open={mobileSearchOpen}
+        onClose={() => {
+          setMobileSearchOpen(false)
+          setSearchQuery('')
+          setSearchOpen(false)
+        }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            bgcolor: 'white',
+            borderRadius: '0 0 16px 16px'
+          }
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Cari Produk
+            </Typography>
+            <IconButton
+              onClick={() => {
+                setMobileSearchOpen(false)
+                setSearchQuery('')
+                setSearchOpen(false)
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <TextField
+            fullWidth
+            autoFocus
+            size="small"
+            placeholder="Ketik nama produk..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                '&:hover fieldset': {
+                  borderColor: primaryColor
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: primaryColor
+                }
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: 'text.secondary' }} />
+                </InputAdornment>
+              )
+            }}
+          />
+
+          {/* Search Results */}
+          <Box sx={{ mt: 2, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+            {searchQuery.length > 0 && filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <Box
+                  key={product.id}
+                  onClick={() => {
+                    handleProductSelect(product)
+                    setMobileSearchOpen(false)
+                  }}
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                    cursor: 'pointer',
+                    borderRadius: 2,
+                    mb: 1,
+                    '&:hover': {
+                      bgcolor: `${primaryColor}11`
+                    }
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={product.image}
+                    alt={product.name}
+                    sx={{
+                      width: 60,
+                      height: 60,
+                      objectFit: 'cover',
+                      borderRadius: 1,
+                      bgcolor: '#f5f5f5'
+                    }}
+                  />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        color: 'text.primary',
+                        mb: 0.5
+                      }}
+                    >
+                      {product.name}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: primaryColor,
+                        fontWeight: 700
+                      }}
+                    >
+                      {formatRupiah(product.salePrice || product.price)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))
+            ) : searchQuery.length > 0 ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Produk tidak ditemukan
+                </Typography>
+              </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Mulai ketik untuk mencari produk...
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
       </Drawer>
     </>
   )
