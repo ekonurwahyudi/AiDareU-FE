@@ -813,6 +813,73 @@ function ProductDetailPage() {
     }
   }, [slug, productUuid, storeData?.store?.uuid, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
 
+  // Fetch all products for search functionality (separate from single product fetch)
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+        if (!storeUuid) return
+
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+        const apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeUuid}`
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          cache: 'no-store'
+        })
+
+        if (!response.ok) return
+
+        const data = await response.json()
+
+        if (data.status === 'success' && data.data && data.data.data) {
+          const transformProduct = (product: any): Product => ({
+            id: product.uuid || product.id?.toString(),
+            uuid: product.uuid,
+            name: product.nama_produk,
+            brand: product.store?.name || 'Premium Collection',
+            price: parseFloat(product.harga_produk || '0'),
+            salePrice: product.harga_diskon ? parseFloat(product.harga_diskon) : null,
+            rating: 4.5,
+            reviews: Math.floor(Math.random() * 100) + 10,
+            image: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
+              ? `${backendUrl}/storage/${product.upload_gambar_produk[0]}`
+              : '/placeholder.jpg',
+            images: Array.isArray(product.upload_gambar_produk) && product.upload_gambar_produk.length > 0
+              ? product.upload_gambar_produk.map((img: string) => `${backendUrl}/storage/${img}`)
+              : ['/placeholder.jpg'],
+            colors: null,
+            isNew: product.status_produk === 'active' && new Date(product.created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            inStock: product.jenis_produk === 'digital' || (product.stock && product.stock > 0),
+            slug: product.slug || product.nama_produk.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''),
+            category: product.category?.judul_kategori || 'Produk',
+            description: product.deskripsi || 'No description available for this product.',
+            jenis_produk: product.jenis_produk,
+            status_produk: product.status_produk,
+            stock: product.stock || 0,
+            url_produk: product.url_produk,
+            storeUuid: product.store?.uuid || product.uuid_store || undefined
+          })
+
+          const transformedProducts: Product[] = data.data.data.map(transformProduct)
+          setProducts(transformedProducts)
+          console.log('[Search] Loaded products for search:', transformedProducts.length)
+        }
+      } catch (error) {
+        console.error('[Search] Error fetching all products:', error)
+      }
+    }
+
+    const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
+    if (storeUuid) {
+      fetchAllProducts()
+    }
+  }, [storeData?.store?.uuid, storeData?.store?.uuid_store, storeData?.uuid_store, storeData?.uuid])
+
   const handleAddToCart = () => {
     if (!product) {
       console.log('No product found, cannot add to cart')
