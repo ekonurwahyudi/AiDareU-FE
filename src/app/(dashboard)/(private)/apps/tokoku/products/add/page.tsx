@@ -12,6 +12,7 @@ import ProductVariants from '@/views/apps/tokoku/products/add/ProductVariants'
 import ProductInventory from '@/views/apps/tokoku/products/add/ProductInventory'
 import ProductPricing from '@/views/apps/tokoku/products/add/ProductPricing'
 import ProductOrganize from '@/views/apps/tokoku/products/add/ProductOrganize'
+import ProductSizeGuide from '@/views/apps/tokoku/products/add/ProductSizeGuide'
 
 const eCommerceProductsAdd = () => {
   return (
@@ -26,11 +27,11 @@ const eCommerceProductsAdd = () => {
               <ProductInformation />
             </Grid>
             <Grid size={{ xs: 12 }}>
+              <ProductVariants />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
               <ProductImage />
             </Grid>
-            {/* <Grid size={{ xs: 12 }}>
-              <ProductVariants />
-            </Grid> */}
             {/* <Grid size={{ xs: 12 }}>
               <ProductInventory />
             </Grid> */}
@@ -43,6 +44,9 @@ const eCommerceProductsAdd = () => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <ProductOrganize />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <ProductSizeGuide />
             </Grid>
           </Grid>
         </Grid>
