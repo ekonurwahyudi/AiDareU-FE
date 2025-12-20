@@ -391,7 +391,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       const items = cartItems.map(item => ({
         uuidProduct: item.uuid || '',
         quantity: item.quantity,
-        price: item.salePrice || item.price
+        price: item.variantPrice || item.salePrice || item.price,
+        variant_name: item.selectedVariant?.variant_name || null,
+        variant_option: item.selectedVariant?.selectedOption?.option_name || null
       }))
 
       // Debug: Log data being sent
@@ -586,9 +588,32 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                     {product.name}
                   </Typography>
 
+                  {/* Display variant information if available */}
+                  {product.selectedVariant?.selectedOption && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: 'block',
+                        color: '#6B7280',
+                        mb: 0.5,
+                        fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                      }}
+                    >
+                      {product.selectedVariant.variant_name}: {product.selectedVariant.selectedOption.option_name}
+                    </Typography>
+                  )}
+
                   {/* Price */}
                   <Box sx={{ mb: 1 }}>
-                    {product.salePrice ? (
+                    {product.variantPrice ? (
+                      // If variant price exists, show it
+                      <Typography
+                        sx={{ fontWeight: 'medium', fontSize: { xs: '0.875rem', sm: '1rem' }, color: primaryColor }}
+                      >
+                        {formatRupiah(product.variantPrice)}
+                      </Typography>
+                    ) : product.salePrice ? (
+                      // If no variant price but has sale price
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                         <Typography
                           sx={{ fontWeight: 'medium', fontSize: { xs: '0.875rem', sm: '1rem' }, color: primaryColor }}
@@ -604,6 +629,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                         </Typography>
                       </Box>
                     ) : (
+                      // Regular price
                       <Typography
                         sx={{ fontWeight: 'medium', fontSize: { xs: '0.875rem', sm: '1rem' }, color: primaryColor }}
                       >

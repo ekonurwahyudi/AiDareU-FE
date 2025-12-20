@@ -48,6 +48,21 @@ import CartDrawer from '@/components/store/CartDrawer'
 import { useStoreMetadata } from '../useStoreMetadata'
 
 // Types
+interface VariantOption {
+  id: string
+  uuid?: string
+  option_name: string
+  harga: number
+  stock: number
+}
+
+interface ProductVariant {
+  id: string
+  uuid?: string
+  variant_name: string
+  options: VariantOption[]
+}
+
 interface Product {
   id: string
   uuid: string
@@ -70,6 +85,7 @@ interface Product {
   stock?: number
   url_produk?: string
   storeUuid?: string // tambahkan UUID Store di product
+  variants?: ProductVariant[] // tambahkan variants
 }
 
 // CartItem interface is now imported from CartContext
@@ -442,6 +458,7 @@ function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false)
+  const [selectedVariant, setSelectedVariant] = useState<{variant: ProductVariant, option: VariantOption} | null>(null)
   const openPhotoDialog = () => setPhotoDialogOpen(true)
   const closePhotoDialog = () => setPhotoDialogOpen(false)
 
@@ -893,12 +910,19 @@ function ProductDetailPage() {
       return
     }
 
+    // Check if product has variants and user hasn't selected one
+    if (product.variants && product.variants.length > 0 && !selectedVariant) {
+      alert('Mohon pilih varian produk terlebih dahulu')
+      return
+    }
+
     console.log('Adding product to cart:', {
       id: product.id,
       uuid: product.uuid,
       name: product.name,
       price: product.price,
-      quantity: quantity
+      quantity: quantity,
+      selectedVariant: selectedVariant
     })
 
     const cartItem = {
@@ -910,7 +934,14 @@ function ProductDetailPage() {
       image: product.image,
       brand: product.brand ?? undefined,
       storeUuid: product.storeUuid ?? undefined,
-      jenis_produk: product.jenis_produk ?? 'fisik'
+      jenis_produk: product.jenis_produk ?? 'fisik',
+      selectedVariant: selectedVariant ? {
+        id: selectedVariant.variant.id,
+        uuid: selectedVariant.variant.uuid,
+        variant_name: selectedVariant.variant.variant_name,
+        selectedOption: selectedVariant.option
+      } : undefined,
+      variantPrice: selectedVariant?.option.harga
     }
 
     console.log('Cart Item with UUID:', cartItem)
@@ -1369,6 +1400,50 @@ ${currentUrl}`
               )}
             </Box>
           </Box>
+
+          {/* Variant Selector */}
+          {product.variants && product.variants.length > 0 && (
+            <Box sx={{ mb: 4, mt: 4 }}>
+              {product.variants.map((variant) => (
+                <Box key={variant.id} sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: '#1E293B' }}>
+                    {variant.variant_name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {variant.options.map((option) => (
+                      <Chip
+                        key={option.id}
+                        label={`${option.option_name} - ${formatRupiah(option.harga)}`}
+                        onClick={() => setSelectedVariant({ variant, option })}
+                        color={selectedVariant?.option.id === option.id ? 'primary' : 'default'}
+                        variant={selectedVariant?.option.id === option.id ? 'filled' : 'outlined'}
+                        sx={{
+                          cursor: 'pointer',
+                          fontWeight: selectedVariant?.option.id === option.id ? 600 : 400,
+                          '&:hover': {
+                            backgroundColor: selectedVariant?.option.id === option.id ? undefined : '#F1F5F9'
+                          }
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              ))}
+              {selectedVariant && (
+                <Box sx={{
+                  mt: 2,
+                  p: 2,
+                  bgcolor: '#F0FDF4',
+                  borderRadius: '8px',
+                  border: '1px solid #86EFAC'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#10B981', fontWeight: 600 }}>
+                    Varian terpilih: {selectedVariant.option.option_name} - {formatRupiah(selectedVariant.option.harga)}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
 
           {/* Product Description Section */}
           <Box sx={{ mb: 25, mt: 7 }}>

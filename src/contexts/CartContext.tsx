@@ -5,6 +5,21 @@ import { useMediaQuery, useTheme } from '@mui/material'
 
 // Types
 // di dalam file CartContext.tsx
+export interface VariantOption {
+  id: string
+  uuid?: string
+  option_name: string
+  harga: number
+  stock: number
+}
+
+export interface ProductVariant {
+  id: string
+  uuid?: string
+  variant_name: string
+  selectedOption?: VariantOption
+}
+
 export interface CartItem {
   id: string
   uuid?: string // UUID produk untuk database
@@ -16,6 +31,8 @@ export interface CartItem {
   brand?: string
   storeUuid?: string // simpan UUID Store
   jenis_produk?: string // jenis produk: digital atau fisik
+  selectedVariant?: ProductVariant // varian yang dipilih
+  variantPrice?: number // harga varian jika ada
 }
 
 interface CartContextType {
@@ -90,17 +107,36 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     setCartItems(prev => {
       // Use UUID as unique identifier, fallback to id if uuid is not available
       const productIdentifier = product.uuid || product.id
-      const existingItem = prev.find(item => (item.uuid || item.id) === productIdentifier)
+
+      // For products with variants, also check if the same variant option is selected
+      const variantOptionId = product.selectedVariant?.selectedOption?.id
+
+      const existingItem = prev.find(item => {
+        const sameProduct = (item.uuid || item.id) === productIdentifier
+
+        // If product has no variant, just check product ID
+        if (!variantOptionId) {
+          return sameProduct && !item.selectedVariant?.selectedOption
+        }
+
+        // If product has variant, check both product ID and variant option ID
+        return sameProduct && item.selectedVariant?.selectedOption?.id === variantOptionId
+      })
 
       if (existingItem) {
-        // Update quantity if item already exists
-        return prev.map(item =>
-          (item.uuid || item.id) === productIdentifier
+        // Update quantity if item already exists (same product and same variant)
+        return prev.map(item => {
+          const sameProduct = (item.uuid || item.id) === productIdentifier
+          const sameVariant = variantOptionId
+            ? item.selectedVariant?.selectedOption?.id === variantOptionId
+            : !item.selectedVariant?.selectedOption
+
+          return sameProduct && sameVariant
             ? { ...item, quantity: item.quantity + quantity }
             : item
-        )
+        })
       } else {
-        // Add new item
+        // Add new item (different variant = different cart item)
         return [...prev, { ...product, quantity }]
       }
     })
@@ -145,7 +181,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   // Get total price
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => {
-      const price = item.salePrice || item.price
+      // Use variant price if available, otherwise use sale price or regular price
+      const price = item.variantPrice || item.salePrice || item.price
       return total + (price * item.quantity)
     }, 0)
   }

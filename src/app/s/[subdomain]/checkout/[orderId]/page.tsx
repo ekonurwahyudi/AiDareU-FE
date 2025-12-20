@@ -750,6 +750,12 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                                 <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
                                   {productName}
                                 </Typography>
+                                {/* Display variant information if available */}
+                                {(item.variant_name || item.variantName) && (item.variant_option || item.variantOption) && (
+                                  <Typography variant="caption" sx={{ display: 'block', color: '#6B7280', mb: 0.5 }}>
+                                    {item.variant_name || item.variantName}: {item.variant_option || item.variantOption}
+                                  </Typography>
+                                )}
                                 <Typography variant="body2" color="text.secondary">
                                   {quantity}x {formatRupiah(price)}
                                 </Typography>
@@ -959,11 +965,14 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                             const quantity = item.quantity || 1
                             const price = item.price || 0
                             const subtotal = quantity * price
+                            const variantName = item.variant_name || item.variantName || ''
+                            const variantOption = item.variant_option || item.variantOption || ''
+                            const variantInfo = variantName && variantOption ? `<br /><small style="color: #6B7280; font-size: 9pt;">${variantName}: ${variantOption}</small>` : ''
 
                             return `
                               <tr>
                                 <td class="text-center">${index + 1}</td>
-                                <td>${productName}</td>
+                                <td>${productName}${variantInfo}</td>
                                 <td class="text-center">${quantity}</td>
                                 <td class="text-right">${formatRupiah(price)}</td>
                                 <td class="text-right"><strong>${formatRupiah(subtotal)}</strong></td>

@@ -47,6 +47,21 @@ const CartDrawer = styled(Drawer)(({ theme }) => ({
   }
 }))
 
+interface VariantOption {
+  id: string
+  uuid?: string
+  option_name: string
+  harga: number
+  stock: number
+}
+
+interface ProductVariant {
+  id: string
+  uuid?: string
+  variant_name: string
+  selectedOption?: VariantOption
+}
+
 interface CartItem {
   id: string
   name: string
@@ -54,6 +69,8 @@ interface CartItem {
   salePrice?: number
   image: string
   quantity: number
+  selectedVariant?: ProductVariant
+  variantPrice?: number
 }
 
 interface CartDrawerProps {
@@ -82,7 +99,8 @@ const CartDrawerComponent = ({
   const isSubdomainRoute = pathname?.startsWith('/s/')
 
   const totalPrice = cartItems.reduce((total, item) => {
-    const price = item.salePrice || item.price
+    // Use variant price if available, otherwise use sale price or regular price
+    const price = item.variantPrice || item.salePrice || item.price
     return total + (price * item.quantity)
   }, 0)
 
@@ -168,8 +186,22 @@ const CartDrawerComponent = ({
                     <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5, color: '#374151' }}>
                       {item.name}
                     </Typography>
+
+                    {/* Display variant information if available */}
+                    {item.selectedVariant?.selectedOption && (
+                      <Typography variant="caption" sx={{ display: 'block', color: '#6B7280', mb: 0.5 }}>
+                        {item.selectedVariant.variant_name}: {item.selectedVariant.selectedOption.option_name}
+                      </Typography>
+                    )}
+
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {item.salePrice ? (
+                      {item.variantPrice ? (
+                        // If variant price exists, show it
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#10B981' }}>
+                          {formatRupiah(item.variantPrice)}
+                        </Typography>
+                      ) : item.salePrice ? (
+                        // If no variant price but has sale price
                         <>
                           <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#10B981' }}>
                             {formatRupiah(item.salePrice)}
@@ -179,6 +211,7 @@ const CartDrawerComponent = ({
                           </Typography>
                         </>
                       ) : (
+                        // Regular price
                         <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#10B981' }}>
                           {formatRupiah(item.price)}
                         </Typography>
