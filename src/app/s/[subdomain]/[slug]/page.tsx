@@ -38,6 +38,7 @@ import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import CloseIcon from '@mui/icons-material/Close'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
+import StraightenIcon from '@mui/icons-material/Straighten'
 
 // Store Components
 import StoreHeader from '@/components/store/StoreHeader'
@@ -86,6 +87,7 @@ interface Product {
   url_produk?: string
   storeUuid?: string // tambahkan UUID Store di product
   variants?: ProductVariant[] // tambahkan variants
+  sizeGuideImage?: string // size guide image
 }
 
 // CartItem interface is now imported from CartContext
@@ -459,8 +461,14 @@ function ProductDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [photoDialogOpen, setPhotoDialogOpen] = useState(false)
   const [selectedVariant, setSelectedVariant] = useState<{variant: ProductVariant, option: VariantOption} | null>(null)
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const openPhotoDialog = () => setPhotoDialogOpen(true)
   const closePhotoDialog = () => setPhotoDialogOpen(false)
+  const openZoomImage = (imageUrl: string) => setZoomedImage(imageUrl)
+  const closeZoomImage = () => setZoomedImage(null)
+  const openSizeGuide = () => setSizeGuideOpen(true)
+  const closeSizeGuide = () => setSizeGuideOpen(false)
 
   // Store data state
   const [storeData, setStoreData] = useState<any>(null)
@@ -789,7 +797,8 @@ function ProductDetailPage() {
                 harga: parseFloat(option.harga || '0'),
                 stock: option.stock || 0
               })) || []
-            })) || []
+            })) || [],
+            sizeGuideImage: product.size_guide_image || undefined
           })
 
         // Handle single product response (when fetching by UUID)
@@ -891,7 +900,8 @@ function ProductDetailPage() {
             status_produk: product.status_produk,
             stock: product.stock || 0,
             url_produk: product.url_produk,
-            storeUuid: product.store?.uuid || product.uuid_store || undefined
+            storeUuid: product.store?.uuid || product.uuid_store || undefined,
+            sizeGuideImage: product.size_guide_image || undefined
           })
 
           const transformedProducts: Product[] = data.data.data.map(transformProduct)
@@ -1308,12 +1318,19 @@ ${currentUrl}`
               {displayImages.map((img, idx) => (
                 <Grid item xs={12} sm={6} md={4} key={idx}>
                   <Box
+                    onClick={() => img && img !== '/placeholder.jpg' && openZoomImage(img)}
                     sx={{
                       borderRadius: 2,
                       overflow: 'hidden',
                       border: '1px solid #E0E0E0',
                       backgroundColor: '#F5F5F5',
-                      height: 200
+                      height: 200,
+                      cursor: img && img !== '/placeholder.jpg' ? 'pointer' : 'default',
+                      '&:hover': img && img !== '/placeholder.jpg' ? {
+                        transform: 'scale(1.02)',
+                        transition: 'transform 0.2s ease-in-out',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                      } : {}
                     }}
                   >
                     {img && img !== '/placeholder.jpg' ? (
@@ -1333,6 +1350,83 @@ ${currentUrl}`
             </Grid>
           </DialogContent>
         </Dialog>
+
+        {/* Zoom Image Dialog */}
+        <Dialog
+          open={!!zoomedImage}
+          onClose={closeZoomImage}
+          maxWidth="lg"
+          PaperProps={{
+            sx: {
+              bgcolor: 'transparent',
+              boxShadow: 'none',
+              overflow: 'visible'
+            }
+          }}
+        >
+          <DialogContent sx={{ p: 0, position: 'relative', bgcolor: 'transparent' }}>
+            <IconButton
+              onClick={closeZoomImage}
+              sx={{
+                position: 'absolute',
+                top: -50,
+                right: -50,
+                bgcolor: 'white',
+                '&:hover': { bgcolor: 'grey.200' },
+                zIndex: 1
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+            {zoomedImage && (
+              <img
+                src={zoomedImage}
+                alt="Zoomed product"
+                style={{
+                  maxWidth: '90vw',
+                  maxHeight: '90vh',
+                  objectFit: 'contain',
+                  display: 'block',
+                  borderRadius: '8px'
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Size Guide Dialog */}
+        <Dialog open={sizeGuideOpen} onClose={closeSizeGuide} maxWidth="md" fullWidth>
+          <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            Panduan Ukuran
+            <IconButton onClick={closeSizeGuide} aria-label="close">
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers>
+            {product?.sizeGuideImage ? (
+              <Box sx={{ textAlign: 'center' }}>
+                <img
+                  src={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${product.sizeGuideImage}`}
+                  alt="Size Guide"
+                  style={{
+                    maxWidth: '100%',
+                    height: 'auto',
+                    borderRadius: '8px'
+                  }}
+                  onClick={() => openZoomImage(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${product.sizeGuideImage}`)}
+                />
+                <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
+                  Klik gambar untuk memperbesar
+                </Typography>
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary" textAlign="center">
+                Panduan ukuran tidak tersedia untuk produk ini
+              </Typography>
+            )}
+          </DialogContent>
+        </Dialog>
+
         {/* Product Info Below Gallery */}
         <Box sx={{ mt: 3 }}>
           <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 2, color: '#1E293B', lineHeight: 1.2 }}>
@@ -1454,6 +1548,33 @@ ${currentUrl}`
                   </Typography>
                 </Box>
               )}
+            </Box>
+          )}
+
+          {/* Size Guide Button */}
+          {product?.sizeGuideImage && (
+            <Box sx={{ mb: 3 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={openSizeGuide}
+                startIcon={<StraightenIcon />}
+                sx={{
+                  textTransform: 'none',
+                  borderRadius: '8px',
+                  py: 1.5,
+                  px: 3,
+                  fontWeight: 600,
+                  borderColor: '#E91E63',
+                  color: '#E91E63',
+                  '&:hover': {
+                    borderColor: '#C2185B',
+                    backgroundColor: '#FCE4EC'
+                  }
+                }}
+              >
+                Lihat Panduan Ukuran
+              </Button>
             </Box>
           )}
 

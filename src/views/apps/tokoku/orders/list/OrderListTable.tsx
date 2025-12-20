@@ -308,6 +308,18 @@ const OrderListTable = () => {
     }
   }, [currentStore, rbacLoading, fetchOrders])
 
+  // Auto-refresh polling every 30 seconds for real-time updates
+  useEffect(() => {
+    if (!currentStore || rbacLoading) return
+
+    const intervalId = setInterval(() => {
+      console.log('Auto-refreshing orders (30s interval)...')
+      fetchOrders(true)
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(intervalId)
+  }, [currentStore, rbacLoading, fetchOrders])
+
   // Handle manual refresh
   const handleManualRefresh = useCallback(() => {
     fetchOrders(true)
