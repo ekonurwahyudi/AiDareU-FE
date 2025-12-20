@@ -696,7 +696,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
                         // Parse image from JSON string
-                        const productImageRaw = product.foto_produk || product.fotoProduk
+                        const productImageRaw = product.upload_gambar_produk || product.foto_produk || product.fotoProduk
                         let imageUrl = '/images/placeholder-product.png'
 
                         // Debug logging
