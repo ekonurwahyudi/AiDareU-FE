@@ -15,6 +15,7 @@ import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import Typography from '@mui/material/Typography'
+import Alert from '@mui/material/Alert'
 import { styled } from '@mui/material/styles'
 import type { BoxProps } from '@mui/material/Box'
 
@@ -50,6 +51,7 @@ const Dropzone = styled(AppReactDropzone)<BoxProps>(({ theme }) => ({
 
 const ProductImage = () => {
   const { formData, setFormData } = useProductForm()
+  const [uploadError, setUploadError] = useState<string>('')
 
   // Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -59,15 +61,27 @@ const ProductImage = () => {
     maxFiles: 10,
     maxSize: 5 * 1024 * 1024, // 5MB
     onDrop: (acceptedFiles: File[]) => {
+      setUploadError('') // Clear previous errors
       const newFiles = acceptedFiles.map((file: File) => Object.assign(file))
       setFormData({ images: [...formData.images, ...newFiles].slice(0, 10) }) // Limit to 10 images
     },
     onDropRejected: (fileRejections) => {
-      fileRejections.forEach(({ errors }) => {
-        errors.forEach(error => {
-          console.error('File rejected:', error.message)
+      const errors: string[] = []
+      fileRejections.forEach(({ file, errors: fileErrors }) => {
+        fileErrors.forEach(error => {
+          if (error.code === 'file-too-large') {
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+            errors.push(`"${file.name}" terlalu besar (${fileSizeMB} MB). Maksimal 5 MB`)
+          } else if (error.code === 'file-invalid-type') {
+            errors.push(`"${file.name}" format tidak didukung. Gunakan JPG, PNG, GIF, WebP, SVG, BMP, atau AVIF`)
+          } else if (error.code === 'too-many-files') {
+            errors.push('Maksimal 10 gambar yang bisa diupload')
+          } else {
+            errors.push(error.message)
+          }
         })
       })
+      setUploadError(errors.join('. '))
     }
   })
 
@@ -122,6 +136,12 @@ const ProductImage = () => {
           sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
         />
         <CardContent>
+          {uploadError && (
+            <Alert severity="error" sx={{ mb: 3 }} onClose={() => setUploadError('')}>
+              {uploadError}
+            </Alert>
+          )}
+
           <div {...getRootProps({ className: 'dropzone' })}>
             <input {...getInputProps()} />
             <div className='flex items-center flex-col gap-2 text-center'>

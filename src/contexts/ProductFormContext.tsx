@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation'
 import type { Editor } from '@tiptap/core'
 import { useRBAC } from '@/contexts/rbacContext'
 
+export interface VariantOption {
+  id: string
+  option_name: string
+  harga: number
+  stock: number
+}
+
+export interface Variant {
+  id: string
+  variant_name: string
+  options: VariantOption[]
+}
+
 export interface ProductFormData {
   nama_produk: string
   deskripsi: string
@@ -12,11 +25,14 @@ export interface ProductFormData {
   url_produk?: string
   harga_produk: number | ''
   harga_diskon: number | ''
+  berat_produk?: number | ''
   category_id: number | ''
   status_produk: 'active' | 'inactive' | 'draft'
   images: File[]
   existingImages: string[] // Add support for existing images
   stock?: number | ''
+  variants?: Variant[]
+  sizeGuideImage?: File | null
 }
 
 interface ProductFormContextType {
@@ -33,6 +49,8 @@ interface ProductFormContextType {
   submitForm: () => Promise<void>
   isEdit: boolean
   productUuid?: string
+  successMessage: string
+  setSuccessMessage: (message: string) => void
 }
 
 const initialFormData: ProductFormData = {
@@ -42,11 +60,14 @@ const initialFormData: ProductFormData = {
   url_produk: '',
   harga_produk: '',
   harga_diskon: '',
+  berat_produk: 1000,
   category_id: '',
   status_produk: 'draft',
   images: [],
   existingImages: [],
-  stock: 0
+  stock: 0,
+  variants: [],
+  sizeGuideImage: null
 }
 
 const ProductFormContext = createContext<ProductFormContextType | undefined>(undefined)
@@ -65,6 +86,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editor, setEditor] = useState<Editor | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string>('')
 
   const setFormData = (data: Partial<ProductFormData>) => {
     setFormDataState(prev => ({ ...prev, ...data }))
@@ -131,8 +153,6 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         throw new Error('Store not found. Please ensure you have a store set up.')
       }
 
-      console.log('Using store UUID:', storeUuid)
-
       // Prepare form data
       const submitData = new FormData()
       submitData.append('uuid_store', storeUuid)
@@ -167,10 +187,33 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
         submitData.append('stock', formData.stock ? formData.stock.toString() : '0')
       }
 
+      // Add berat produk
+      if (formData.berat_produk) {
+        submitData.append('berat_produk', formData.berat_produk.toString())
+      }
+
       // Add images
       formData.images.forEach((file, index) => {
         submitData.append(`images[${index}]`, file)
       })
+
+      // Add size guide image
+      if (formData.sizeGuideImage) {
+        submitData.append('size_guide_image', formData.sizeGuideImage)
+      }
+
+      // Add variants
+      if (formData.variants && formData.variants.length > 0) {
+        formData.variants.forEach((variant, variantIndex) => {
+          submitData.append(`variants[${variantIndex}][variant_name]`, variant.variant_name)
+
+          variant.options.forEach((option, optionIndex) => {
+            submitData.append(`variants[${variantIndex}][options][${optionIndex}][option_name]`, option.option_name)
+            submitData.append(`variants[${variantIndex}][options][${optionIndex}][harga]`, option.harga.toString())
+            submitData.append(`variants[${variantIndex}][options][${optionIndex}][stock]`, option.stock.toString())
+          })
+        })
+      }
 
       // For Laravel compatibility with FormData PUT requests
       if (isEdit) {
@@ -181,46 +224,64 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       const endpoint = isEdit && productUuid ? `/api/public/products/${productUuid}` : '/api/public/products'
       const fullUrl = `${backendUrl}${endpoint}`
 
-      console.log('Submitting to:', fullUrl, 'Method:', isEdit ? 'PUT (via POST)' : 'POST')
-
       const response = await fetch(fullUrl, {
         method: 'POST', // Always POST for FormData, Laravel will handle _method
         body: submitData,
         credentials: 'include'
       })
 
-      console.log('Response status:', response.status, response.statusText)
-
       let result
       try {
         const responseText = await response.text()
-        console.log('Raw response:', responseText.substring(0, 500)) // Log first 500 chars
         result = JSON.parse(responseText)
-        console.log('Parsed result:', result)
       } catch (parseError) {
-        console.error('JSON parse error:', parseError)
         throw new Error('Invalid response from server. Please try again.')
       }
 
       if (!response.ok) {
+        // Handle validation errors
+        if (response.status === 422 && result.errors) {
+          // Convert Laravel validation errors to our format
+          const validationErrors: Record<string, string> = {}
+
+          Object.keys(result.errors).forEach(key => {
+            const errorMessages = result.errors[key]
+            // Take the first error message for each field
+            validationErrors[key] = Array.isArray(errorMessages) ? errorMessages[0] : errorMessages
+          })
+
+          setErrors(validationErrors)
+
+          // Set a general error message
+          throw new Error(result.message || 'Validasi gagal. Mohon periksa kembali data yang Anda masukkan.')
+        }
+
         throw new Error(result.message || `Server error: ${response.status}`)
       }
 
       if (result.status === 'success') {
-        // Success - redirect using Next.js router
-        if (isEdit) {
-          // For edit, add refresh parameter to force fresh data fetch
-          router.push('/apps/tokoku/products?refresh=true')
-        } else {
-          // For create, redirect to list page
-          router.push('/apps/tokoku/products')
-        }
+        // Set success message
+        setSuccessMessage(isEdit ? 'Produk berhasil diperbarui!' : 'Produk berhasil dibuat!')
+
+        // Clear any errors
+        setErrors({})
+
+        // Success - redirect using Next.js router after a short delay to show success message
+        setTimeout(() => {
+          if (isEdit) {
+            // For edit, add refresh parameter to force fresh data fetch
+            router.push('/apps/tokoku/products?refresh=true')
+          } else {
+            // For create, redirect to list page
+            router.push('/apps/tokoku/products')
+          }
+        }, 1500)
       } else {
-        throw new Error(result.message || (isEdit ? 'Failed to update product' : 'Failed to create product'))
+        throw new Error(result.message || (isEdit ? 'Gagal menyimpan produk' : 'Gagal membuat produk'))
       }
     } catch (error) {
-      console.error('Error submitting product:', error)
-      setErrors({ submit: error instanceof Error ? error.message : (isEdit ? 'Failed to update product' : 'Failed to create product') })
+      const errorMessage = error instanceof Error ? error.message : (isEdit ? 'Gagal menyimpan produk' : 'Gagal membuat produk')
+      setErrors({ submit: errorMessage })
     } finally {
       setIsSubmitting(false)
     }
@@ -276,13 +337,12 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
             }
           }
         } catch (error) {
-          console.error('Error loading product data:', error)
-          setErrors({ submit: 'Failed to load product data' })
+          setErrors({ submit: 'Gagal memuat data produk. Silakan refresh halaman.' })
         } finally {
           setIsLoading(false)
         }
       }
-      
+
       loadProductData()
     }
   }, [isEdit, productUuid, editor])
@@ -300,7 +360,9 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
     setEditor,
     submitForm,
     isEdit,
-    productUuid
+    productUuid,
+    successMessage,
+    setSuccessMessage
   }
 
   return (

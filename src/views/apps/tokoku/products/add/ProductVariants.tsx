@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -30,6 +30,10 @@ import CloseIcon from '@mui/icons-material/Close'
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 
+// Context Imports
+import { useProductForm } from '@/contexts/ProductFormContext'
+import type { Variant as ContextVariant } from '@/contexts/ProductFormContext'
+
 // Utils Imports
 import { formatCurrency } from '@/utils/currency'
 
@@ -51,6 +55,7 @@ interface VariantPrice {
 }
 
 const ProductVariants = () => {
+  const { setFormData } = useProductForm()
   const [variants, setVariants] = useState<Variant[]>([])
   const [showAddVariant, setShowAddVariant] = useState(false)
   const [newVariantName, setNewVariantName] = useState('')
@@ -209,6 +214,26 @@ const ProductVariants = () => {
 
     return combinations
   }
+
+  // Sync variants to context whenever they change
+  useEffect(() => {
+    const contextVariants: ContextVariant[] = variants.map(variant => ({
+      id: variant.id,
+      variant_name: variant.name,
+      options: variant.options.map(option => {
+        const variantKey = `${variant.name}-${option.value}`
+        const priceData = variantPrices[variantKey] || { price: 0, stock: 0 }
+        return {
+          id: option.id,
+          option_name: option.value,
+          harga: priceData.price,
+          stock: priceData.stock
+        }
+      })
+    }))
+
+    setFormData({ variants: contextVariants })
+  }, [variants, variantPrices, setFormData])
 
   return (
     <Card>

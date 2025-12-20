@@ -11,7 +11,11 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
+import Alert from '@mui/material/Alert'
 import { styled } from '@mui/material/styles'
+
+// Context Imports
+import { useProductForm } from '@/contexts/ProductFormContext'
 
 // Icon Imports
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
@@ -31,26 +35,36 @@ const VisuallyHiddenInput = styled('input')({
 })
 
 const ProductSizeGuide = () => {
+  const { setFormData } = useProductForm()
   const [sizeGuideImage, setSizeGuideImage] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string>('')
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
+    setErrorMessage('')
+
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Hanya file gambar yang diperbolehkan')
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif']
+      if (!allowedTypes.includes(file.type)) {
+        setErrorMessage('Format gambar tidak didukung. Gunakan JPG, PNG, atau GIF')
         return
       }
 
       // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Ukuran file maksimal 5MB')
+      const maxSize = 5 * 1024 * 1024 // 5MB
+      if (file.size > maxSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+        setErrorMessage(`Ukuran file terlalu besar (${fileSizeMB} MB). Maksimal 5 MB`)
         return
       }
 
       setFileName(file.name)
+
+      // Set file to context
+      setFormData({ sizeGuideImage: file })
 
       // Create preview
       const reader = new FileReader()
@@ -64,6 +78,8 @@ const ProductSizeGuide = () => {
   const handleRemoveImage = () => {
     setSizeGuideImage(null)
     setFileName('')
+    setErrorMessage('')
+    setFormData({ sizeGuideImage: null })
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -76,6 +92,12 @@ const ProductSizeGuide = () => {
         subheader='Opsional - Upload gambar panduan ukuran produk'
       />
       <CardContent>
+        {errorMessage && (
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setErrorMessage('')}>
+            {errorMessage}
+          </Alert>
+        )}
+
         {!sizeGuideImage ? (
           <Box
             sx={{
