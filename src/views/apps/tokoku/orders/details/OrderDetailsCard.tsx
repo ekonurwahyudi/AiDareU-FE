@@ -24,6 +24,8 @@ type Order = {
     uuid: string
     quantity: number
     price: number
+    variant_name?: string
+    variant_option?: string
     product?: {
       uuid: string
       nama_produk: string
@@ -110,6 +112,11 @@ const OrderDetailsCard = ({ order }: { order: Order }) => {
                             <Typography className='font-medium' color='text.primary'>
                               {item.product?.nama_produk || 'Unknown Product'}
                             </Typography>
+                            {item.variant_name && item.variant_option && (
+                              <Typography variant="caption" color="text.secondary">
+                                {item.variant_name}: {item.variant_option}
+                              </Typography>
+                            )}
                           </div>
                         </div>
                       </TableCell>

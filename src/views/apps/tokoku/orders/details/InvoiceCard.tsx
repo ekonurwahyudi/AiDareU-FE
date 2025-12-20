@@ -53,6 +53,8 @@ type Order = {
     uuid: string
     quantity: number
     price: number
+    variant_name?: string
+    variant_option?: string
     product?: {
       uuid: string
       nama_produk: string
@@ -226,7 +228,14 @@ const InvoiceCard = ({ order }: { order: Order }) => {
                     borderBottom: index < order.detailOrders!.length - 1 ? '1px solid #e0e0e0' : 'none'
                   }}
                 >
-                  <Typography variant="body2">{item.product?.nama_produk || 'Product'}</Typography>
+                  <Box>
+                    <Typography variant="body2">{item.product?.nama_produk || 'Product'}</Typography>
+                    {item.variant_name && item.variant_option && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                        {item.variant_name}: {item.variant_option}
+                      </Typography>
+                    )}
+                  </Box>
                   <Typography variant="body2" sx={{ textAlign: 'center' }}>{formatRupiah(item.price)}</Typography>
                   <Typography variant="body2" sx={{ textAlign: 'center' }}>{item.quantity}</Typography>
                   <Typography variant="body2" sx={{ textAlign: 'right', fontWeight: 600 }}>

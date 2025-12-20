@@ -220,7 +220,14 @@ export default function InvoicePage({ params }: { params: Promise<{ uuid: string
                   borderBottom: index < orderData.detailOrders.length - 1 ? '1px solid #e0e0e0' : 'none'
                 }}
               >
-                <Typography variant="body2">{item.product?.nama_produk || item.product?.name || 'Product'}</Typography>
+                <Box>
+                  <Typography variant="body2">{item.product?.nama_produk || item.product?.name || 'Product'}</Typography>
+                  {item.variant_name && item.variant_option && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      {item.variant_name}: {item.variant_option}
+                    </Typography>
+                  )}
+                </Box>
                 <Typography variant="body2" sx={{ textAlign: 'center' }}>{formatRupiah(item.price)}</Typography>
                 <Typography variant="body2" sx={{ textAlign: 'center' }}>{item.quantity}</Typography>
                 <Typography variant="body2" sx={{ textAlign: 'right', fontWeight: 600 }}>

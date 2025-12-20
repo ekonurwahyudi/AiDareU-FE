@@ -59,6 +59,8 @@ type Order = {
     uuid: string
     quantity: number
     price: number
+    variant_name?: string
+    variant_option?: string
     product?: {
       uuid: string
       nama_produk: string
@@ -70,6 +72,8 @@ type Order = {
     uuid: string
     quantity: number
     price: number
+    variant_name?: string
+    variant_option?: string
     product?: {
       uuid: string
       nama_produk: string
