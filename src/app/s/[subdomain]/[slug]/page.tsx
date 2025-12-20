@@ -777,7 +777,19 @@ function ProductDetailPage() {
             status_produk: product.status_produk,
             stock: product.stock || 0,
             url_produk: product.url_produk,
-            storeUuid: product.store?.uuid || product.uuid_store || undefined // mapping UUID Store
+            storeUuid: product.store?.uuid || product.uuid_store || undefined, // mapping UUID Store
+            variants: product.variants?.map((variant: any) => ({
+              id: variant.uuid || variant.id?.toString(),
+              uuid: variant.uuid,
+              variant_name: variant.variant_name,
+              options: variant.options?.map((option: any) => ({
+                id: option.uuid || option.id?.toString(),
+                uuid: option.uuid,
+                option_name: option.option_name,
+                harga: parseFloat(option.harga || '0'),
+                stock: option.stock || 0
+              })) || []
+            })) || []
           })
 
         // Handle single product response (when fetching by UUID)
