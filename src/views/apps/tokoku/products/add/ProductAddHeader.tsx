@@ -33,13 +33,11 @@ const ProductAddHeader = () => {
   }
 
   const handleSaveDraft = async () => {
-    setFormData({ status_produk: 'draft' })
-    await submitForm()
+    await submitForm({ status_produk: 'draft' })
   }
 
   const handlePublish = async () => {
-    setFormData({ status_produk: 'active' })
-    await submitForm()
+    await submitForm({ status_produk: 'active' })
   }
 
   return (

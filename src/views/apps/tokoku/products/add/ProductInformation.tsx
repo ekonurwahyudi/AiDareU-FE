@@ -763,7 +763,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
 }
 
 const ProductInformation = () => {
-  const { formData, setFormData, errors, setEditor } = useProductForm()
+  const { formData, setFormData, errors, setErrors, setEditor } = useProductForm()
 
   const editor = useEditor({
     extensions: [
@@ -842,7 +842,23 @@ const ProductInformation = () => {
   }
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ url_produk: e.target.value })
+    const url = e.target.value
+    setFormData({ url_produk: url })
+
+    // Validate URL format if value is not empty
+    if (url && url.trim() !== '') {
+      try {
+        new URL(url)
+        // Valid URL - clear any errors
+        setErrors({ ...errors, url_produk: '' })
+      } catch {
+        // Invalid URL format
+        setErrors({ ...errors, url_produk: 'Format URL tidak valid. Contoh: https://example.com' })
+      }
+    } else {
+      // Empty URL - clear error (will be validated on submit if required)
+      setErrors({ ...errors, url_produk: '' })
+    }
   }
 
   return (

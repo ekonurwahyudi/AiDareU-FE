@@ -46,7 +46,7 @@ interface ProductFormContextType {
   isLoading: boolean
   editor: Editor | null
   setEditor: (editor: Editor | null) => void
-  submitForm: () => Promise<void>
+  submitForm: (overrideData?: Partial<ProductFormData>) => Promise<void>
   isEdit: boolean
   productUuid?: string
   successMessage: string
@@ -138,7 +138,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
     return Object.keys(newErrors).length === 0
   }
 
-  const submitForm = async () => {
+  const submitForm = async (overrideData?: Partial<ProductFormData>) => {
     if (!validateForm()) {
       return
     }
@@ -146,6 +146,9 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
     setIsSubmitting(true)
 
     try {
+      // Merge override data with form data
+      const dataToSubmit = { ...formData, ...overrideData }
+
       // Get store UUID from RBAC context
       const storeUuid = currentStore?.uuid || currentStore?.id
 
@@ -156,7 +159,7 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       // Prepare form data
       const submitData = new FormData()
       submitData.append('uuid_store', storeUuid)
-      submitData.append('nama_produk', formData.nama_produk)
+      submitData.append('nama_produk', dataToSubmit.nama_produk)
       
       // Get content from editor
       if (editor) {
@@ -164,47 +167,47 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       } else if (isEdit) {
         submitData.append('deskripsi', '') // Send empty string for updates
       }
-      
-      submitData.append('jenis_produk', formData.jenis_produk)
-      
+
+      submitData.append('jenis_produk', dataToSubmit.jenis_produk)
+
       // Always send URL produk in edit mode, for create only if digital
-      if (formData.url_produk || isEdit) {
-        submitData.append('url_produk', formData.url_produk || '')
+      if (dataToSubmit.url_produk || isEdit) {
+        submitData.append('url_produk', dataToSubmit.url_produk || '')
       }
-      
-      submitData.append('harga_produk', formData.harga_produk.toString())
-      
+
+      submitData.append('harga_produk', dataToSubmit.harga_produk.toString())
+
       // Always send discount price in edit mode, including empty values
-      if (formData.harga_diskon || isEdit) {
-        submitData.append('harga_diskon', formData.harga_diskon ? formData.harga_diskon.toString() : '')
+      if (dataToSubmit.harga_diskon || isEdit) {
+        submitData.append('harga_diskon', dataToSubmit.harga_diskon ? dataToSubmit.harga_diskon.toString() : '')
       }
-      
-      submitData.append('category_id', formData.category_id.toString())
-      submitData.append('status_produk', formData.status_produk)
-      
+
+      submitData.append('category_id', dataToSubmit.category_id.toString())
+      submitData.append('status_produk', dataToSubmit.status_produk)
+
       // Always send stock for physical products or in edit mode
-      if (formData.jenis_produk === 'fisik' || isEdit) {
-        submitData.append('stock', formData.stock ? formData.stock.toString() : '0')
+      if (dataToSubmit.jenis_produk === 'fisik' || isEdit) {
+        submitData.append('stock', dataToSubmit.stock ? dataToSubmit.stock.toString() : '0')
       }
 
       // Add berat produk
-      if (formData.berat_produk) {
-        submitData.append('berat_produk', formData.berat_produk.toString())
+      if (dataToSubmit.berat_produk) {
+        submitData.append('berat_produk', dataToSubmit.berat_produk.toString())
       }
 
       // Add images
-      formData.images.forEach((file, index) => {
+      dataToSubmit.images.forEach((file, index) => {
         submitData.append(`images[${index}]`, file)
       })
 
       // Add size guide image
-      if (formData.sizeGuideImage) {
-        submitData.append('size_guide_image', formData.sizeGuideImage)
+      if (dataToSubmit.sizeGuideImage) {
+        submitData.append('size_guide_image', dataToSubmit.sizeGuideImage)
       }
 
       // Add variants
-      if (formData.variants && formData.variants.length > 0) {
-        formData.variants.forEach((variant, variantIndex) => {
+      if (dataToSubmit.variants && dataToSubmit.variants.length > 0) {
+        dataToSubmit.variants.forEach((variant, variantIndex) => {
           submitData.append(`variants[${variantIndex}][variant_name]`, variant.variant_name)
 
           variant.options.forEach((option, optionIndex) => {

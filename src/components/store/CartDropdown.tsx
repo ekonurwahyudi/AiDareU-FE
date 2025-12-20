@@ -35,6 +35,21 @@ const formatRupiah = (amount: number): string => {
   return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
 }
 
+interface VariantOption {
+  id: string
+  uuid?: string
+  option_name: string
+  harga: number
+  stock: number
+}
+
+interface ProductVariant {
+  id: string
+  uuid?: string
+  variant_name: string
+  selectedOption?: VariantOption
+}
+
 interface CartItem {
   id: string
   name: string
@@ -42,6 +57,8 @@ interface CartItem {
   salePrice?: number
   image: string
   quantity: number
+  selectedVariant?: ProductVariant
+  variantPrice?: number
 }
 
 interface CartDropdownProps {
@@ -73,7 +90,8 @@ const CartDropdown = ({
   const isSubdomainRoute = pathname?.startsWith('/s/')
 
   const totalPrice = cartItems.reduce((total, item) => {
-    const price = item.salePrice || item.price
+    // Use variant price if available, otherwise use sale price or regular price
+    const price = item.variantPrice || item.salePrice || item.price
     return total + (price * item.quantity)
   }, 0)
 
@@ -266,9 +284,30 @@ const CartDropdown = ({
                           {item.name}
                         </Typography>
 
+                        {/* Display variant information if available */}
+                        {item.selectedVariant?.selectedOption && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              display: 'block',
+                              color: '#6B7280',
+                              mb: 0.5,
+                              fontSize: '0.7rem'
+                            }}
+                          >
+                            {item.selectedVariant.variant_name}: {item.selectedVariant.selectedOption.option_name}
+                          </Typography>
+                        )}
+
                         {/* Price */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          {item.salePrice ? (
+                          {item.variantPrice ? (
+                            // If variant price exists, show it
+                            <Typography variant="body2" sx={{ fontWeight: 'bold', color: primaryColor }}>
+                              {formatRupiah(item.variantPrice)}
+                            </Typography>
+                          ) : item.salePrice ? (
+                            // If no variant price but has sale price
                             <>
                               <Typography variant="body2" sx={{ fontWeight: 'bold', color: primaryColor }}>
                                 {formatRupiah(item.salePrice)}
@@ -284,6 +323,7 @@ const CartDropdown = ({
                               </Typography>
                             </>
                           ) : (
+                            // Regular price
                             <Typography variant="body2" sx={{ fontWeight: 'bold', color: primaryColor }}>
                               {formatRupiah(item.price)}
                             </Typography>
