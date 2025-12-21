@@ -278,13 +278,8 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
 
         // Success - redirect using Next.js router after a short delay to show success message
         setTimeout(() => {
-          if (isEdit) {
-            // For edit, add refresh parameter to force fresh data fetch
-            router.push('/apps/tokoku/products?refresh=true')
-          } else {
-            // For create, redirect to list page
-            router.push('/apps/tokoku/products')
-          }
+          router.push('/apps/tokoku/products')
+          router.refresh()
         }, 1500)
       } else {
         throw new Error(result.message || (isEdit ? 'Gagal menyimpan produk' : 'Gagal membuat produk'))
