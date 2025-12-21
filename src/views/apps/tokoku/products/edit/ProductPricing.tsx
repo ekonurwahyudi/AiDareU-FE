@@ -101,10 +101,9 @@ const ProductPricing = () => {
           <div>
             <CustomTextField
               fullWidth
-              type="number"
               label='Berat Produk'
               placeholder='1000'
-              value={formData.berat_produk || 1000}
+              value={formData.berat_produk || '1000'}
               onChange={handleWeightChange}
               error={!!errors.berat_produk}
               InputProps={{

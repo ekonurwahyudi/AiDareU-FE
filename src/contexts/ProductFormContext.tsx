@@ -32,7 +32,9 @@ export interface ProductFormData {
   existingImages: string[] // Add support for existing images
   stock?: number | ''
   variants?: Variant[]
-  sizeGuideImage?: File | null
+  size_guide_image?: string | null // Existing size guide from database
+  sizeGuideImage?: File | null // New size guide upload
+  removeSizeGuide?: boolean // Flag to remove size guide
 }
 
 interface ProductFormContextType {
@@ -67,7 +69,9 @@ const initialFormData: ProductFormData = {
   existingImages: [],
   stock: 0,
   variants: [],
-  sizeGuideImage: null
+  size_guide_image: null,
+  sizeGuideImage: null,
+  removeSizeGuide: false
 }
 
 const ProductFormContext = createContext<ProductFormContextType | undefined>(undefined)
@@ -203,6 +207,9 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
       // Add size guide image
       if (dataToSubmit.sizeGuideImage) {
         submitData.append('size_guide_image', dataToSubmit.sizeGuideImage)
+      } else if (dataToSubmit.removeSizeGuide && isEdit) {
+        // Send flag to remove size guide in edit mode
+        submitData.append('remove_size_guide', '1')
       }
 
       // Add variants
@@ -335,7 +342,8 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
                 existingImages: existingImages, // Existing images from database
                 stock: product.stock || 0,
                 variants: product.variants || [],
-                sizeGuideImage: product.size_guide_image || null
+                size_guide_image: product.size_guide_image || null, // Keep original path for loading
+                sizeGuideImage: null // This will be for new uploads only
               })
               
               // Set editor content if available - this will be handled by the component
