@@ -267,21 +267,26 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
         subtree: true
       })
 
-      // Click outside to deselect
+      // Click outside to deselect - ONLY listen within the editor
       const handleClickOutside = (e: Event) => {
-        if (!(e.target as Element).closest('.image-wrapper')) {
-          document.querySelectorAll('.image-wrapper.selected').forEach(el => {
+        const target = e.target as Element
+        // Only handle clicks within the editor area
+        if (!editor.view.dom.contains(target)) return
+
+        if (!target.closest('.image-wrapper')) {
+          editor.view.dom.querySelectorAll('.image-wrapper.selected').forEach(el => {
             el.classList.remove('selected')
             el.querySelectorAll('.resize-handle').forEach(handle => handle.remove())
           })
         }
       }
 
-      document.addEventListener('click', handleClickOutside)
+      // Listen only to clicks within the editor, not the entire document
+      editor.view.dom.addEventListener('click', handleClickOutside)
 
       return () => {
         observer.disconnect()
-        document.removeEventListener('click', handleClickOutside)
+        editor.view.dom.removeEventListener('click', handleClickOutside)
 
         // Clean up all image click handlers
         editor.view.dom.querySelectorAll('img.editor-image').forEach(img => {
