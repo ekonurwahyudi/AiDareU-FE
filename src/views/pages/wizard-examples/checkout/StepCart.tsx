@@ -275,9 +275,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   // Calculate total weight of cart items (in grams)
   const getTotalWeight = () => {
     if (isAllDigitalProducts()) return 0
-    // Default weight per item is 500g if not specified
+    // Use berat_produk from cart item, default 1000g (1kg) if not specified
     return cartItems.reduce((total, item) => {
-      const itemWeight = (item as any).weight || 500 // 500g default
+      const itemWeight = item.berat_produk || 1000 // 1000g (1kg) default
       return total + (itemWeight * item.quantity)
     }, 0)
   }

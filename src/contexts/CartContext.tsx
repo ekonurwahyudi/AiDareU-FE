@@ -33,6 +33,7 @@ export interface CartItem {
   jenis_produk?: string // jenis produk: digital atau fisik
   selectedVariant?: ProductVariant // varian yang dipilih
   variantPrice?: number // harga varian jika ada
+  berat_produk?: number // berat produk dalam gram
 }
 
 interface CartContextType {

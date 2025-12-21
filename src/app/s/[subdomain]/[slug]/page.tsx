@@ -88,6 +88,7 @@ interface Product {
   storeUuid?: string // tambahkan UUID Store di product
   variants?: ProductVariant[] // tambahkan variants
   sizeGuideImage?: string // size guide image
+  berat_produk?: number // berat produk dalam gram
 }
 
 // CartItem interface is now imported from CartContext
@@ -798,7 +799,8 @@ function ProductDetailPage() {
                 stock: option.stock || 0
               })) || []
             })) || [],
-            sizeGuideImage: product.size_guide_image || undefined
+            sizeGuideImage: product.size_guide_image || undefined,
+            berat_produk: product.berat_produk || 1000 // default 1kg jika tidak ada
           })
 
         // Handle single product response (when fetching by UUID)
@@ -901,7 +903,8 @@ function ProductDetailPage() {
             stock: product.stock || 0,
             url_produk: product.url_produk,
             storeUuid: product.store?.uuid || product.uuid_store || undefined,
-            sizeGuideImage: product.size_guide_image || undefined
+            sizeGuideImage: product.size_guide_image || undefined,
+            berat_produk: product.berat_produk || 1000 // default 1kg jika tidak ada
           })
 
           const transformedProducts: Product[] = data.data.data.map(transformProduct)
@@ -963,7 +966,8 @@ function ProductDetailPage() {
         variant_name: selectedVariant.variant.variant_name,
         selectedOption: selectedVariant.option
       } : undefined,
-      variantPrice: selectedVariant?.option.harga
+      variantPrice: selectedVariant?.option.harga,
+      berat_produk: product.berat_produk || 1000 // berat dalam gram
     }
 
     console.log('Cart Item with UUID:', cartItem)
