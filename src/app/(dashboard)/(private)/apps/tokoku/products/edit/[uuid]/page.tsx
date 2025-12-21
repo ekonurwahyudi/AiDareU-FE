@@ -1,5 +1,6 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
+import Box from '@mui/material/Box'
 
 // Context Imports
 import { ProductFormProvider } from '@/contexts/ProductFormContext'
@@ -22,37 +23,39 @@ const ProductEditPage = async ({ params }: ProductEditPageProps) => {
 
   return (
     <ProductFormProvider productUuid={uuid} isEdit={true}>
-      <Grid container spacing={6}>
-        <Grid size={{ xs: 12 }}>
-          <ProductEditHeader />
-        </Grid>
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Grid container spacing={6}>
-            <Grid size={{ xs: 12 }}>
-              <ProductInformation />
+      <Box sx={{ position: 'relative', zIndex: 0 }}>
+        <Grid container spacing={6}>
+          <Grid size={{ xs: 12 }}>
+            <ProductEditHeader />
+          </Grid>
+          <Grid size={{ xs: 12, md: 8 }}>
+            <Grid container spacing={6}>
+              <Grid size={{ xs: 12 }}>
+                <ProductInformation />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <ProductVariants />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <ProductImage />
+              </Grid>
             </Grid>
-            <Grid size={{ xs: 12 }}>
-              <ProductVariants />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <ProductImage />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Grid container spacing={6}>
+              <Grid size={{ xs: 12 }}>
+                <ProductPricing />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <ProductOrganize />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <ProductSizeGuide />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Grid container spacing={6}>
-            <Grid size={{ xs: 12 }}>
-              <ProductPricing />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <ProductOrganize />
-            </Grid>
-            <Grid size={{ xs: 12 }}>
-              <ProductSizeGuide />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+      </Box>
     </ProductFormProvider>
   )
 }

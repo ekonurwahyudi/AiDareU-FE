@@ -1478,7 +1478,41 @@ ${currentUrl}`
                 const hasVariants = product.variants && product.variants.length > 0
 
                 if (hasVariants) {
-                  // Get all variant option prices
+                  // If variant is selected, show selected variant price
+                  if (selectedVariant) {
+                    const variantPrice = selectedVariant.option.harga
+
+                    // Show selected variant price with original price if there's a discount
+                    if (product.salePrice) {
+                      return (
+                        <>
+                          <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
+                            {formatRupiah(variantPrice)}
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            sx={{ textDecoration: 'line-through', color: '#94A3B8' }}
+                          >
+                            {formatRupiah(product.price)}
+                          </Typography>
+                          <Chip
+                            label={`${Math.round(((product.price - product.salePrice) / product.price) * 100)}% off`}
+                            size="small"
+                            sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 'bold' }}
+                          />
+                        </>
+                      )
+                    }
+
+                    // No discount, just show selected variant price
+                    return (
+                      <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
+                        {formatRupiah(variantPrice)}
+                      </Typography>
+                    )
+                  }
+
+                  // No variant selected, show price range
                   const allPrices = product.variants.flatMap(v => v.options.map(o => o.harga))
                   const minPrice = Math.min(...allPrices)
                   const maxPrice = Math.max(...allPrices)
@@ -1693,7 +1727,7 @@ ${currentUrl}`
                 {product.name}
               </Typography>
 
-              {/* Harga dengan strike dan persentase diskon jika ada salePrice */}
+              {/* Harga dengan strike dan persentase diskon jika ada salePrice atau variant */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="h6" sx={{
                   fontWeight: 'bold',
@@ -1701,7 +1735,25 @@ ${currentUrl}`
                   lineHeight: 1,
                   fontSize: '1.1rem'
                 }}>
-                  {product.salePrice ? formatRupiah(product.salePrice) : formatRupiah(product.price)}
+                  {(() => {
+                    const hasVariants = product.variants && product.variants.length > 0
+
+                    if (hasVariants) {
+                      // If variant is selected, show variant price
+                      if (selectedVariant) {
+                        return formatRupiah(selectedVariant.option.harga)
+                      }
+
+                      // No variant selected, show price range
+                      const allPrices = product.variants.flatMap(v => v.options.map(o => o.harga))
+                      const minPrice = Math.min(...allPrices)
+                      const maxPrice = Math.max(...allPrices)
+                      return minPrice !== maxPrice ? `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}` : formatRupiah(minPrice)
+                    }
+
+                    // No variants - show regular price (with sale price if available)
+                    return product.salePrice ? formatRupiah(product.salePrice) : formatRupiah(product.price)
+                  })()}
                 </Typography>
 
                 {product.salePrice && (
