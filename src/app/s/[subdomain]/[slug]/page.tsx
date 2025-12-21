@@ -1473,41 +1473,75 @@ ${currentUrl}`
             
           <Box sx={{ mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
-              {product.salePrice ? (
-                <>
-                  <Typography
-                    variant="h3"
-                    sx={{ fontWeight: 'bold', color: '#1E293B' }}
-                  >
-                    {formatRupiah(product.salePrice)}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textDecoration: 'line-through',
-                      color: '#94A3B8'
-                    }}
-                  >
+              {(() => {
+                // Check if product has variants
+                const hasVariants = product.variants && product.variants.length > 0
+
+                if (hasVariants) {
+                  // Get all variant option prices
+                  const allPrices = product.variants.flatMap(v => v.options.map(o => o.harga))
+                  const minPrice = Math.min(...allPrices)
+                  const maxPrice = Math.max(...allPrices)
+                  const priceRange = minPrice !== maxPrice ? `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}` : formatRupiah(minPrice)
+
+                  // Show original price range if there's a discount
+                  if (product.salePrice) {
+                    return (
+                      <>
+                        <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
+                          {priceRange}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{ textDecoration: 'line-through', color: '#94A3B8' }}
+                        >
+                          {formatRupiah(product.price)}
+                        </Typography>
+                        <Chip
+                          label={`${Math.round(((product.price - product.salePrice) / product.price) * 100)}% off`}
+                          size="small"
+                          sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 'bold' }}
+                        />
+                      </>
+                    )
+                  }
+
+                  // No discount, just show variant price range
+                  return (
+                    <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
+                      {priceRange}
+                    </Typography>
+                  )
+                }
+
+                // No variants - show regular price logic
+                if (product.salePrice) {
+                  return (
+                    <>
+                      <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
+                        {formatRupiah(product.salePrice)}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{ textDecoration: 'line-through', color: '#94A3B8' }}
+                      >
+                        {formatRupiah(product.price)}
+                      </Typography>
+                      <Chip
+                        label={`${Math.round(((product.price - product.salePrice) / product.price) * 100)}% off`}
+                        size="small"
+                        sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 'bold' }}
+                      />
+                    </>
+                  )
+                }
+
+                return (
+                  <Typography variant="h3" sx={{ fontWeight: 'bold', color: '#1E293B' }}>
                     {formatRupiah(product.price)}
                   </Typography>
-                  <Chip
-                    label={`${Math.round(((product.price - product.salePrice) / product.price) * 100)}% off`}
-                    size="small"
-                    sx={{
-                      bgcolor: '#FEF3C7',
-                      color: '#92400E',
-                      fontWeight: 'bold'
-                    }}
-                  />
-                </>
-              ) : (
-                <Typography
-                  variant="h3"
-                  sx={{ fontWeight: 'bold', color: '#1E293B' }}
-                >
-                  {formatRupiah(product.price)}
-                </Typography>
-              )}
+                )
+              })()}
             </Box>
           </Box>
 
