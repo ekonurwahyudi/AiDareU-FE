@@ -328,11 +328,14 @@ export const ProductFormProvider = ({ children, productUuid, isEdit = false }: P
                 url_produk: product.url_produk || '',
                 harga_produk: product.harga_produk || '',
                 harga_diskon: product.harga_diskon || '',
+                berat_produk: product.berat_produk || 1000,
                 category_id: product.category_id || '',
                 status_produk: product.status_produk || 'draft',
                 images: [], // New uploaded images
                 existingImages: existingImages, // Existing images from database
-                stock: product.stock || 0
+                stock: product.stock || 0,
+                variants: product.variants || [],
+                sizeGuideImage: product.size_guide_image || null
               })
               
               // Set editor content if available - this will be handled by the component

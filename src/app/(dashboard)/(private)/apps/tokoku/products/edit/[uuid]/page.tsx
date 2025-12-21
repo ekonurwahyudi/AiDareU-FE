@@ -8,8 +8,10 @@ import { ProductFormProvider } from '@/contexts/ProductFormContext'
 import ProductEditHeader from '@/views/apps/tokoku/products/edit/ProductEditHeader'
 import ProductInformation from '@/views/apps/tokoku/products/edit/ProductInformation'
 import ProductImage from '@/views/apps/tokoku/products/edit/ProductImage'
+import ProductVariants from '@/views/apps/tokoku/products/edit/ProductVariants'
 import ProductPricing from '@/views/apps/tokoku/products/edit/ProductPricing'
 import ProductOrganize from '@/views/apps/tokoku/products/edit/ProductOrganize'
+import ProductSizeGuide from '@/views/apps/tokoku/products/edit/ProductSizeGuide'
 
 interface ProductEditPageProps {
   params: Promise<{ uuid: string }>
@@ -30,6 +32,9 @@ const ProductEditPage = async ({ params }: ProductEditPageProps) => {
               <ProductInformation />
             </Grid>
             <Grid size={{ xs: 12 }}>
+              <ProductVariants />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
               <ProductImage />
             </Grid>
           </Grid>
@@ -41,6 +46,9 @@ const ProductEditPage = async ({ params }: ProductEditPageProps) => {
             </Grid>
             <Grid size={{ xs: 12 }}>
               <ProductOrganize />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <ProductSizeGuide />
             </Grid>
           </Grid>
         </Grid>
