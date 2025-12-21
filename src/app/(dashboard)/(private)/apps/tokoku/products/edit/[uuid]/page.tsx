@@ -1,6 +1,5 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
-import Box from '@mui/material/Box'
 
 // Context Imports
 import { ProductFormProvider } from '@/contexts/ProductFormContext'
@@ -23,8 +22,7 @@ const ProductEditPage = async ({ params }: ProductEditPageProps) => {
 
   return (
     <ProductFormProvider productUuid={uuid} isEdit={true}>
-      <Box sx={{ position: 'relative', zIndex: 0 }}>
-        <Grid container spacing={6}>
+      <Grid container spacing={6}>
           <Grid size={{ xs: 12 }}>
             <ProductEditHeader />
           </Grid>
@@ -54,8 +52,7 @@ const ProductEditPage = async ({ params }: ProductEditPageProps) => {
               </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      </Box>
+      </Grid>
     </ProductFormProvider>
   )
 }

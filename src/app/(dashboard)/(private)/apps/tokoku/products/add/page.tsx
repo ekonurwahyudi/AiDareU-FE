@@ -1,6 +1,5 @@
 // MUI Imports
 import Grid from '@mui/material/Grid2'
-import Box from '@mui/material/Box'
 
 // Context Imports
 import { ProductFormProvider } from '@/contexts/ProductFormContext'
@@ -18,8 +17,7 @@ import ProductSizeGuide from '@/views/apps/tokoku/products/add/ProductSizeGuide'
 const eCommerceProductsAdd = () => {
   return (
     <ProductFormProvider>
-      <Box sx={{ position: 'relative', zIndex: 0 }}>
-        <Grid container spacing={6}>
+      <Grid container spacing={6}>
         <Grid size={{ xs: 12 }}>
           <ProductAddHeader />
         </Grid>
@@ -52,8 +50,7 @@ const eCommerceProductsAdd = () => {
             </Grid>
           </Grid>
         </Grid>
-        </Grid>
-      </Box>
+      </Grid>
     </ProductFormProvider>
   )
 }
