@@ -182,13 +182,19 @@ const AIProductPhotoTab = () => {
     }
   }
 
+  const handleEdit = (photo: PhotoResult) => {
+    // Set the selected photo as base and re-generate with current settings
+    toast.info('Fitur edit akan segera hadir!')
+    // TODO: Implement edit functionality similar to AI Logo refine
+  }
+
   return (
     <Box>
       <Typography variant='h4' sx={{ fontWeight: 600, mb: 2 }}>
         AI Foto Produk
       </Typography>
       <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
-        Ubah foto produk biasa menjadi foto profesional dengan AI
+        Upload foto produk Anda, dan AI akan generate 4 konsep photoshoot profesional dengan berbagai setting dan background
       </Typography>
 
       <Card sx={{ mb: 4 }}>
@@ -366,10 +372,10 @@ const AIProductPhotoTab = () => {
       {photoResults.length > 0 && (
         <Box>
           <Typography variant='h5' sx={{ fontWeight: 600, mb: 2 }}>
-            Hasil Generate
+            Konsep Photoshoot Produk
           </Typography>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-            Pilih foto yang paling sesuai, atau klik Edit untuk membuat variasi baru
+            4 konsep photoshoot profesional berdasarkan produk Anda. Download yang paling sesuai atau klik Edit untuk variasi baru
           </Typography>
 
           <Grid container spacing={3}>
@@ -403,6 +409,15 @@ const AIProductPhotoTab = () => {
                       Variasi {index + 1}
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button
+                        fullWidth
+                        variant='outlined'
+                        color='primary'
+                        startIcon={<AutoFixHighIcon />}
+                        onClick={() => handleEdit(photo)}
+                      >
+                        Edit
+                      </Button>
                       <Button
                         fullWidth
                         variant='contained'
