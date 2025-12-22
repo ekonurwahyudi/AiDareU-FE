@@ -21,10 +21,12 @@ import Divider from '@mui/material/Divider'
 // Third-party Imports
 import { useForm, Controller } from 'react-hook-form'
 import { toast } from 'react-toastify'
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
 import CustomTextField from '@core/components/mui/TextField'
+import GoogleReCaptchaProvider from '@/components/GoogleReCaptchaProvider'
 
 // Styled Component Imports
 import AuthIllustrationWrapper from './AuthIllustrationWrapper'
@@ -36,14 +38,15 @@ interface LoginFormData {
   rememberMe: boolean
 }
 
-const LoginV1Simple = () => {
+const LoginFormContent = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [errorState, setErrorState] = useState<string | null>(null)
-  
+
   // Hooks
   const router = useRouter()
+  const { executeRecaptcha } = useGoogleReCaptcha()
 
   // Form
   const {
@@ -65,6 +68,15 @@ const LoginV1Simple = () => {
     setErrorState(null)
 
     try {
+      // Execute reCAPTCHA v3
+      if (!executeRecaptcha) {
+        toast.error('reCAPTCHA belum siap. Silakan refresh halaman.')
+        setIsLoading(false)
+        return
+      }
+
+      const recaptchaToken = await executeRecaptcha('login')
+
       // Direct API call to backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/auth/login`, {
@@ -75,7 +87,8 @@ const LoginV1Simple = () => {
         },
         body: JSON.stringify({
           email: data.email,
-          password: data.password
+          password: data.password,
+          recaptcha_token: recaptchaToken
         })
       })
 
@@ -117,17 +130,16 @@ const LoginV1Simple = () => {
   }
 
   return (
-    <AuthIllustrationWrapper>
-      <Card className='flex flex-col sm:is-[450px]'>
-        <CardContent className='sm:!p-12'>
-          <Link href='/' className='flex justify-center mbe-6'>
-            <Logo />
-          </Link>
-          <div className='flex flex-col gap-1 mbe-6'>
-            <Typography variant='h4'>Welcome to AiDareu! 👋🏻</Typography>
-            <Typography>Please sign-in to your account and start the adventure</Typography>
-          </div>
-          <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+    <Card className='flex flex-col sm:is-[450px]'>
+      <CardContent className='sm:!p-12'>
+        <Link href='/' className='flex justify-center mbe-6'>
+          <Logo />
+        </Link>
+        <div className='flex flex-col gap-1 mbe-6'>
+          <Typography variant='h4'>Welcome to AiDareu! 👋🏻</Typography>
+          <Typography>Please sign-in to your account and start the adventure</Typography>
+        </div>
+        <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
             <Controller
               name='email'
               control={control}
@@ -249,7 +261,16 @@ const LoginV1Simple = () => {
           </form>
         </CardContent>
       </Card>
-    </AuthIllustrationWrapper>
+  )
+}
+
+const LoginV1Simple = () => {
+  return (
+    <GoogleReCaptchaProvider>
+      <AuthIllustrationWrapper>
+        <LoginFormContent />
+      </AuthIllustrationWrapper>
+    </GoogleReCaptchaProvider>
   )
 }
 
