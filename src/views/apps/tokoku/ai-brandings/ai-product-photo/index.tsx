@@ -47,6 +47,7 @@ const AIProductPhotoTab = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [lighting, setLighting] = useState('light')
   const [ambiance, setAmbiance] = useState('clean')
+  const [location, setLocation] = useState('indoor')
   const [aspectRatio, setAspectRatio] = useState('1:1')
   const [additionalInstructions, setAdditionalInstructions] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -65,6 +66,12 @@ const AIProductPhotoTab = () => {
   const ambianceOptions = [
     { value: 'clean', label: 'Clean', icon: <CleanHandsIcon /> },
     { value: 'crowd', label: 'Crowd', icon: <PeopleIcon /> }
+  ]
+
+  // Location options (only shown when ambiance is 'crowd')
+  const locationOptions = [
+    { value: 'indoor', label: 'Indoor', icon: <i className='tabler-home' /> },
+    { value: 'outdoor', label: 'Outdoor', icon: <i className='tabler-trees' /> }
   ]
 
   // Aspect ratio options
@@ -123,6 +130,9 @@ const AIProductPhotoTab = () => {
       formData.append('image', productImage)
       formData.append('lighting', lighting)
       formData.append('ambiance', ambiance)
+      if (ambiance === 'crowd') {
+        formData.append('location', location)
+      }
       formData.append('aspect_ratio', aspectRatio)
       formData.append('additional_instructions', additionalInstructions)
 
@@ -191,11 +201,14 @@ const AIProductPhotoTab = () => {
   return (
     <Box>
       <Typography variant='h4' sx={{ fontWeight: 600, mb: 2 }}>
-        AI Foto Produk
+        AI Inspirasi Photoshoot Produk
       </Typography>
       <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
-        Upload foto produk Anda, dan AI akan generate 4 konsep photoshoot profesional dengan berbagai setting dan background
+        Upload foto produk Anda, AI akan analyze produk dan generate 4 inspirasi photoshoot profesional dengan setting berbeda. Cocok untuk mendapatkan ide konsep foto produk.
       </Typography>
+      <Alert severity='info' sx={{ mb: 4 }}>
+        <strong>Catatan:</strong> AI akan membuat <em>inspirasi konsep photoshoot</em> yang mirip dengan produk Anda, bukan edit foto asli. Hasil terbaik digunakan sebagai referensi untuk photoshoot sesungguhnya.
+      </Alert>
 
       <Card sx={{ mb: 4 }}>
         <CardContent>
@@ -312,6 +325,30 @@ const AIProductPhotoTab = () => {
                 ))}
               </ToggleButtonGroup>
             </Grid>
+
+            {/* Section 3.5: Pilih Lokasi (only shown when ambiance is 'crowd') */}
+            {ambiance === 'crowd' && (
+              <Grid size={{ xs: 12 }}>
+                <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+                  Pilih Lokasi
+                </Typography>
+                <ToggleButtonGroup
+                  value={location}
+                  exclusive
+                  onChange={(e, newValue) => newValue && setLocation(newValue)}
+                  fullWidth
+                >
+                  {locationOptions.map(option => (
+                    <ToggleButton key={option.value} value={option.value}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {option.icon}
+                        {option.label}
+                      </Box>
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </Grid>
+            )}
 
             {/* Section 4: Pilih Rasio */}
             <Grid size={{ xs: 12 }}>
