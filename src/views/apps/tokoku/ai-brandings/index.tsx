@@ -110,7 +110,6 @@ const AIBrandingSettings = ({ tabContentList }: { tabContentList: { [key: string
                     iconPosition='start'
                     value='ai-product-photo'
                     className='flex-row justify-start !min-is-full'
-                    disabled
                   />
 
                   <Tab
