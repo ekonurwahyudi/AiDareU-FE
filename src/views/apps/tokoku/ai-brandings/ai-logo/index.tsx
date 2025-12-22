@@ -144,18 +144,27 @@ const AILogoTab = () => {
 
   const handleDownload = async (logoUrl: string, index: number) => {
     try {
-      // Fetch with credentials for cross-origin requests
+      // Extract filename from URL
+      // URL format: http://api.aidareu.com/storage/ai-logos/logo-xxx.png
+      const urlParts = logoUrl.split('/')
+      const filename = urlParts[urlParts.length - 1]
+
+      // Use dedicated download endpoint
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
+      const downloadUrl = `${backendUrl}/api/ai/download-logo/${filename}`
+
       const authToken = localStorage.getItem('auth_token')
-      const response = await fetch(logoUrl, {
+      const response = await fetch(downloadUrl, {
         method: 'GET',
         credentials: 'include',
-        headers: authToken ? {
-          'Authorization': `Bearer ${authToken}`
-        } : {}
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/octet-stream'
+        }
       })
 
       if (!response.ok) {
-        throw new Error('Failed to fetch logo')
+        throw new Error('Failed to download logo')
       }
 
       const blob = await response.blob()
