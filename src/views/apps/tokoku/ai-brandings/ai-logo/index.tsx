@@ -194,7 +194,7 @@ const AILogoTab = () => {
                 placeholder='Contoh: Kopi Nusantara, Toko Bunga Indah, Warung Makan Sederhana'
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                helperText='Masukkan nama usaha atau brand yang akan dibuatkan logo'
+                // helperText='Masukkan nama usaha atau brand yang akan dibuatkan logo'
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2
@@ -206,7 +206,7 @@ const AILogoTab = () => {
             {/* Prompt Input */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
-                2. Deskripsi Logo
+                2. Intruksi Logo
               </Typography>
               <TextField
                 fullWidth
@@ -215,7 +215,7 @@ const AILogoTab = () => {
                 placeholder='Contoh: Modern minimalist logo for coffee shop with geometric shapes, warm colors, professional'
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                helperText='Deskripsikan logo yang Anda inginkan secara detail untuk hasil terbaik'
+                // helperText='Deskripsikan logo yang Anda inginkan secara detail untuk hasil terbaik'
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2
