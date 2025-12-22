@@ -144,7 +144,20 @@ const AILogoTab = () => {
 
   const handleDownload = async (logoUrl: string, index: number) => {
     try {
-      const response = await fetch(logoUrl)
+      // Fetch with credentials for cross-origin requests
+      const authToken = localStorage.getItem('auth_token')
+      const response = await fetch(logoUrl, {
+        method: 'GET',
+        credentials: 'include',
+        headers: authToken ? {
+          'Authorization': `Bearer ${authToken}`
+        } : {}
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch logo')
+      }
+
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -152,11 +165,17 @@ const AILogoTab = () => {
       a.download = `ai-logo-${index + 1}.png`
       document.body.appendChild(a)
       a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
+
       toast.success('Logo berhasil didownload')
     } catch (error) {
-      toast.error('Gagal mendownload logo')
+      console.error('Download error:', error)
+      toast.error('Gagal mendownload logo. Silakan coba lagi.')
     }
   }
 
