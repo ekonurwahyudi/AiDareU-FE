@@ -420,7 +420,7 @@ const AILogoTab = () => {
 
           <Grid container spacing={3}>
             {logoResults.map((logo, index) => (
-              <Grid key={logo.id} size={{ xs: 12, sm: 6, md: 3 }}>
+              <Grid key={logo.id} size={{ xs: 12, md: 6 }}>
                 <Card
                   sx={{
                     height: '100%',
@@ -438,22 +438,24 @@ const AILogoTab = () => {
                   <Box
                     sx={{
                       position: 'relative',
-                      paddingTop: '100%',
+                      minHeight: '300px',
                       bgcolor: '#F9FAFB',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      p: 3
                     }}
                   >
                     <img
                       src={logo.imageUrl}
                       alt={`Logo ${index + 1}`}
                       style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain',
-                        padding: '16px'
+                        maxWidth: '100%',
+                        maxHeight: '300px',
+                        width: 'auto',
+                        height: 'auto',
+                        objectFit: 'contain'
                       }}
                     />
                     <Chip
