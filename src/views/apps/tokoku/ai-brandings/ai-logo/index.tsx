@@ -31,6 +31,7 @@ interface LogoResult {
 
 const AILogoTab = () => {
   // States
+  const [businessName, setBusinessName] = useState('')
   const [prompt, setPrompt] = useState('')
   const [selectedStyle, setSelectedStyle] = useState('modern')
   const [uploadedImage, setUploadedImage] = useState<File | null>(null)
@@ -89,8 +90,13 @@ const AILogoTab = () => {
 
   const handleGenerate = async () => {
     // Validation
-    if (!prompt && !uploadedImage) {
-      toast.error('Silakan masukkan prompt atau upload gambar sketsa')
+    if (!businessName.trim()) {
+      toast.error('Silakan masukkan nama usaha/logo')
+      return
+    }
+
+    if (!prompt.trim() && !uploadedImage) {
+      toast.error('Silakan masukkan deskripsi atau upload gambar sketsa')
       return
     }
 
@@ -98,6 +104,7 @@ const AILogoTab = () => {
 
     try {
       const formData = new FormData()
+      formData.append('business_name', businessName)
       formData.append('prompt', prompt)
       formData.append('style', selectedStyle)
       if (uploadedImage) {
@@ -177,10 +184,29 @@ const AILogoTab = () => {
       <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
         <CardContent sx={{ p: 4 }}>
           <Grid container spacing={3}>
+            {/* Business Name Input */}
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
+                1. Nama Usaha / Nama Logo
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder='Contoh: Kopi Nusantara, Toko Bunga Indah, Warung Makan Sederhana'
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                helperText='Masukkan nama usaha atau brand yang akan dibuatkan logo'
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
+              />
+            </Grid>
+
             {/* Prompt Input */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
-                1. Deskripsi Logo (Prompt)
+                2. Deskripsi Logo
               </Typography>
               <TextField
                 fullWidth
@@ -201,7 +227,7 @@ const AILogoTab = () => {
             {/* Upload Image */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
-                2. Upload Sketsa/Referensi Gambar (Opsional)
+                3. Upload Sketsa/Referensi Gambar (Opsional)
               </Typography>
               <Box>
                 <input
@@ -277,7 +303,7 @@ const AILogoTab = () => {
             {/* Style Selection */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
-                3. Gaya Logo
+                4. Gaya Logo
               </Typography>
               <ToggleButtonGroup
                 value={selectedStyle}
@@ -337,7 +363,7 @@ const AILogoTab = () => {
                 color='primary'
                 size='large'
                 onClick={handleGenerate}
-                disabled={isGenerating || (!prompt && !uploadedImage)}
+                disabled={isGenerating || !businessName.trim() || (!prompt.trim() && !uploadedImage)}
                 startIcon={isGenerating ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-wand' />}
                 sx={{
                   py: 2,
