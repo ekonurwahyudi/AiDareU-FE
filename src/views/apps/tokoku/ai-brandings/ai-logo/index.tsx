@@ -11,15 +11,13 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid2'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import Alert from '@mui/material/Alert'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
 // Third-party Imports
 import { toast } from 'react-toastify'
@@ -106,10 +104,17 @@ const AILogoTab = () => {
         formData.append('image', uploadedImage)
       }
 
+      // Get auth token
+      const authToken = localStorage.getItem('auth_token')
+
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/ai/generate-logo`, {
         method: 'POST',
         credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/json'
+        },
         body: formData
       })
 
@@ -160,34 +165,44 @@ const AILogoTab = () => {
     <Box>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 600, color: '#111827', mb: 1 }}>
+        <Typography variant='h4' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
           AI Logo & Brand Kit Generator
         </Typography>
-        <Typography variant='body2' sx={{ color: '#6B7280' }}>
+        <Typography variant='body1' sx={{ color: '#6B7280' }}>
           Buat logo profesional dengan AI. Upload sketsa atau gunakan prompt untuk hasil terbaik.
         </Typography>
       </Box>
 
       {/* Input Section */}
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
+      <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
           <Grid container spacing={3}>
             {/* Prompt Input */}
             <Grid size={{ xs: 12 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
+                1. Deskripsi Logo (Prompt)
+              </Typography>
               <TextField
                 fullWidth
                 multiline
-                rows={3}
-                label='Deskripsi Logo (Prompt)'
+                rows={4}
                 placeholder='Contoh: Modern minimalist logo for coffee shop with geometric shapes, warm colors, professional'
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                helperText='Deskripsikan logo yang Anda inginkan secara detail'
+                helperText='Deskripsikan logo yang Anda inginkan secara detail untuk hasil terbaik'
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
               />
             </Grid>
 
             {/* Upload Image */}
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
+                2. Upload Sketsa/Referensi Gambar (Opsional)
+              </Typography>
               <Box>
                 <input
                   ref={fileInputRef}
@@ -201,15 +216,32 @@ const AILogoTab = () => {
                   <Button
                     component='span'
                     variant='outlined'
+                    color='primary'
                     fullWidth
                     startIcon={<i className='tabler-upload' />}
-                    sx={{ py: 1.5 }}
+                    sx={{
+                      py: 1.5,
+                      borderRadius: 2,
+                      borderWidth: 2,
+                      '&:hover': {
+                        borderWidth: 2
+                      }
+                    }}
                   >
-                    Upload Sketsa/Foto (Opsional)
+                    Pilih Gambar
                   </Button>
                 </label>
                 {imagePreview && (
-                  <Box sx={{ mt: 2, position: 'relative' }}>
+                  <Box
+                    sx={{
+                      mt: 2,
+                      position: 'relative',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      border: '2px solid #E5E7EB',
+                      bgcolor: '#F9FAFB'
+                    }}
+                  >
                     <img
                       src={imagePreview}
                       alt='Preview'
@@ -217,8 +249,8 @@ const AILogoTab = () => {
                         width: '100%',
                         maxHeight: '200px',
                         objectFit: 'contain',
-                        borderRadius: '8px',
-                        border: '1px solid #E5E7EB'
+                        display: 'block',
+                        padding: '12px'
                       }}
                     />
                     <IconButton
@@ -227,9 +259,11 @@ const AILogoTab = () => {
                         position: 'absolute',
                         top: 8,
                         right: 8,
-                        bgcolor: 'rgba(0,0,0,0.5)',
+                        bgcolor: 'error.main',
                         color: 'white',
-                        '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' }
+                        width: 32,
+                        height: 32,
+                        '&:hover': { bgcolor: 'error.dark' }
                       }}
                       size='small'
                     >
@@ -241,17 +275,58 @@ const AILogoTab = () => {
             </Grid>
 
             {/* Style Selection */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Gaya Logo</InputLabel>
-                <Select value={selectedStyle} onChange={(e) => setSelectedStyle(e.target.value)} label='Gaya Logo'>
-                  {logoStyles.map(style => (
-                    <MenuItem key={style.value} value={style.value}>
-                      {style.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+            <Grid size={{ xs: 12 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
+                3. Gaya Logo
+              </Typography>
+              <ToggleButtonGroup
+                value={selectedStyle}
+                exclusive
+                onChange={(e, newStyle) => {
+                  if (newStyle !== null) {
+                    setSelectedStyle(newStyle)
+                  }
+                }}
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1.5,
+                  '& .MuiToggleButtonGroup-grouped': {
+                    border: 0,
+                    borderRadius: '8px !important',
+                    flex: '1 1 auto',
+                    minWidth: { xs: 'calc(50% - 6px)', sm: 'calc(25% - 9px)' },
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: 'primary.dark'
+                      }
+                    },
+                    '&:not(.Mui-selected)': {
+                      border: '2px solid #E5E7EB',
+                      bgcolor: 'white',
+                      color: '#374151',
+                      fontWeight: 500,
+                      '&:hover': {
+                        bgcolor: '#F9FAFB',
+                        borderColor: 'primary.main'
+                      }
+                    }
+                  }
+                }}
+              >
+                {logoStyles.map(style => (
+                  <ToggleButton
+                    key={style.value}
+                    value={style.value}
+                    sx={{ py: 1.5, textTransform: 'none' }}
+                  >
+                    {style.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
             </Grid>
 
             {/* Generate Button */}
@@ -259,21 +334,27 @@ const AILogoTab = () => {
               <Button
                 fullWidth
                 variant='contained'
+                color='primary'
                 size='large'
                 onClick={handleGenerate}
                 disabled={isGenerating || (!prompt && !uploadedImage)}
-                startIcon={isGenerating ? <CircularProgress size={20} /> : <i className='tabler-wand' />}
+                startIcon={isGenerating ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-wand' />}
                 sx={{
-                  py: 1.5,
-                  fontSize: '1rem',
+                  py: 2,
+                  fontSize: '1.1rem',
                   fontWeight: 600,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #6a4293 100%)'
+                    boxShadow: '0 6px 16px rgba(239, 68, 68, 0.4)'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.6
                   }
                 }}
               >
-                {isGenerating ? 'Generating...' : 'Generate Logo'}
+                {isGenerating ? 'Sedang Generate Logo...' : 'Generate Logo dengan AI'}
               </Button>
             </Grid>
           </Grid>
@@ -283,9 +364,14 @@ const AILogoTab = () => {
       {/* Results Section */}
       {logoResults.length > 0 && (
         <Box>
-          <Typography variant='h5' sx={{ fontWeight: 600, mb: 3 }}>
-            Hasil Generate (4 Variasi)
-          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant='h5' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+              Hasil Generate
+            </Typography>
+            <Typography variant='body2' sx={{ color: '#6B7280' }}>
+              Pilih logo yang paling sesuai, atau klik Edit untuk membuat variasi baru
+            </Typography>
+          </Box>
 
           <Grid container spacing={3}>
             {logoResults.map((logo, index) => (
@@ -293,10 +379,14 @@ const AILogoTab = () => {
                 <Card
                   sx={{
                     height: '100%',
+                    borderRadius: 2,
+                    overflow: 'hidden',
                     transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
                     '&:hover': {
                       transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                      borderColor: 'primary.main'
                     }
                   }}
                 >
@@ -321,24 +411,53 @@ const AILogoTab = () => {
                         padding: '16px'
                       }}
                     />
+                    <Chip
+                      label={`Variasi ${index + 1}`}
+                      size='small'
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                        fontWeight: 600
+                      }}
+                    />
                   </Box>
-                  <CardContent>
+                  <CardContent sx={{ p: 2 }}>
                     <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
                       <Button
                         fullWidth
                         variant='contained'
+                        color='primary'
                         size='small'
                         startIcon={<i className='tabler-download' />}
                         onClick={() => handleDownload(logo.imageUrl, index)}
+                        sx={{
+                          py: 1,
+                          fontWeight: 600,
+                          borderRadius: 1.5,
+                          textTransform: 'none'
+                        }}
                       >
                         Download
                       </Button>
                       <Button
                         fullWidth
                         variant='outlined'
+                        color='primary'
                         size='small'
                         startIcon={<i className='tabler-edit' />}
                         onClick={() => handleEdit(logo)}
+                        sx={{
+                          py: 1,
+                          fontWeight: 600,
+                          borderRadius: 1.5,
+                          borderWidth: 2,
+                          textTransform: 'none',
+                          '&:hover': {
+                            borderWidth: 2
+                          }
+                        }}
                       >
                         Edit/Refine
                       </Button>
@@ -353,10 +472,44 @@ const AILogoTab = () => {
 
       {/* Empty State */}
       {logoResults.length === 0 && !isGenerating && (
-        <Alert severity='info' icon={<i className='tabler-info-circle' />}>
-          Masukkan prompt atau upload sketsa logo, pilih gaya yang diinginkan, lalu klik Generate untuk membuat logo
-          dengan AI
-        </Alert>
+        <Card
+          sx={{
+            borderRadius: 2,
+            border: '2px dashed #D1D5DB',
+            bgcolor: '#F9FAFB',
+            textAlign: 'center',
+            py: 6,
+            px: 3
+          }}
+        >
+          <Box sx={{ maxWidth: 500, mx: 'auto' }}>
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                bgcolor: 'primary.main',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 3,
+                opacity: 0.9
+              }}
+            >
+              <i className='tabler-wand' style={{ fontSize: 40, color: 'white' }} />
+            </Box>
+            <Typography variant='h5' sx={{ fontWeight: 700, color: '#1F2937', mb: 2 }}>
+              Siap Membuat Logo dengan AI?
+            </Typography>
+            <Typography variant='body1' sx={{ color: '#6B7280', mb: 1 }}>
+              Masukkan deskripsi logo yang Anda inginkan atau upload sketsa sebagai referensi.
+            </Typography>
+            <Typography variant='body2' sx={{ color: '#9CA3AF' }}>
+              AI akan menghasilkan 4 variasi logo profesional dalam hitungan detik.
+            </Typography>
+          </Box>
+        </Card>
       )}
     </Box>
   )
