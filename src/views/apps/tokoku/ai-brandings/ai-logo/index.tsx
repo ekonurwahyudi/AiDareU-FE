@@ -26,6 +26,7 @@ import { toast } from 'react-toastify'
 interface LogoResult {
   id: string
   imageUrl: string
+  filename?: string
   prompt: string
 }
 
@@ -142,33 +143,43 @@ const AILogoTab = () => {
     }
   }
 
-  const handleDownload = async (logoUrl: string, index: number) => {
+  const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Fetch the image directly from storage URL (no auth needed, CORS already configured)
-      const response = await fetch(logoUrl)
-
-      if (!response.ok) {
-        throw new Error('Failed to download logo')
-      }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      // Try direct download first
       const a = document.createElement('a')
-      a.href = url
+      a.href = logo.imageUrl
       a.download = `ai-logo-${index + 1}.png`
+      a.target = '_blank'
       document.body.appendChild(a)
       a.click()
-
-      // Cleanup
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-      }, 100)
+      document.body.removeChild(a)
 
       toast.success('Logo berhasil didownload')
     } catch (error) {
       console.error('Download error:', error)
-      toast.error('Gagal mendownload logo. Silakan coba lagi.')
+      
+      // Fallback: try using backend download endpoint if filename is available
+      if (logo.filename) {
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+          const downloadUrl = `${backendUrl}/api/ai/logo/download/${logo.filename}`
+          
+          const a = document.createElement('a')
+          a.href = downloadUrl
+          a.download = `ai-logo-${index + 1}.png`
+          a.target = '_blank'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          
+          toast.success('Logo berhasil didownload')
+        } catch (fallbackError) {
+          console.error('Fallback download error:', fallbackError)
+          toast.error('Gagal mendownload logo. Silakan coba lagi.')
+        }
+      } else {
+        toast.error('Gagal mendownload logo. Silakan coba lagi.')
+      }
     }
   }
 
@@ -471,7 +482,7 @@ const AILogoTab = () => {
                         color='primary'
                         size='small'
                         startIcon={<i className='tabler-download' />}
-                        onClick={() => handleDownload(logo.imageUrl, index)}
+                        onClick={() => handleDownload(logo, index)}
                         sx={{
                           py: 1,
                           fontWeight: 600,
@@ -546,7 +557,7 @@ const AILogoTab = () => {
               Masukkan deskripsi logo yang Anda inginkan atau upload sketsa sebagai referensi.
             </Typography>
             <Typography variant='body2' sx={{ color: '#9CA3AF' }}>
-              AI akan menghasilkan 4 variasi logo profesional dalam hitungan detik.
+              AI akan menghasilkan 2 variasi logo profesional dalam hitungan detik.
             </Typography>
           </Box>
         </Card>

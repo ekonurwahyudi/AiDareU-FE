@@ -174,35 +174,45 @@ const AIProductPhotoTab = () => {
     }
   }
 
-  const handleDownload = async (photoUrl: string, index: number) => {
+  const handleDownload = async (photo: PhotoResult, index: number) => {
     try {
       setDownloadingIndex(index)
       
-      // Fetch the image directly from storage URL (no auth needed, CORS already configured)
-      const response = await fetch(photoUrl)
-
-      if (!response.ok) {
-        throw new Error('Failed to download photo')
-      }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      // Try direct download first
       const a = document.createElement('a')
-      a.href = url
+      a.href = photo.imageUrl
       a.download = `ai-product-photo-${index + 1}.png`
+      a.target = '_blank'
       document.body.appendChild(a)
       a.click()
-
-      // Cleanup
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-      }, 100)
+      document.body.removeChild(a)
 
       toast.success('Foto berhasil didownload')
     } catch (error) {
       console.error('Download error:', error)
-      toast.error('Gagal mendownload foto. Silakan coba lagi.')
+      
+      // Fallback: try using backend download endpoint if filename is available
+      if (photo.filename) {
+        try {
+          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+          const downloadUrl = `${backendUrl}/api/ai/product-photo/download/${photo.filename}`
+          
+          const a = document.createElement('a')
+          a.href = downloadUrl
+          a.download = `ai-product-photo-${index + 1}.png`
+          a.target = '_blank'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          
+          toast.success('Foto berhasil didownload')
+        } catch (fallbackError) {
+          console.error('Fallback download error:', fallbackError)
+          toast.error('Gagal mendownload foto. Silakan coba lagi.')
+        }
+      } else {
+        toast.error('Gagal mendownload foto. Silakan coba lagi.')
+      }
     } finally {
       setDownloadingIndex(null)
     }
@@ -557,7 +567,7 @@ const AIProductPhotoTab = () => {
               Hasil Generate
             </Typography>
             <Typography variant='body2' sx={{ color: '#6B7280' }}>
-              4 variasi foto produk profesional. Download yang paling sesuai atau klik Edit untuk variasi baru
+              2 variasi foto produk profesional. Download yang paling sesuai atau klik Edit untuk variasi baru
             </Typography>
           </Box>
 
@@ -612,19 +622,6 @@ const AIProductPhotoTab = () => {
                         fontWeight: 600
                       }}
                     />
-                    <Chip
-                      label='Preview'
-                      size='small'
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        left: 12,
-                        bgcolor: 'rgba(33, 150, 243, 0.9)',
-                        color: 'white',
-                        fontWeight: 500,
-                        fontSize: '0.7rem'
-                      }}
-                    />
                   </Box>
                   <CardContent sx={{ p: 2 }}>
                     <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
@@ -634,7 +631,7 @@ const AIProductPhotoTab = () => {
                         color='primary'
                         size='small'
                         startIcon={downloadingIndex === index ? <CircularProgress size={16} color='inherit' /> : <i className='tabler-download' />}
-                        onClick={() => handleDownload(photo.imageUrl, index)}
+                        onClick={() => handleDownload(photo, index)}
                         disabled={downloadingIndex === index}
                         sx={{
                           py: 1,
