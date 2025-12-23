@@ -217,7 +217,7 @@ const AIProductPhotoTab = () => {
       <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
         <CardContent sx={{ p: 4 }}>
           {/* Section 1: Upload Foto Produk */}
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 1. Unggah Foto Produk
@@ -443,13 +443,11 @@ const AIProductPhotoTab = () => {
                 onChange={(_, newValue) => newValue && setAspectRatio(newValue)}
                 sx={{
                   display: 'flex',
-                  flexWrap: 'wrap',
                   gap: 1.5,
                   '& .MuiToggleButtonGroup-grouped': {
                     border: 0,
                     borderRadius: '8px !important',
-                    flex: '1 1 auto',
-                    minWidth: 'calc(50% - 6px)',
+                    flex: 1,
                     '&.Mui-selected': {
                       bgcolor: 'primary.main',
                       color: 'white',
