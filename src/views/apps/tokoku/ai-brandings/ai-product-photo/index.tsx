@@ -36,8 +36,7 @@ import CropPortraitIcon from '@mui/icons-material/CropPortrait'
 // Types
 interface PhotoResult {
   id: string
-  imageUrl: string // Compressed untuk tampilan cepat
-  downloadUrl: string // Original untuk download
+  imageUrl: string
   filename: string
   prompt: string
 }
@@ -139,7 +138,11 @@ const AIProductPhotoTab = () => {
       formData.append('additional_instructions', additionalInstructions)
 
       const authToken = localStorage.getItem('auth_token')
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
+      console.log('Auth token:', authToken ? 'Present' : 'Missing')
+      
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      console.log('Backend URL:', backendUrl)
+      console.log('Request URL:', `${backendUrl}/api/ai/generate-product-photo`)
 
       const response = await fetch(`${backendUrl}/api/ai/generate-product-photo`, {
         method: 'POST',
@@ -152,12 +155,15 @@ const AIProductPhotoTab = () => {
       })
 
       const data = await response.json()
+      console.log('Response status:', response.status)
+      console.log('Response data:', data)
 
       if (data.success) {
         console.log('Product photo results:', data.data) // Debug log
         setPhotoResults(data.data)
         toast.success('Foto produk berhasil di-generate!')
       } else {
+        console.error('API Error:', data.message)
         toast.error(data.message || 'Gagal generate foto produk')
       }
     } catch (error) {
@@ -168,18 +174,12 @@ const AIProductPhotoTab = () => {
     }
   }
 
-  const handleDownload = async (photo: PhotoResult, index: number) => {
+  const handleDownload = async (photoUrl: string, index: number) => {
     try {
       setDownloadingIndex(index)
       
-      console.log('Downloading photo:', {
-        index: index + 1,
-        downloadUrl: photo.downloadUrl,
-        filename: photo.filename
-      })
-      
-      // Gunakan downloadUrl yang sudah berisi URL storage langsung
-      const response = await fetch(photo.downloadUrl)
+      // Fetch the image directly from storage URL (no auth needed, CORS already configured)
+      const response = await fetch(photoUrl)
 
       if (!response.ok) {
         throw new Error('Failed to download photo')
@@ -627,9 +627,6 @@ const AIProductPhotoTab = () => {
                     />
                   </Box>
                   <CardContent sx={{ p: 2 }}>
-                    <Typography variant='caption' color='text.secondary' sx={{ mb: 1, display: 'block' }}>
-                      Tampilan: Terkompresi untuk loading cepat • Download: Kualitas penuh
-                    </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
                       <Button
                         fullWidth
@@ -637,7 +634,7 @@ const AIProductPhotoTab = () => {
                         color='primary'
                         size='small'
                         startIcon={downloadingIndex === index ? <CircularProgress size={16} color='inherit' /> : <i className='tabler-download' />}
-                        onClick={() => handleDownload(photo, index)}
+                        onClick={() => handleDownload(photo.imageUrl, index)}
                         disabled={downloadingIndex === index}
                         sx={{
                           py: 1,
