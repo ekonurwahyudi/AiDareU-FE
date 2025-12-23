@@ -11,6 +11,7 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid2'
+import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -23,8 +24,6 @@ import { toast } from 'react-toastify'
 // Icon Imports
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CloseIcon from '@mui/icons-material/Close'
-import DownloadIcon from '@mui/icons-material/Download'
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import CleanHandsIcon from '@mui/icons-material/CleanHands'
@@ -192,30 +191,35 @@ const AIProductPhotoTab = () => {
     }
   }
 
-  const handleEdit = (photo: PhotoResult) => {
-    // Set the selected photo as base and re-generate with current settings
-    toast.info('Fitur edit akan segera hadir!')
-    // TODO: Implement edit functionality similar to AI Logo refine
+  const handleEdit = () => {
+    toast.info('Silakan ubah pengaturan dan klik Generate untuk membuat variasi baru')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <Box>
-      <Typography variant='h4' sx={{ fontWeight: 600, mb: 2 }}>
-        AI Foto Produk Profesional
-      </Typography>
-      <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
-        Upload foto produk Anda, AI akan transform foto produk dengan berbagai background dan lighting profesional. Produk asli tetap sama, hanya background yang berubah.
-      </Typography>
-      <Alert severity='success' sx={{ mb: 4 }}>
-        <strong>Powered by Stability AI:</strong> Teknologi image-to-image yang mempertahankan produk asli Anda dan hanya mengubah background/setting. Hasil foto langsung siap pakai untuk e-commerce!
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant='h4' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+          AI Foto Produk Profesional
+        </Typography>
+        <Typography variant='body1' sx={{ color: '#6B7280' }}>
+          Upload foto produk, AI akan transform dengan background dan lighting profesional.
+        </Typography>
+      </Box>
+
+      {/* Alert */}
+      <Alert severity='success' sx={{ mb: 4, borderRadius: 2 }}>
+        <strong>Powered by Stability AI:</strong> Teknologi image-to-image yang mempertahankan produk asli dan hanya mengubah background/setting.
       </Alert>
 
-      <Card sx={{ mb: 4 }}>
-        <CardContent>
+      {/* Input Section */}
+      <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
+        <CardContent sx={{ p: 4 }}>
           {/* Section 1: Upload Foto Produk */}
           <Grid container spacing={3}>
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 1. Unggah Foto Produk
               </Typography>
               <Box
@@ -284,17 +288,43 @@ const AIProductPhotoTab = () => {
 
             {/* Section 2: Pilih Pencahayaan */}
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 2. Pilih Pencahayaan
               </Typography>
               <ToggleButtonGroup
                 value={lighting}
                 exclusive
-                onChange={(e, newValue) => newValue && setLighting(newValue)}
-                fullWidth
+                onChange={(_, newValue) => newValue && setLighting(newValue)}
+                sx={{
+                  display: 'flex',
+                  gap: 1.5,
+                  '& .MuiToggleButtonGroup-grouped': {
+                    border: 0,
+                    borderRadius: '8px !important',
+                    flex: 1,
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: 'primary.dark'
+                      }
+                    },
+                    '&:not(.Mui-selected)': {
+                      border: '2px solid #E5E7EB',
+                      bgcolor: 'white',
+                      color: '#374151',
+                      fontWeight: 500,
+                      '&:hover': {
+                        bgcolor: '#F9FAFB',
+                        borderColor: 'primary.main'
+                      }
+                    }
+                  }
+                }}
               >
                 {lightingOptions.map(option => (
-                  <ToggleButton key={option.value} value={option.value}>
+                  <ToggleButton key={option.value} value={option.value} sx={{ py: 1.5, textTransform: 'none' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon}
                       {option.label}
@@ -306,17 +336,43 @@ const AIProductPhotoTab = () => {
 
             {/* Section 3: Pilih Suasana */}
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 3. Pilih Suasana
               </Typography>
               <ToggleButtonGroup
                 value={ambiance}
                 exclusive
-                onChange={(e, newValue) => newValue && setAmbiance(newValue)}
-                fullWidth
+                onChange={(_, newValue) => newValue && setAmbiance(newValue)}
+                sx={{
+                  display: 'flex',
+                  gap: 1.5,
+                  '& .MuiToggleButtonGroup-grouped': {
+                    border: 0,
+                    borderRadius: '8px !important',
+                    flex: 1,
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: 'primary.dark'
+                      }
+                    },
+                    '&:not(.Mui-selected)': {
+                      border: '2px solid #E5E7EB',
+                      bgcolor: 'white',
+                      color: '#374151',
+                      fontWeight: 500,
+                      '&:hover': {
+                        bgcolor: '#F9FAFB',
+                        borderColor: 'primary.main'
+                      }
+                    }
+                  }
+                }}
               >
                 {ambianceOptions.map(option => (
-                  <ToggleButton key={option.value} value={option.value}>
+                  <ToggleButton key={option.value} value={option.value} sx={{ py: 1.5, textTransform: 'none' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon}
                       {option.label}
@@ -329,17 +385,43 @@ const AIProductPhotoTab = () => {
             {/* Section 3.5: Pilih Lokasi (only shown when ambiance is 'crowd') */}
             {ambiance === 'crowd' && (
               <Grid size={{ xs: 12 }}>
-                <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+                <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                   Pilih Lokasi
                 </Typography>
                 <ToggleButtonGroup
                   value={location}
                   exclusive
-                  onChange={(e, newValue) => newValue && setLocation(newValue)}
-                  fullWidth
+                  onChange={(_, newValue) => newValue && setLocation(newValue)}
+                  sx={{
+                    display: 'flex',
+                    gap: 1.5,
+                    '& .MuiToggleButtonGroup-grouped': {
+                      border: 0,
+                      borderRadius: '8px !important',
+                      flex: 1,
+                      '&.Mui-selected': {
+                        bgcolor: 'primary.main',
+                        color: 'white',
+                        fontWeight: 600,
+                        '&:hover': {
+                          bgcolor: 'primary.dark'
+                        }
+                      },
+                      '&:not(.Mui-selected)': {
+                        border: '2px solid #E5E7EB',
+                        bgcolor: 'white',
+                        color: '#374151',
+                        fontWeight: 500,
+                        '&:hover': {
+                          bgcolor: '#F9FAFB',
+                          borderColor: 'primary.main'
+                        }
+                      }
+                    }
+                  }}
                 >
                   {locationOptions.map(option => (
-                    <ToggleButton key={option.value} value={option.value}>
+                    <ToggleButton key={option.value} value={option.value} sx={{ py: 1.5, textTransform: 'none' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         {option.icon}
                         {option.label}
@@ -352,20 +434,48 @@ const AIProductPhotoTab = () => {
 
             {/* Section 4: Pilih Rasio */}
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 4. Pilih Rasio
               </Typography>
               <ToggleButtonGroup
                 value={aspectRatio}
                 exclusive
-                onChange={(e, newValue) => newValue && setAspectRatio(newValue)}
-                fullWidth
+                onChange={(_, newValue) => newValue && setAspectRatio(newValue)}
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1.5,
+                  '& .MuiToggleButtonGroup-grouped': {
+                    border: 0,
+                    borderRadius: '8px !important',
+                    flex: '1 1 auto',
+                    minWidth: 'calc(50% - 6px)',
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'white',
+                      fontWeight: 600,
+                      '&:hover': {
+                        bgcolor: 'primary.dark'
+                      }
+                    },
+                    '&:not(.Mui-selected)': {
+                      border: '2px solid #E5E7EB',
+                      bgcolor: 'white',
+                      color: '#374151',
+                      fontWeight: 500,
+                      '&:hover': {
+                        bgcolor: '#F9FAFB',
+                        borderColor: 'primary.main'
+                      }
+                    }
+                  }
+                }}
               >
                 {aspectRatioOptions.map(option => (
-                  <ToggleButton key={option.value} value={option.value}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                  <ToggleButton key={option.value} value={option.value} sx={{ py: 1.5, textTransform: 'none' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       {option.icon}
-                      <Typography variant='caption'>{option.label}</Typography>
+                      {option.label}
                     </Box>
                   </ToggleButton>
                 ))}
@@ -374,16 +484,21 @@ const AIProductPhotoTab = () => {
 
             {/* Section 5: Instruksi Tambahan */}
             <Grid size={{ xs: 12 }}>
-              <Typography variant='body1' sx={{ fontWeight: 500, mb: 2 }}>
+              <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
                 Instruksi Tambahan (Opsional)
               </Typography>
               <TextField
                 fullWidth
                 multiline
                 rows={3}
-                placeholder='Contoh: Letakkan di atas meja kayu, tambahkan bunga di samping...'
+                placeholder='Contoh: Letakkan di atas meja kayu, tambahkan bunga di sampingnya, background hijau natural'
                 value={additionalInstructions}
                 onChange={e => setAdditionalInstructions(e.target.value)}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2
+                  }
+                }}
               />
             </Grid>
 
@@ -394,11 +509,25 @@ const AIProductPhotoTab = () => {
                 variant='contained'
                 color='primary'
                 size='large'
-                startIcon={isGenerating ? <CircularProgress size={20} color='inherit' /> : <AutoFixHighIcon />}
                 onClick={handleGenerate}
                 disabled={isGenerating || !productImage}
+                startIcon={isGenerating ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-wand' />}
+                sx={{
+                  py: 2,
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                  '&:hover': {
+                    boxShadow: '0 6px 16px rgba(239, 68, 68, 0.4)'
+                  },
+                  '&.Mui-disabled': {
+                    opacity: 0.6
+                  }
+                }}
               >
-                {isGenerating ? 'Sedang Generate...' : 'Generate Foto Profesional'}
+                {isGenerating ? 'Sedang Generate Foto...' : 'Generate Foto dengan AI'}
               </Button>
             </Grid>
           </Grid>
@@ -408,30 +537,47 @@ const AIProductPhotoTab = () => {
       {/* Results Section */}
       {photoResults.length > 0 && (
         <Box>
-          <Typography variant='h5' sx={{ fontWeight: 600, mb: 2 }}>
-            Konsep Photoshoot Produk
-          </Typography>
-          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-            4 konsep photoshoot profesional berdasarkan produk Anda. Download yang paling sesuai atau klik Edit untuk variasi baru
-          </Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant='h5' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+              Hasil Generate
+            </Typography>
+            <Typography variant='body2' sx={{ color: '#6B7280' }}>
+              4 variasi foto produk profesional. Download yang paling sesuai atau klik Edit untuk variasi baru
+            </Typography>
+          </Box>
 
           <Grid container spacing={3}>
             {photoResults.map((photo, index) => (
               <Grid key={photo.id} size={{ xs: 12, md: 6 }}>
-                <Card>
+                <Card
+                  sx={{
+                    height: '100%',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    transition: 'all 0.3s ease',
+                    border: '2px solid transparent',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                      borderColor: 'primary.main'
+                    }
+                  }}
+                >
                   <Box
                     sx={{
+                      position: 'relative',
                       minHeight: '300px',
+                      bgcolor: '#F9FAFB',
+                      overflow: 'hidden',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      p: 3,
-                      bgcolor: 'action.hover'
+                      p: 3
                     }}
                   >
                     <img
                       src={photo.imageUrl}
-                      alt={`Variation ${index + 1}`}
+                      alt={`Product Photo ${index + 1}`}
                       style={{
                         maxWidth: '100%',
                         maxHeight: '300px',
@@ -440,29 +586,55 @@ const AIProductPhotoTab = () => {
                         objectFit: 'contain'
                       }}
                     />
+                    <Chip
+                      label={`Variasi ${index + 1}`}
+                      size='small'
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                        fontWeight: 600
+                      }}
+                    />
                   </Box>
-                  <CardContent>
-                    <Typography variant='subtitle2' sx={{ mb: 2 }}>
-                      Variasi {index + 1}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        fullWidth
-                        variant='outlined'
-                        color='primary'
-                        startIcon={<AutoFixHighIcon />}
-                        onClick={() => handleEdit(photo)}
-                      >
-                        Edit
-                      </Button>
+                  <CardContent sx={{ p: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
                       <Button
                         fullWidth
                         variant='contained'
                         color='primary'
-                        startIcon={<DownloadIcon />}
+                        size='small'
+                        startIcon={<i className='tabler-download' />}
                         onClick={() => handleDownload(photo.imageUrl, index)}
+                        sx={{
+                          py: 1,
+                          fontWeight: 600,
+                          borderRadius: 1.5,
+                          textTransform: 'none'
+                        }}
                       >
                         Download
+                      </Button>
+                      <Button
+                        fullWidth
+                        variant='outlined'
+                        color='primary'
+                        size='small'
+                        startIcon={<i className='tabler-edit' />}
+                        onClick={() => handleEdit()}
+                        sx={{
+                          py: 1,
+                          fontWeight: 600,
+                          borderRadius: 1.5,
+                          borderWidth: 2,
+                          textTransform: 'none',
+                          '&:hover': {
+                            borderWidth: 2
+                          }
+                        }}
+                      >
+                        Edit/Refine
                       </Button>
                     </Box>
                   </CardContent>
