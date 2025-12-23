@@ -201,13 +201,13 @@ const AIProductPhotoTab = () => {
   return (
     <Box>
       <Typography variant='h4' sx={{ fontWeight: 600, mb: 2 }}>
-        AI Inspirasi Photoshoot Produk
+        AI Foto Produk Profesional
       </Typography>
       <Typography variant='body2' color='text.secondary' sx={{ mb: 4 }}>
-        Upload foto produk Anda, AI akan analyze produk dan generate 4 inspirasi photoshoot profesional dengan setting berbeda. Cocok untuk mendapatkan ide konsep foto produk.
+        Upload foto produk Anda, AI akan transform foto produk dengan berbagai background dan lighting profesional. Produk asli tetap sama, hanya background yang berubah.
       </Typography>
-      <Alert severity='info' sx={{ mb: 4 }}>
-        <strong>Catatan:</strong> AI akan membuat <em>inspirasi konsep photoshoot</em> yang mirip dengan produk Anda, bukan edit foto asli. Hasil terbaik digunakan sebagai referensi untuk photoshoot sesungguhnya.
+      <Alert severity='success' sx={{ mb: 4 }}>
+        <strong>Powered by Stability AI:</strong> Teknologi image-to-image yang mempertahankan produk asli Anda dan hanya mengubah background/setting. Hasil foto langsung siap pakai untuk e-commerce!
       </Alert>
 
       <Card sx={{ mb: 4 }}>

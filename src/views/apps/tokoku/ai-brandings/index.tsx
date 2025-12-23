@@ -105,7 +105,7 @@ const AIBrandingSettings = ({ tabContentList }: { tabContentList: { [key: string
                   />
 
                   <Tab
-                    label='AI Inspirasi Photoshoot'
+                    label='AI Foto Produk'
                     icon={<i className='tabler-package' />}
                     iconPosition='start'
                     value='ai-product-photo'
