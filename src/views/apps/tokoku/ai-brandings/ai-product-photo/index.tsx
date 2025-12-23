@@ -36,8 +36,10 @@ import CropPortraitIcon from '@mui/icons-material/CropPortrait'
 // Types
 interface PhotoResult {
   id: string
-  imageUrl: string
-  prompt: string
+  imageUrl: string // Compressed for display
+  originalUrl?: string // Original for download
+  filename: string // Add filename for download
+  prompt?: string
 }
 
 const AIProductPhotoTab = () => {
@@ -51,6 +53,7 @@ const AIProductPhotoTab = () => {
   const [additionalInstructions, setAdditionalInstructions] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [photoResults, setPhotoResults] = useState<PhotoResult[]>([])
+  const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null)
 
   // Ref
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -164,9 +167,21 @@ const AIProductPhotoTab = () => {
     }
   }
 
-  const handleDownload = async (photoUrl: string, index: number) => {
+  const handleDownload = async (photo: PhotoResult, index: number) => {
     try {
-      const response = await fetch(photoUrl)
+      setDownloadingIndex(index)
+      
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
+
+      const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/json'
+        }
+      })
 
       if (!response.ok) {
         throw new Error('Failed to download photo')
@@ -189,6 +204,8 @@ const AIProductPhotoTab = () => {
     } catch (error) {
       console.error('Download error:', error)
       toast.error('Gagal mendownload foto. Silakan coba lagi.')
+    } finally {
+      setDownloadingIndex(null)
     }
   }
 
@@ -596,6 +613,19 @@ const AIProductPhotoTab = () => {
                         fontWeight: 600
                       }}
                     />
+                    <Chip
+                      label='Preview'
+                      size='small'
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        left: 12,
+                        bgcolor: 'rgba(33, 150, 243, 0.9)',
+                        color: 'white',
+                        fontWeight: 500,
+                        fontSize: '0.7rem'
+                      }}
+                    />
                   </Box>
                   <CardContent sx={{ p: 2 }}>
                     <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
@@ -604,8 +634,9 @@ const AIProductPhotoTab = () => {
                         variant='contained'
                         color='primary'
                         size='small'
-                        startIcon={<i className='tabler-download' />}
-                        onClick={() => handleDownload(photo.imageUrl, index)}
+                        startIcon={downloadingIndex === index ? <CircularProgress size={16} color='inherit' /> : <i className='tabler-download' />}
+                        onClick={() => handleDownload(photo, index)}
+                        disabled={downloadingIndex === index}
                         sx={{
                           py: 1,
                           fontWeight: 600,
@@ -613,7 +644,7 @@ const AIProductPhotoTab = () => {
                           textTransform: 'none'
                         }}
                       >
-                        Download
+                        {downloadingIndex === index ? 'Downloading...' : 'Download'}
                       </Button>
                       <Button
                         fullWidth
