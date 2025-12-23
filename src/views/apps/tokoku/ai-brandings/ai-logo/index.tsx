@@ -195,7 +195,7 @@ const AILogoTab = () => {
       {/* Input Section */}
       <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
         <CardContent sx={{ p: 4 }}>
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {/* Business Name Input */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>

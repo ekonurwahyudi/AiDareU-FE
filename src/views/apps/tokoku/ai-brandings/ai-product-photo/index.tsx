@@ -142,7 +142,8 @@ const AIProductPhotoTab = () => {
         method: 'POST',
         credentials: 'include',
         headers: {
-          Authorization: `Bearer ${authToken}`
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/json'
         },
         body: formData
       })
