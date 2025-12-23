@@ -36,10 +36,10 @@ import CropPortraitIcon from '@mui/icons-material/CropPortrait'
 // Types
 interface PhotoResult {
   id: string
-  imageUrl: string // Compressed for display
-  originalUrl?: string // Original for download
-  filename: string // Add filename for download
-  prompt?: string
+  imageUrl: string // Compressed untuk tampilan cepat
+  downloadUrl: string // Original untuk download
+  filename: string
+  prompt: string
 }
 
 const AIProductPhotoTab = () => {
@@ -154,6 +154,7 @@ const AIProductPhotoTab = () => {
       const data = await response.json()
 
       if (data.success) {
+        console.log('Product photo results:', data.data) // Debug log
         setPhotoResults(data.data)
         toast.success('Foto produk berhasil di-generate!')
       } else {
@@ -171,17 +172,14 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      const authToken = localStorage.getItem('auth_token')
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
-
-      const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
+      console.log('Downloading photo:', {
+        index: index + 1,
+        downloadUrl: photo.downloadUrl,
+        filename: photo.filename
       })
+      
+      // Gunakan downloadUrl yang sudah berisi URL storage langsung
+      const response = await fetch(photo.downloadUrl)
 
       if (!response.ok) {
         throw new Error('Failed to download photo')
@@ -195,6 +193,7 @@ const AIProductPhotoTab = () => {
       document.body.appendChild(a)
       a.click()
 
+      // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
@@ -628,6 +627,9 @@ const AIProductPhotoTab = () => {
                     />
                   </Box>
                   <CardContent sx={{ p: 2 }}>
+                    <Typography variant='caption' color='text.secondary' sx={{ mb: 1, display: 'block' }}>
+                      Tampilan: Terkompresi untuk loading cepat • Download: Kualitas penuh
+                    </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
                       <Button
                         fullWidth
