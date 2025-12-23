@@ -211,7 +211,7 @@ const AIProductPhotoTab = () => {
 
       {/* Alert */}
       <Alert severity='success' sx={{ mb: 4, borderRadius: 2 }}>
-        <strong>Powered by Stability AI:</strong> Teknologi image-to-image yang mempertahankan produk asli dan hanya mengubah background/setting.
+        <strong>Powered by fal.ai Nano-Banana:</strong> Teknologi AI Gemini 2.5 Flash Image yang mempertahankan produk asli dan hanya mengubah background/setting dengan kualitas profesional.
       </Alert>
 
       {/* Input Section */}
