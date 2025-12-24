@@ -145,10 +145,19 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Use storage URL directly for download
+      if (!logo.filename) {
+        toast.error('Filename tidak tersedia')
+        return
+      }
+
+      // Use backend download endpoint to force download (not open in new tab)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const downloadUrl = `${backendUrl}/api/ai/logo/download/${logo.filename}`
+      
+      // Create hidden link and trigger download
       const a = document.createElement('a')
-      a.href = logo.imageUrl
-      a.download = logo.filename || `ai-logo-${index + 1}.png`
+      a.href = downloadUrl
+      a.download = logo.filename
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
