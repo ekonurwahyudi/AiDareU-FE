@@ -177,7 +177,7 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      // Download from storage URL (original quality)
+      // Download directly from storage URL (nginx handles CORS)
       const response = await fetch(photo.imageUrl)
       
       if (!response.ok) {

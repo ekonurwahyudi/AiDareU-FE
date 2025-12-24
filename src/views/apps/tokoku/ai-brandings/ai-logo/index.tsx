@@ -145,7 +145,7 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Download from storage URL (original quality)
+      // Download directly from storage URL (nginx handles CORS)
       const response = await fetch(logo.imageUrl)
 
       if (!response.ok) {
