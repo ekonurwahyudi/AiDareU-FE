@@ -177,8 +177,23 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      // Download directly from storage URL (nginx handles CORS)
-      const response = await fetch(photo.imageUrl)
+      // Extract filename from storage URL
+      const urlParts = photo.imageUrl.split('/')
+      const filename = urlParts[urlParts.length - 1]
+      
+      // Use API download endpoint (Laravel handles CORS via cors.php)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const downloadUrl = `${backendUrl}/api/ai/product-photo/download/${filename}`
+      
+      // Try API download
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Accept': 'image/png,image/*,*/*'
+        }
+      })
       
       if (!response.ok) {
         throw new Error('Failed to fetch image')
@@ -202,7 +217,10 @@ const AIProductPhotoTab = () => {
       toast.success('Foto berhasil didownload')
     } catch (error) {
       console.error('Download error:', error)
-      toast.error('Gagal mendownload foto. Silakan coba lagi.')
+      
+      // Fallback: open in new tab for manual download
+      window.open(photo.imageUrl, '_blank')
+      toast.info('Silakan klik kanan dan pilih "Save Image As" untuk download')
     } finally {
       setDownloadingIndex(null)
     }

@@ -145,8 +145,23 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Download directly from storage URL (nginx handles CORS)
-      const response = await fetch(logo.imageUrl)
+      // Extract filename from storage URL
+      const urlParts = logo.imageUrl.split('/')
+      const filename = urlParts[urlParts.length - 1]
+      
+      // Use API download endpoint (Laravel handles CORS via cors.php)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const downloadUrl = `${backendUrl}/api/ai/logo/download/${filename}`
+      
+      // Try API download first
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
+        headers: {
+          'Accept': 'image/png,image/*,*/*'
+        }
+      })
 
       if (!response.ok) {
         throw new Error('Failed to download logo')
@@ -168,7 +183,10 @@ const AILogoTab = () => {
       toast.success('Logo berhasil didownload')
     } catch (error) {
       console.error('Download error:', error)
-      toast.error('Gagal mendownload logo. Silakan coba lagi.')
+      
+      // Fallback: open in new tab for manual download
+      window.open(logo.imageUrl, '_blank')
+      toast.info('Silakan klik kanan dan pilih "Save Image As" untuk download')
     }
   }
 
