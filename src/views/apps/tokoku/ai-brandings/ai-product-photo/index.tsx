@@ -182,13 +182,18 @@ const AIProductPhotoTab = () => {
         return
       }
 
-      // Use the storage URL with credentials for CORS
-      const imageUrl = photo.imageUrl
+      // Extract filename from URL or use provided filename
+      let filename = photo.filename
+      if (!filename && photo.imageUrl) {
+        const urlParts = photo.imageUrl.split('/')
+        filename = urlParts[urlParts.length - 1]
+      }
       
-      // Fetch the image and trigger download
-      const response = await fetch(imageUrl, {
-        credentials: 'include'
-      })
+      // Use API download endpoint (public, no auth needed)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const downloadUrl = `${backendUrl}/api/ai/product-photo/download/${filename}`
+      
+      const response = await fetch(downloadUrl)
       
       if (!response.ok) {
         throw new Error('Failed to fetch image')
@@ -197,15 +202,13 @@ const AIProductPhotoTab = () => {
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       
-      // Create download link with filename
       const a = document.createElement('a')
       a.href = url
-      a.download = photo.filename || `product-photo-${index + 1}.png`
+      a.download = filename || `product-photo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       
-      // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)

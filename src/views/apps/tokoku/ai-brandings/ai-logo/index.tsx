@@ -144,10 +144,16 @@ const AILogoTab = () => {
 
   const handleDownload = async (logoUrl: string, index: number) => {
     try {
-      // Fetch the image from storage URL with credentials for CORS
-      const response = await fetch(logoUrl, {
-        credentials: 'include'
-      })
+      // Extract filename from URL
+      // URL format: https://api.aidareu.com/storage/ai-logos/logo-xxx.png
+      const urlParts = logoUrl.split('/')
+      const filename = urlParts[urlParts.length - 1]
+      
+      // Use API download endpoint (public, no auth needed)
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const downloadUrl = `${backendUrl}/api/ai/logo/download/${filename}`
+      
+      const response = await fetch(downloadUrl)
 
       if (!response.ok) {
         throw new Error('Failed to download logo')
@@ -548,7 +554,7 @@ const AILogoTab = () => {
               Masukkan deskripsi logo yang Anda inginkan atau upload sketsa sebagai referensi.
             </Typography>
             <Typography variant='body2' sx={{ color: '#9CA3AF' }}>
-              AI akan menghasilkan 4 variasi logo profesional dalam hitungan detik.
+              AI akan menghasilkan 2 variasi logo profesional dalam hitungan detik.
             </Typography>
           </Box>
         </Card>
