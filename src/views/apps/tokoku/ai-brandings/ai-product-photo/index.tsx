@@ -16,7 +16,6 @@ import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import Alert from '@mui/material/Alert'
 
 // Third-party Imports
 import { toast } from 'react-toastify'
@@ -178,34 +177,29 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      if (!photo.filename) {
-        toast.error('Filename tidak tersedia')
+      if (!photo.filename && !photo.imageUrl) {
+        toast.error('File tidak tersedia')
         return
       }
 
-      // Use backend download endpoint with proper CORS headers
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const authToken = localStorage.getItem('auth_token')
+      // Use the storage URL directly (already public)
+      // imageUrl format: https://api.aidareu.com/storage/ai-product-photos/product-photo-xxx.png
+      const imageUrl = photo.imageUrl
       
-      const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        }
-      })
+      // Fetch the image and trigger download
+      const response = await fetch(imageUrl)
       
       if (!response.ok) {
-        throw new Error('Failed to download')
+        throw new Error('Failed to fetch image')
       }
       
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       
-      // Create download link
+      // Create download link with filename
       const a = document.createElement('a')
       a.href = url
-      a.download = photo.filename
+      a.download = photo.filename || `product-photo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
