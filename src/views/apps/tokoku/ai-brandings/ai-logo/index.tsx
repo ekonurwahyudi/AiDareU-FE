@@ -145,25 +145,27 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      if (!logo.filename) {
-        toast.error('Filename tidak tersedia')
-        return
-      }
-
-      // Use backend download endpoint to force download (not open in new tab)
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const downloadUrl = `${backendUrl}/api/ai/logo/download/${logo.filename}`
+      // Fetch image as blob to force download (not open in new tab)
+      const response = await fetch(logo.imageUrl)
       
-      // Create hidden link and trigger download
+      if (!response.ok) {
+        throw new Error('Failed to fetch image')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      
+      // Create download link
       const a = document.createElement('a')
-      a.href = downloadUrl
-      a.download = logo.filename
+      a.href = url
+      a.download = logo.filename || `ai-logo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       
       // Cleanup
       setTimeout(() => {
+        window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       }, 100)
       
