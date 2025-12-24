@@ -182,12 +182,13 @@ const AIProductPhotoTab = () => {
         return
       }
 
-      // Use the storage URL directly (already public)
-      // imageUrl format: https://api.aidareu.com/storage/ai-product-photos/product-photo-xxx.png
+      // Use the storage URL with credentials for CORS
       const imageUrl = photo.imageUrl
       
       // Fetch the image and trigger download
-      const response = await fetch(imageUrl)
+      const response = await fetch(imageUrl, {
+        credentials: 'include'
+      })
       
       if (!response.ok) {
         throw new Error('Failed to fetch image')

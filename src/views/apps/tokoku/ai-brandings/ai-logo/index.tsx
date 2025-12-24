@@ -144,8 +144,10 @@ const AILogoTab = () => {
 
   const handleDownload = async (logoUrl: string, index: number) => {
     try {
-      // Fetch the image directly from storage URL (no auth needed, CORS already configured)
-      const response = await fetch(logoUrl)
+      // Fetch the image from storage URL with credentials for CORS
+      const response = await fetch(logoUrl, {
+        credentials: 'include'
+      })
 
       if (!response.ok) {
         throw new Error('Failed to download logo')
