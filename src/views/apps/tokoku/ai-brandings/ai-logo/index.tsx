@@ -145,64 +145,45 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Method 1: Try direct download
+      // Use backend download endpoint for seamless download
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const authToken = localStorage.getItem('auth_token')
+      
+      if (!logo.filename) {
+        toast.error('Filename tidak tersedia')
+        return
+      }
+      
+      const response = await fetch(`${backendUrl}/api/ai/logo/download/${logo.filename}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Download failed')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = logo.imageUrl
-      a.download = `ai-logo-${index + 1}.png`
+      a.href = url
+      a.download = `${logo.filename}`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
-      document.body.removeChild(a)
-
-      // Give it a moment, then show success
-      setTimeout(() => {
-        toast.success('Logo berhasil didownload')
-      }, 500)
-    } catch (error) {
-      console.error('Direct download failed:', error)
       
-      // Method 2: Try backend endpoint if filename available
-      if (logo.filename) {
-        try {
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-          const authToken = localStorage.getItem('auth_token')
-          
-          const response = await fetch(`${backendUrl}/api/ai/logo/download/${logo.filename}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${authToken}`,
-              'Accept': 'application/octet-stream'
-            }
-          })
-          
-          if (response.ok) {
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `ai-logo-${index + 1}.png`
-            a.style.display = 'none'
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            window.URL.revokeObjectURL(url)
-            
-            toast.success('Logo berhasil didownload')
-          } else {
-            throw new Error('Backend download failed')
-          }
-        } catch (backendError) {
-          console.error('Backend download failed:', backendError)
-          
-          // Method 3: Open in new tab as last resort
-          window.open(logo.imageUrl, '_blank')
-          toast.info('Logo dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
-        }
-      } else {
-        // Method 3: Open in new tab as fallback
-        window.open(logo.imageUrl, '_blank')
-        toast.info('Logo dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
-      }
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
+      
+      toast.success('Logo berhasil didownload')
+    } catch (error) {
+      console.error('Download error:', error)
+      toast.error('Gagal mendownload logo. Silakan coba lagi.')
     }
   }
 
@@ -441,7 +422,7 @@ const AILogoTab = () => {
               Hasil Generate
             </Typography>
             <Typography variant='body2' sx={{ color: '#6B7280' }}>
-              Pilih logo yang paling sesuai, atau klik Edit untuk membuat variasi baru
+              2 variasi logo profesional dengan background transparan. Pilih yang paling sesuai atau klik Edit untuk variasi baru
             </Typography>
           </Box>
 
@@ -580,7 +561,7 @@ const AILogoTab = () => {
               Masukkan deskripsi logo yang Anda inginkan atau upload sketsa sebagai referensi.
             </Typography>
             <Typography variant='body2' sx={{ color: '#9CA3AF' }}>
-              AI akan menghasilkan 2 variasi logo profesional dalam hitungan detik.
+              AI akan menghasilkan 2 variasi logo profesional dengan background transparan dalam hitungan detik.
             </Typography>
           </Box>
         </Card>

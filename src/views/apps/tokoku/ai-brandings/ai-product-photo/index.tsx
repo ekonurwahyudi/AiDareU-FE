@@ -178,64 +178,45 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      // Method 1: Try direct download
+      // Use backend download endpoint for seamless download
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const authToken = localStorage.getItem('auth_token')
+      
+      if (!photo.filename) {
+        toast.error('Filename tidak tersedia')
+        return
+      }
+      
+      const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Download failed')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
-      a.href = photo.imageUrl
-      a.download = `ai-product-photo-${index + 1}.png`
+      a.href = url
+      a.download = `${photo.filename}`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
-      document.body.removeChild(a)
-
-      // Give it a moment, then show success
-      setTimeout(() => {
-        toast.success('Foto berhasil didownload')
-      }, 500)
-    } catch (error) {
-      console.error('Direct download failed:', error)
       
-      // Method 2: Try backend endpoint if filename available
-      if (photo.filename) {
-        try {
-          const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-          const authToken = localStorage.getItem('auth_token')
-          
-          const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${authToken}`,
-              'Accept': 'application/octet-stream'
-            }
-          })
-          
-          if (response.ok) {
-            const blob = await response.blob()
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `ai-product-photo-${index + 1}.png`
-            a.style.display = 'none'
-            document.body.appendChild(a)
-            a.click()
-            document.body.removeChild(a)
-            window.URL.revokeObjectURL(url)
-            
-            toast.success('Foto berhasil didownload')
-          } else {
-            throw new Error('Backend download failed')
-          }
-        } catch (backendError) {
-          console.error('Backend download failed:', backendError)
-          
-          // Method 3: Open in new tab as last resort
-          window.open(photo.imageUrl, '_blank')
-          toast.info('Foto dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
-        }
-      } else {
-        // Method 3: Open in new tab as fallback
-        window.open(photo.imageUrl, '_blank')
-        toast.info('Foto dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
-      }
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
+      
+      toast.success('Foto berhasil didownload')
+    } catch (error) {
+      console.error('Download error:', error)
+      toast.error('Gagal mendownload foto. Silakan coba lagi.')
     } finally {
       setDownloadingIndex(null)
     }
@@ -258,10 +239,10 @@ const AIProductPhotoTab = () => {
         </Typography>
       </Box>
 
-      {/* Alert */}
+      {/* Alert
       <Alert severity='success' sx={{ mb: 4, borderRadius: 2 }}>
         <strong>Powered by fal.ai Nano-Banana:</strong> Teknologi AI Gemini 2.5 Flash Image yang mempertahankan produk asli dan hanya mengubah background/setting dengan kualitas profesional.
-      </Alert>
+      </Alert> */}
 
       {/* Input Section */}
       <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
