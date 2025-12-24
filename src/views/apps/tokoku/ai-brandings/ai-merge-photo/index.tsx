@@ -86,7 +86,7 @@ const AIMergePhotoTab = () => {
       const reader = new FileReader()
       reader.onloadend = () => {
         const newImage: UploadedImage = {
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 11),
           file,
           preview: reader.result as string
         }
