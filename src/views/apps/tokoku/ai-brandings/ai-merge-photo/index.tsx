@@ -133,6 +133,7 @@ const AIMergePhotoTab = () => {
       })
 
       const data = await response.json()
+      console.log('Generate instruction response:', data)
 
       if (data.success && data.instruction) {
         setInstruction(data.instruction)
@@ -171,7 +172,11 @@ const AIMergePhotoTab = () => {
       formData.append('aspect_ratio', aspectRatio)
 
       const authToken = localStorage.getItem('auth_token')
+      console.log('Auth token:', authToken ? 'Present' : 'Missing')
+      
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      console.log('Backend URL:', backendUrl)
+      console.log('Request URL:', `${backendUrl}/api/ai/generate-merged-photo`)
 
       const response = await fetch(`${backendUrl}/api/ai/generate-merged-photo`, {
         method: 'POST',
@@ -184,6 +189,8 @@ const AIMergePhotoTab = () => {
       })
 
       const data = await response.json()
+      console.log('Response status:', response.status)
+      console.log('Response data:', data)
 
       if (data.success) {
         setPhotoResults(data.data)
