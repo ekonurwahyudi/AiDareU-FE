@@ -145,38 +145,16 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Use backend download endpoint for seamless download
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const authToken = localStorage.getItem('auth_token')
-      
-      if (!logo.filename) {
-        toast.error('Filename tidak tersedia')
-        return
-      }
-      
-      const response = await fetch(`${backendUrl}/api/ai/logo/download/${logo.filename}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error('Download failed')
-      }
-      
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      // Use storage URL directly for download
       const a = document.createElement('a')
-      a.href = url
-      a.download = `${logo.filename}`
+      a.href = logo.imageUrl
+      a.download = logo.filename || `ai-logo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       
       // Cleanup
       setTimeout(() => {
-        window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       }, 100)
       

@@ -178,38 +178,16 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      // Use backend download endpoint for seamless download
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const authToken = localStorage.getItem('auth_token')
-      
-      if (!photo.filename) {
-        toast.error('Filename tidak tersedia')
-        return
-      }
-      
-      const response = await fetch(`${backendUrl}/api/ai/product-photo/download/${photo.filename}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error('Download failed')
-      }
-      
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      // Use storage URL directly for download
       const a = document.createElement('a')
-      a.href = url
-      a.download = `${photo.filename}`
+      a.href = photo.imageUrl
+      a.download = photo.filename || `ai-product-photo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       
       // Cleanup
       setTimeout(() => {
-        window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       }, 100)
       
