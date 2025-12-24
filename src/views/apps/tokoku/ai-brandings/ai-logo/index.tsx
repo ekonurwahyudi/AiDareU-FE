@@ -14,6 +14,8 @@ import Grid from '@mui/material/Grid2'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import Alert from '@mui/material/Alert'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
@@ -24,7 +26,6 @@ import { toast } from 'react-toastify'
 interface LogoResult {
   id: string
   imageUrl: string
-  filename?: string
   prompt: string
 }
 
@@ -141,41 +142,29 @@ const AILogoTab = () => {
     }
   }
 
-  const handleDownload = async (logo: LogoResult) => {
+  const handleDownload = async (logoUrl: string, index: number) => {
     try {
-      if (!logo.filename && !logo.imageUrl) {
-        toast.error('File tidak tersedia')
-        return
+      // Fetch the image directly from storage URL (no auth needed, CORS already configured)
+      const response = await fetch(logoUrl)
+
+      if (!response.ok) {
+        throw new Error('Failed to download logo')
       }
 
-      // Use the storage URL directly (already public)
-      // imageUrl format: https://api.aidareu.com/storage/ai-logos/logo-xxx.png
-      const imageUrl = logo.imageUrl
-      
-      // Fetch the image and trigger download
-      const response = await fetch(imageUrl)
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch image')
-      }
-      
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
-      
-      // Create download link with filename
       const a = document.createElement('a')
       a.href = url
-      a.download = logo.filename || 'logo.png'
-      a.style.display = 'none'
+      a.download = `ai-logo-${index + 1}.png`
       document.body.appendChild(a)
       a.click()
-      
+
       // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
       }, 100)
-      
+
       toast.success('Logo berhasil didownload')
     } catch (error) {
       console.error('Download error:', error)
@@ -206,7 +195,7 @@ const AILogoTab = () => {
       {/* Input Section */}
       <Card sx={{ mb: 4, boxShadow: '0 1px 3px rgba(0,0,0,0.1)', borderRadius: 2 }}>
         <CardContent sx={{ p: 4 }}>
-          <Grid container spacing={4}>
+          <Grid container spacing={3}>
             {/* Business Name Input */}
             <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 600, color: '#374151' }}>
@@ -331,7 +320,7 @@ const AILogoTab = () => {
               <ToggleButtonGroup
                 value={selectedStyle}
                 exclusive
-                onChange={(_, newStyle) => {
+                onChange={(e, newStyle) => {
                   if (newStyle !== null) {
                     setSelectedStyle(newStyle)
                   }
@@ -418,7 +407,7 @@ const AILogoTab = () => {
               Hasil Generate
             </Typography>
             <Typography variant='body2' sx={{ color: '#6B7280' }}>
-              2 variasi logo profesional dengan background transparan. Pilih yang paling sesuai atau klik Edit untuk variasi baru
+              Pilih logo yang paling sesuai, atau klik Edit untuk membuat variasi baru
             </Typography>
           </Box>
 
@@ -482,7 +471,7 @@ const AILogoTab = () => {
                         color='primary'
                         size='small'
                         startIcon={<i className='tabler-download' />}
-                        onClick={() => handleDownload(logo)}
+                        onClick={() => handleDownload(logo.imageUrl, index)}
                         sx={{
                           py: 1,
                           fontWeight: 600,
@@ -557,7 +546,7 @@ const AILogoTab = () => {
               Masukkan deskripsi logo yang Anda inginkan atau upload sketsa sebagai referensi.
             </Typography>
             <Typography variant='body2' sx={{ color: '#9CA3AF' }}>
-              AI akan menghasilkan 2 variasi logo profesional dengan background transparan dalam hitungan detik.
+              AI akan menghasilkan 4 variasi logo profesional dalam hitungan detik.
             </Typography>
           </Box>
         </Card>
