@@ -127,7 +127,6 @@ const AIBrandingSettings = ({ tabContentList }: { tabContentList: { [key: string
                     iconPosition='start'
                     value='ai-merge-photo'
                     className='flex-row justify-start !min-is-full'
-                    disabled
                   />
 
                   <Tab
