@@ -145,40 +145,63 @@ const AILogoTab = () => {
 
   const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Try direct download first
+      // Method 1: Try direct download
       const a = document.createElement('a')
       a.href = logo.imageUrl
       a.download = `ai-logo-${index + 1}.png`
-      a.target = '_blank'
+      a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
 
-      toast.success('Logo berhasil didownload')
+      // Give it a moment, then show success
+      setTimeout(() => {
+        toast.success('Logo berhasil didownload')
+      }, 500)
     } catch (error) {
-      console.error('Download error:', error)
+      console.error('Direct download failed:', error)
       
-      // Fallback: try using backend download endpoint if filename is available
+      // Method 2: Try backend endpoint if filename available
       if (logo.filename) {
         try {
           const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-          const downloadUrl = `${backendUrl}/api/ai/logo/download/${logo.filename}`
+          const authToken = localStorage.getItem('auth_token')
           
-          const a = document.createElement('a')
-          a.href = downloadUrl
-          a.download = `ai-logo-${index + 1}.png`
-          a.target = '_blank'
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
+          const response = await fetch(`${backendUrl}/api/ai/logo/download/${logo.filename}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Accept': 'application/octet-stream'
+            }
+          })
           
-          toast.success('Logo berhasil didownload')
-        } catch (fallbackError) {
-          console.error('Fallback download error:', fallbackError)
-          toast.error('Gagal mendownload logo. Silakan coba lagi.')
+          if (response.ok) {
+            const blob = await response.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `ai-logo-${index + 1}.png`
+            a.style.display = 'none'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+            
+            toast.success('Logo berhasil didownload')
+          } else {
+            throw new Error('Backend download failed')
+          }
+        } catch (backendError) {
+          console.error('Backend download failed:', backendError)
+          
+          // Method 3: Open in new tab as last resort
+          window.open(logo.imageUrl, '_blank')
+          toast.info('Logo dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
         }
       } else {
-        toast.error('Gagal mendownload logo. Silakan coba lagi.')
+        // Method 3: Open in new tab as fallback
+        window.open(logo.imageUrl, '_blank')
+        toast.info('Logo dibuka di tab baru. Klik kanan dan pilih "Save image as..."')
       }
     }
   }
