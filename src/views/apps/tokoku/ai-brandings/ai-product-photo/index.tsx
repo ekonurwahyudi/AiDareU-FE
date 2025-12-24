@@ -177,23 +177,8 @@ const AIProductPhotoTab = () => {
     try {
       setDownloadingIndex(index)
       
-      if (!photo.filename && !photo.imageUrl) {
-        toast.error('File tidak tersedia')
-        return
-      }
-
-      // Extract filename from URL or use provided filename
-      let filename = photo.filename
-      if (!filename && photo.imageUrl) {
-        const urlParts = photo.imageUrl.split('/')
-        filename = urlParts[urlParts.length - 1]
-      }
-      
-      // Use API download endpoint (public, no auth needed)
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const downloadUrl = `${backendUrl}/api/ai/product-photo/download/${filename}`
-      
-      const response = await fetch(downloadUrl)
+      // Download from storage URL (original quality)
+      const response = await fetch(photo.imageUrl)
       
       if (!response.ok) {
         throw new Error('Failed to fetch image')
@@ -204,7 +189,7 @@ const AIProductPhotoTab = () => {
       
       const a = document.createElement('a')
       a.href = url
-      a.download = filename || `product-photo-${index + 1}.png`
+      a.download = photo.filename || `product-photo-${index + 1}.png`
       a.style.display = 'none'
       document.body.appendChild(a)
       a.click()

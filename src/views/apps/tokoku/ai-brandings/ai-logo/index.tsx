@@ -26,6 +26,7 @@ import { toast } from 'react-toastify'
 interface LogoResult {
   id: string
   imageUrl: string
+  filename?: string
   prompt: string
 }
 
@@ -142,18 +143,10 @@ const AILogoTab = () => {
     }
   }
 
-  const handleDownload = async (logoUrl: string, index: number) => {
+  const handleDownload = async (logo: LogoResult, index: number) => {
     try {
-      // Extract filename from URL
-      // URL format: https://api.aidareu.com/storage/ai-logos/logo-xxx.png
-      const urlParts = logoUrl.split('/')
-      const filename = urlParts[urlParts.length - 1]
-      
-      // Use API download endpoint (public, no auth needed)
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      const downloadUrl = `${backendUrl}/api/ai/logo/download/${filename}`
-      
-      const response = await fetch(downloadUrl)
+      // Download from storage URL (original quality)
+      const response = await fetch(logo.imageUrl)
 
       if (!response.ok) {
         throw new Error('Failed to download logo')
@@ -163,11 +156,10 @@ const AILogoTab = () => {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `ai-logo-${index + 1}.png`
+      a.download = logo.filename || `ai-logo-${index + 1}.png`
       document.body.appendChild(a)
       a.click()
 
-      // Cleanup
       setTimeout(() => {
         window.URL.revokeObjectURL(url)
         document.body.removeChild(a)
@@ -479,7 +471,7 @@ const AILogoTab = () => {
                         color='primary'
                         size='small'
                         startIcon={<i className='tabler-download' />}
-                        onClick={() => handleDownload(logo.imageUrl, index)}
+                        onClick={() => handleDownload(logo, index)}
                         sx={{
                           py: 1,
                           fontWeight: 600,
