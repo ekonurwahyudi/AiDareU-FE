@@ -80,7 +80,12 @@ const CoinAiDareU = () => {
   // Fetch summary data
   const fetchSummary = async () => {
     try {
-      const authToken = localStorage.getItem('authToken')
+      const authToken = localStorage.getItem('auth_token')
+
+      if (!authToken) {
+        console.error('No auth token found')
+        return
+      }
 
       const params = new URLSearchParams()
 
@@ -116,7 +121,13 @@ const CoinAiDareU = () => {
       setLoading(true)
       setError(null)
 
-      const authToken = localStorage.getItem('authToken')
+      const authToken = localStorage.getItem('auth_token')
+
+      if (!authToken) {
+        setError('Authentication required. Please login.')
+        setLoading(false)
+        return
+      }
 
       const params = new URLSearchParams()
 
@@ -189,16 +200,45 @@ const CoinAiDareU = () => {
   // Handle export
   const handleExport = async () => {
     try {
-      const authToken = localStorage.getItem('authToken')
+      const authToken = localStorage.getItem('auth_token')
+
+      if (!authToken) {
+        alert('Authentication required. Please login.')
+        return
+      }
 
       const params = new URLSearchParams()
 
       if (startDate) params.append('start_date', startDate)
       if (endDate) params.append('end_date', endDate)
 
-      window.open(`${backendUrl}/api/coins/export?${params.toString()}&token=${authToken}`, '_blank')
+      // Create a temporary link and trigger download
+      const response = await fetch(`${backendUrl}/api/coins/export?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: 'text/csv'
+        }
+      })
+
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+
+        a.href = url
+        a.download = `coin_transactions_${new Date().toISOString().split('T')[0]}.csv`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        alert('Failed to export data')
+      }
     } catch (err) {
       console.error('Error exporting:', err)
+      alert('Error exporting data')
     }
   }
 
