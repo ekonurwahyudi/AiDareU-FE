@@ -16,7 +16,7 @@ import Alert from '@mui/material/Alert'
 import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
-import TablePagination from '@mui/material/TablePagination'
+import Pagination from '@mui/material/Pagination'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import Popover from '@mui/material/Popover'
@@ -397,7 +397,7 @@ const CoinAiDareU = () => {
 
           <CardContent>
             {/* Filter Row */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
               {/* Rows Per Page */}
               <CustomTextField
                 select
@@ -406,13 +406,12 @@ const CoinAiDareU = () => {
                   setRowsPerPage(Number(e.target.value))
                   setPage(0)
                 }}
-                sx={{ minWidth: 120 }}
+                sx={{ minWidth: 100 }}
                 size='small'
               >
-                <MenuItem value={5}>Show 5</MenuItem>
                 <MenuItem value={10}>Show 10</MenuItem>
-                <MenuItem value={25}>Show 25</MenuItem>
                 <MenuItem value={50}>Show 50</MenuItem>
+                <MenuItem value={100}>Show 100</MenuItem>
               </CustomTextField>
 
               {/* Search */}
@@ -426,11 +425,11 @@ const CoinAiDareU = () => {
                     handleSearchSubmit()
                   }
                 }}
-                sx={{ minWidth: 250 }}
+                sx={{ minWidth: 220 }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position='start'>
-                      <Icon icon='mdi:magnify' />
+                      <Icon icon='mdi:magnify' fontSize={18} />
                     </InputAdornment>
                   )
                 }}
@@ -441,8 +440,13 @@ const CoinAiDareU = () => {
                 variant='outlined'
                 size='small'
                 onClick={e => setDateRangeAnchor(e.currentTarget)}
-                startIcon={<Icon icon='mdi:calendar' />}
-                sx={{ minWidth: 200 }}
+                startIcon={<Icon icon='mdi:calendar' fontSize={18} />}
+                sx={{
+                  minWidth: 180,
+                  px: 1.5,
+                  py: 0.5,
+                  fontSize: '0.875rem'
+                }}
               >
                 {formatDateRangeDisplay()}
               </Button>
@@ -453,11 +457,11 @@ const CoinAiDareU = () => {
                 onClose={() => setDateRangeAnchor(null)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               >
-                <Box sx={{ p: 3, minWidth: 320 }}>
-                  <Typography variant='subtitle2' sx={{ mb: 2 }}>
+                <Box sx={{ p: 2, minWidth: 300 }}>
+                  <Typography variant='subtitle2' sx={{ mb: 1.5, fontSize: '0.875rem' }}>
                     Pilih Range Tanggal
                   </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     <TextField
                       fullWidth
                       type='date'
@@ -483,13 +487,14 @@ const CoinAiDareU = () => {
                       size='small'
                     />
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1.5, justifyContent: 'flex-end' }}>
                     <Button
                       size='small'
                       onClick={() => {
                         setDateRange([null, null])
                         setDateRangeAnchor(null)
                       }}
+                      sx={{ fontSize: '0.8125rem', px: 1.5, py: 0.5 }}
                     >
                       Clear
                     </Button>
@@ -500,6 +505,7 @@ const CoinAiDareU = () => {
                         setDateRangeAnchor(null)
                         handleSearchSubmit()
                       }}
+                      sx={{ fontSize: '0.8125rem', px: 1.5, py: 0.5 }}
                     >
                       Apply
                     </Button>
@@ -508,10 +514,22 @@ const CoinAiDareU = () => {
               </Popover>
 
               {/* Filter & Reset Buttons */}
-              <Button size='small' variant='contained' onClick={handleSearchSubmit} startIcon={<Icon icon='mdi:filter' />}>
+              <Button
+                size='small'
+                variant='contained'
+                onClick={handleSearchSubmit}
+                startIcon={<Icon icon='mdi:filter' fontSize={18} />}
+                sx={{ px: 1.5, py: 0.5, fontSize: '0.875rem' }}
+              >
                 Filter
               </Button>
-              <Button size='small' variant='outlined' onClick={handleResetFilter} startIcon={<Icon icon='mdi:refresh' />}>
+              <Button
+                size='small'
+                variant='outlined'
+                onClick={handleResetFilter}
+                startIcon={<Icon icon='mdi:refresh' fontSize={18} />}
+                sx={{ px: 1.5, py: 0.5, fontSize: '0.875rem' }}
+              >
                 Reset
               </Button>
             </Box>
@@ -582,18 +600,25 @@ const CoinAiDareU = () => {
                   </table>
                 </div>
 
-                <TablePagination
-                  component='div'
-                  count={pagination.total}
-                  page={page}
-                  onPageChange={(_, newPage) => setPage(newPage)}
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={e => {
-                    setRowsPerPage(parseInt(e.target.value, 10))
-                    setPage(0)
-                  }}
-                  rowsPerPageOptions={[5, 10, 25, 50]}
-                />
+                {/* Custom Pagination */}
+                <Box className='flex justify-between items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
+                  <Typography color='text.disabled' sx={{ fontSize: '0.8125rem' }}>
+                    {`Showing ${pagination.total === 0 ? 0 : page * rowsPerPage + 1} to ${Math.min(
+                      (page + 1) * rowsPerPage,
+                      pagination.total
+                    )} of ${pagination.total} entries`}
+                  </Typography>
+                  <Pagination
+                    shape='rounded'
+                    color='primary'
+                    variant='tonal'
+                    count={pagination.last_page}
+                    page={page + 1}
+                    onChange={(_, newPage) => setPage(newPage - 1)}
+                    showFirstButton
+                    showLastButton
+                  />
+                </Box>
               </>
             )}
           </CardContent>

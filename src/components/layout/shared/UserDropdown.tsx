@@ -55,19 +55,40 @@ const UserDropdown = () => {
   const { settings } = useSettings()
 
   useEffect(() => {
-    // Load user data from localStorage
-    const userData = localStorage.getItem('user_data')
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData))
-      } catch (error) {
-        console.error('Error parsing user data:', error)
-      }
-    }
-
-    // Fetch coin balance
+    // Fetch coin balance and user profile from backend
     fetchCoinBalance()
+    fetchUserProfile()
   }, [])
+
+  const fetchUserProfile = async () => {
+    try {
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
+      if (!authToken) return
+
+      const response = await fetch(`${backendUrl}/api/auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.user) {
+          // Update user state with backend data
+          setUser(result.user)
+          // Update localStorage with fresh data
+          localStorage.setItem('user_data', JSON.stringify(result.user))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
 
   const fetchCoinBalance = async () => {
     try {
@@ -198,16 +219,12 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/settings')}>
-                    <i className='tabler-user' />
-                    <Typography color='text.primary'>My Profile</Typography>
-                  </MenuItem>
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/user/coin')}>
                     <i className='tabler-coin' />
                     <div className='flex items-center justify-between flex-grow'>
                       <Typography color='text.primary'>Coin</Typography>
                       <Chip
-                        label={formatNumber(coinBalance)}
+                        label={`${formatNumber(coinBalance)} Pts`}
                         size='small'
                         color='warning'
                         variant='tonal'
@@ -215,6 +232,11 @@ const UserDropdown = () => {
                       />
                     </div>
                   </MenuItem>
+                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/settings')}>
+                    <i className='tabler-user' />
+                    <Typography color='text.primary'>My Profile</Typography>
+                  </MenuItem>
+                  
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/settings')}>
                     <i className='tabler-settings' />
                     <Typography color='text.primary'>Settings</Typography>
