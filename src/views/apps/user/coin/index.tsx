@@ -19,10 +19,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import TablePagination from '@mui/material/TablePagination'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
-import Menu from '@mui/material/Menu'
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker'
-import { LocalizationProvider } from '@mui/x-date-pickers-pro'
-import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFns'
+import Popover from '@mui/material/Popover'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
@@ -450,20 +447,42 @@ const CoinAiDareU = () => {
                 {formatDateRangeDisplay()}
               </Button>
 
-              <Menu
-                anchorEl={dateRangeAnchor}
+              <Popover
                 open={Boolean(dateRangeAnchor)}
+                anchorEl={dateRangeAnchor}
                 onClose={() => setDateRangeAnchor(null)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               >
-                <Box sx={{ p: 2 }}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateRangePicker
-                      value={dateRange}
-                      onChange={newValue => setDateRange(newValue)}
-                      localeText={{ start: 'Dari', end: 'Sampai' }}
+                <Box sx={{ p: 3, minWidth: 320 }}>
+                  <Typography variant='subtitle2' sx={{ mb: 2 }}>
+                    Pilih Range Tanggal
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                      fullWidth
+                      type='date'
+                      label='Dari Tanggal'
+                      value={dateRange[0] ? formatDateForAPI(dateRange[0]) : ''}
+                      onChange={e => {
+                        const newDate = e.target.value ? new Date(e.target.value) : null
+                        setDateRange([newDate, dateRange[1]])
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                      size='small'
                     />
-                  </LocalizationProvider>
+                    <TextField
+                      fullWidth
+                      type='date'
+                      label='Sampai Tanggal'
+                      value={dateRange[1] ? formatDateForAPI(dateRange[1]) : ''}
+                      onChange={e => {
+                        const newDate = e.target.value ? new Date(e.target.value) : null
+                        setDateRange([dateRange[0], newDate])
+                      }}
+                      InputLabelProps={{ shrink: true }}
+                      size='small'
+                    />
+                  </Box>
                   <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
                     <Button
                       size='small'
@@ -486,7 +505,7 @@ const CoinAiDareU = () => {
                     </Button>
                   </Box>
                 </Box>
-              </Menu>
+              </Popover>
 
               {/* Filter & Reset Buttons */}
               <Button size='small' variant='contained' onClick={handleSearchSubmit} startIcon={<Icon icon='mdi:filter' />}>
