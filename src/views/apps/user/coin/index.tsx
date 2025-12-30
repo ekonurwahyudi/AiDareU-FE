@@ -8,13 +8,6 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
-import TableContainer from '@mui/material/TableContainer'
-import Table from '@mui/material/Table'
-import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
-import TableRow from '@mui/material/TableRow'
-import TableCell from '@mui/material/TableCell'
-import TablePagination from '@mui/material/TablePagination'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -22,12 +15,16 @@ import Alert from '@mui/material/Alert'
 import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
+import TablePagination from '@mui/material/TablePagination'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 
 // Icon Imports
 import { Icon } from '@iconify/react'
+
+// Style Imports
+import tableStyles from '@core/styles/table.module.css'
 
 // Type Imports
 interface CoinTransaction {
@@ -432,32 +429,34 @@ const CoinAiDareU = () => {
               </Box>
             ) : (
               <>
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>NO</TableCell>
-                        <TableCell>KETERANGAN</TableCell>
-                        <TableCell align='right'>COIN MASUK/KELUAR</TableCell>
-                        <TableCell>STATUS</TableCell>
-                        <TableCell>TGL TRANSAKSI</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {transactions.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} align='center'>
+                <div className='overflow-x-auto'>
+                  <table className={tableStyles.table}>
+                    <thead>
+                      <tr>
+                        <th>NO</th>
+                        <th>KETERANGAN</th>
+                        <th align='right'>COIN MASUK/KELUAR</th>
+                        <th>STATUS</th>
+                        <th>TGL TRANSAKSI</th>
+                      </tr>
+                    </thead>
+                    {transactions.length === 0 ? (
+                      <tbody>
+                        <tr>
+                          <td colSpan={5} className='text-center'>
                             <Typography variant='body2' color='text.secondary'>
                               Tidak ada data transaksi
                             </Typography>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        transactions.map((transaction, index) => (
-                          <TableRow key={transaction.id} hover>
-                            <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                            <TableCell>{transaction.keterangan}</TableCell>
-                            <TableCell align='right'>
+                          </td>
+                        </tr>
+                      </tbody>
+                    ) : (
+                      <tbody>
+                        {transactions.map((transaction, index) => (
+                          <tr key={transaction.id}>
+                            <td>{page * rowsPerPage + index + 1}</td>
+                            <td>{transaction.keterangan}</td>
+                            <td align='right'>
                               {transaction.coin_masuk > 0 ? (
                                 <Typography variant='body2' sx={{ fontWeight: 600, color: 'success.main' }}>
                                   + Rp. {formatNumber(transaction.coin_masuk)}
@@ -467,22 +466,22 @@ const CoinAiDareU = () => {
                                   - Rp. {formatNumber(transaction.coin_keluar)}
                                 </Typography>
                               )}
-                            </TableCell>
-                            <TableCell>
+                            </td>
+                            <td>
                               <Chip
                                 label={transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
                                 color={getStatusColor(transaction.status)}
                                 size='small'
                                 variant='tonal'
                               />
-                            </TableCell>
-                            <TableCell>{formatDate(transaction.created_at)}</TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                            </td>
+                            <td>{formatDate(transaction.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    )}
+                  </table>
+                </div>
 
                 <TablePagination
                   component='div'
