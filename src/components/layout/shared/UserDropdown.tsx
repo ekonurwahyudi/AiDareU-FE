@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 
 // Third-party Imports
 
@@ -44,6 +45,7 @@ const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [coinBalance, setCoinBalance] = useState<number>(0)
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -62,7 +64,41 @@ const UserDropdown = () => {
         console.error('Error parsing user data:', error)
       }
     }
+
+    // Fetch coin balance
+    fetchCoinBalance()
   }, [])
+
+  const fetchCoinBalance = async () => {
+    try {
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
+      if (!authToken) return
+
+      const response = await fetch(`${backendUrl}/api/coins/summary`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          Accept: 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          setCoinBalance(result.data.coin_saat_ini)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching coin balance:', error)
+    }
+  }
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat('id-ID').format(num)
+  }
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -166,9 +202,35 @@ const UserDropdown = () => {
                     <i className='tabler-user' />
                     <Typography color='text.primary'>My Profile</Typography>
                   </MenuItem>
+                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/user/coin')}>
+                    <i className='tabler-coin' />
+                    <div className='flex items-center justify-between flex-grow'>
+                      <Typography color='text.primary'>Coin</Typography>
+                      <Chip
+                        label={formatNumber(coinBalance)}
+                        size='small'
+                        color='warning'
+                        variant='tonal'
+                        sx={{ ml: 2, height: '20px', fontSize: '0.75rem' }}
+                      />
+                    </div>
+                  </MenuItem>
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/settings')}>
                     <i className='tabler-settings' />
                     <Typography color='text.primary'>Settings</Typography>
+                  </MenuItem>
+                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/apps/settings')}>
+                    <i className='tabler-package' />
+                    <div className='flex items-center justify-between flex-grow'>
+                      <Typography color='text.primary'>Paket</Typography>
+                      <Chip
+                        label={user?.paket || 'Free'}
+                        size='small'
+                        color='success'
+                        variant='tonal'
+                        sx={{ ml: 2, height: '20px', fontSize: '0.75rem' }}
+                      />
+                    </div>
                   </MenuItem>
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/pricing')}>
                     <i className='tabler-currency-dollar' />

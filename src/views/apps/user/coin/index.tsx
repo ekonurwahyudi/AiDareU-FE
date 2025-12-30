@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
@@ -16,9 +17,16 @@ import Chip from '@mui/material/Chip'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
 import TablePagination from '@mui/material/TablePagination'
+import MenuItem from '@mui/material/MenuItem'
+import Divider from '@mui/material/Divider'
+import Menu from '@mui/material/Menu'
+import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers-pro'
+import { AdapterDateFns } from '@mui/x-date-pickers-pro/AdapterDateFns'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
+import CustomTextField from '@core/components/mui/TextField'
 
 // Icon Imports
 import { Icon } from '@iconify/react'
@@ -60,8 +68,8 @@ const CoinAiDareU = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
+  const [dateRangeAnchor, setDateRangeAnchor] = useState<null | HTMLElement>(null)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [pagination, setPagination] = useState<PaginationData>({
@@ -74,6 +82,15 @@ const CoinAiDareU = () => {
   // Get backend URL
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
+  // Convert Date to string format for API
+  const formatDateForAPI = (date: Date | null): string => {
+    if (!date) return ''
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   // Fetch summary data
   const fetchSummary = async () => {
     try {
@@ -85,6 +102,9 @@ const CoinAiDareU = () => {
       }
 
       const params = new URLSearchParams()
+
+      const startDate = formatDateForAPI(dateRange[0])
+      const endDate = formatDateForAPI(dateRange[1])
 
       if (startDate) params.append('start_date', startDate)
       if (endDate) params.append('end_date', endDate)
@@ -132,6 +152,10 @@ const CoinAiDareU = () => {
       params.append('per_page', rowsPerPage.toString())
 
       if (search) params.append('search', search)
+
+      const startDate = formatDateForAPI(dateRange[0])
+      const endDate = formatDateForAPI(dateRange[1])
+
       if (startDate) params.append('start_date', startDate)
       if (endDate) params.append('end_date', endDate)
 
@@ -185,13 +209,29 @@ const CoinAiDareU = () => {
   // Handle filter reset
   const handleResetFilter = () => {
     setSearch('')
-    setStartDate('')
-    setEndDate('')
+    setDateRange([null, null])
     setPage(0)
     setTimeout(() => {
       fetchTransactions()
       fetchSummary()
     }, 100)
+  }
+
+  // Format date range display
+  const formatDateRangeDisplay = () => {
+    const [start, end] = dateRange
+    if (!start && !end) return 'Pilih Range Tanggal'
+
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+    }
+
+    if (start && end) {
+      return `${formatDate(start)} - ${formatDate(end)}`
+    } else if (start) {
+      return `${formatDate(start)} - ...`
+    }
+    return 'Pilih Range Tanggal'
   }
 
   // Handle export
@@ -205,6 +245,9 @@ const CoinAiDareU = () => {
       }
 
       const params = new URLSearchParams()
+
+      const startDate = formatDateForAPI(dateRange[0])
+      const endDate = formatDateForAPI(dateRange[1])
 
       if (startDate) params.append('start_date', startDate)
       if (endDate) params.append('end_date', endDate)
@@ -341,82 +384,119 @@ const CoinAiDareU = () => {
         </Card>
       </Grid>
 
-      {/* Filter & Search */}
+      {/* Table with Filters */}
       <Grid size={{ xs: 12 }}>
         <Card>
+          <CardHeader
+            title='Riwayat Transaksi Coin'
+            action={
+              <Button variant='outlined' onClick={handleExport} startIcon={<Icon icon='mdi:download' />}>
+                Export Report
+              </Button>
+            }
+            sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
+          />
+          <Divider />
+
           <CardContent>
-            <Grid container spacing={4}>
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <TextField
-                  fullWidth
-                  placeholder='Cari keterangan...'
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  onKeyPress={e => {
-                    if (e.key === 'Enter') {
-                      handleSearchSubmit()
-                    }
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position='start'>
-                        <Icon icon='mdi:magnify' />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
+            {/* Filter Row */}
+            <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Rows Per Page */}
+              <CustomTextField
+                select
+                value={rowsPerPage}
+                onChange={e => {
+                  setRowsPerPage(Number(e.target.value))
+                  setPage(0)
+                }}
+                sx={{ minWidth: 120 }}
+                size='small'
+              >
+                <MenuItem value={5}>Show 5</MenuItem>
+                <MenuItem value={10}>Show 10</MenuItem>
+                <MenuItem value={25}>Show 25</MenuItem>
+                <MenuItem value={50}>Show 50</MenuItem>
+              </CustomTextField>
 
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <TextField
-                  fullWidth
-                  type='date'
-                  label='Dari Tanggal'
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
+              {/* Search */}
+              <TextField
+                size='small'
+                placeholder='Cari keterangan...'
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyPress={e => {
+                  if (e.key === 'Enter') {
+                    handleSearchSubmit()
+                  }
+                }}
+                sx={{ minWidth: 250 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Icon icon='mdi:magnify' />
+                    </InputAdornment>
+                  )
+                }}
+              />
 
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <TextField
-                  fullWidth
-                  type='date'
-                  label='Sampai Tanggal'
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
+              {/* Date Range Picker */}
+              <Button
+                variant='outlined'
+                size='small'
+                onClick={e => setDateRangeAnchor(e.currentTarget)}
+                startIcon={<Icon icon='mdi:calendar' />}
+                sx={{ minWidth: 200 }}
+              >
+                {formatDateRangeDisplay()}
+              </Button>
 
-              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Button fullWidth variant='contained' onClick={handleSearchSubmit} startIcon={<Icon icon='mdi:filter' />}>
-                    Filter
-                  </Button>
-                  <Button fullWidth variant='outlined' onClick={handleResetFilter} startIcon={<Icon icon='mdi:refresh' />}>
-                    Reset
-                  </Button>
+              <Menu
+                anchorEl={dateRangeAnchor}
+                open={Boolean(dateRangeAnchor)}
+                onClose={() => setDateRangeAnchor(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              >
+                <Box sx={{ p: 2 }}>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DateRangePicker
+                      value={dateRange}
+                      onChange={newValue => setDateRange(newValue)}
+                      localeText={{ start: 'Dari', end: 'Sampai' }}
+                    />
+                  </LocalizationProvider>
+                  <Box sx={{ display: 'flex', gap: 1, mt: 2, justifyContent: 'flex-end' }}>
+                    <Button
+                      size='small'
+                      onClick={() => {
+                        setDateRange([null, null])
+                        setDateRangeAnchor(null)
+                      }}
+                    >
+                      Clear
+                    </Button>
+                    <Button
+                      size='small'
+                      variant='contained'
+                      onClick={() => {
+                        setDateRangeAnchor(null)
+                        handleSearchSubmit()
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </Box>
                 </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
-      </Grid>
+              </Menu>
 
-      {/* Table */}
-      <Grid size={{ xs: 12 }}>
-        <Card>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 4, pb: 0 }}>
-            <Typography variant='h5' sx={{ fontWeight: 600 }}>
-              Riwayat Transaksi Coin
-            </Typography>
-            <Button variant='outlined' onClick={handleExport} startIcon={<Icon icon='mdi:download' />}>
-              Export Report
-            </Button>
-          </Box>
+              {/* Filter & Reset Buttons */}
+              <Button size='small' variant='contained' onClick={handleSearchSubmit} startIcon={<Icon icon='mdi:filter' />}>
+                Filter
+              </Button>
+              <Button size='small' variant='outlined' onClick={handleResetFilter} startIcon={<Icon icon='mdi:refresh' />}>
+                Reset
+              </Button>
+            </Box>
 
-          <CardContent>
             {error && (
               <Alert severity='error' sx={{ mb: 4 }}>
                 {error}
