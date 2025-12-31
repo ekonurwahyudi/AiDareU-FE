@@ -442,9 +442,9 @@ const CoinAiDareU = () => {
                 onClick={e => setDateRangeAnchor(e.currentTarget)}
                 startIcon={<Icon icon='mdi:calendar' fontSize={18} />}
                 sx={{
-                  minWidth: 180,
+                  minWidth: 200,
+                  height: '40px',
                   px: 1.5,
-                  py: 0.5,
                   fontSize: '0.875rem'
                 }}
               >
@@ -457,11 +457,11 @@ const CoinAiDareU = () => {
                 onClose={() => setDateRangeAnchor(null)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               >
-                <Box sx={{ p: 2, minWidth: 300 }}>
-                  <Typography variant='subtitle2' sx={{ mb: 1.5, fontSize: '0.875rem' }}>
+                <Box sx={{ p: 2.5, minWidth: 320 }}>
+                  <Typography variant='subtitle2' sx={{ mb: 2, fontSize: '0.875rem', fontWeight: 600 }}>
                     Pilih Range Tanggal
                   </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
                       fullWidth
                       type='date'
@@ -473,6 +473,15 @@ const CoinAiDareU = () => {
                       }}
                       InputLabelProps={{ shrink: true }}
                       size='small'
+                      sx={{
+                        '& .MuiInputBase-input': {
+                          fontSize: '0.875rem',
+                          py: 1
+                        },
+                        '& .MuiInputLabel-root': {
+                          fontSize: '0.875rem'
+                        }
+                      }}
                     />
                     <TextField
                       fullWidth
@@ -485,16 +494,31 @@ const CoinAiDareU = () => {
                       }}
                       InputLabelProps={{ shrink: true }}
                       size='small'
+                      sx={{
+                        '& .MuiInputBase-input': {
+                          fontSize: '0.875rem',
+                          py: 1
+                        },
+                        '& .MuiInputLabel-root': {
+                          fontSize: '0.875rem'
+                        }
+                      }}
                     />
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1, mt: 1.5, justifyContent: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', gap: 1.5, mt: 2.5, justifyContent: 'flex-end' }}>
                     <Button
                       size='small'
                       onClick={() => {
                         setDateRange([null, null])
                         setDateRangeAnchor(null)
                       }}
-                      sx={{ fontSize: '0.8125rem', px: 1.5, py: 0.5 }}
+                      sx={{
+                        fontSize: '0.8125rem',
+                        px: 2,
+                        py: 0.75,
+                        minWidth: 70,
+                        textTransform: 'none'
+                      }}
                     >
                       Clear
                     </Button>
@@ -505,7 +529,13 @@ const CoinAiDareU = () => {
                         setDateRangeAnchor(null)
                         handleSearchSubmit()
                       }}
-                      sx={{ fontSize: '0.8125rem', px: 1.5, py: 0.5 }}
+                      sx={{
+                        fontSize: '0.8125rem',
+                        px: 2,
+                        py: 0.75,
+                        minWidth: 70,
+                        textTransform: 'none'
+                      }}
                     >
                       Apply
                     </Button>
@@ -519,7 +549,7 @@ const CoinAiDareU = () => {
                 variant='contained'
                 onClick={handleSearchSubmit}
                 startIcon={<Icon icon='mdi:filter' fontSize={18} />}
-                sx={{ px: 1.5, py: 0.5, fontSize: '0.875rem' }}
+                sx={{ height: '40px', px: 1.5, fontSize: '0.875rem' }}
               >
                 Filter
               </Button>
@@ -528,7 +558,7 @@ const CoinAiDareU = () => {
                 variant='outlined'
                 onClick={handleResetFilter}
                 startIcon={<Icon icon='mdi:refresh' fontSize={18} />}
-                sx={{ px: 1.5, py: 0.5, fontSize: '0.875rem' }}
+                sx={{ height: '40px', px: 1.5, fontSize: '0.875rem' }}
               >
                 Reset
               </Button>
