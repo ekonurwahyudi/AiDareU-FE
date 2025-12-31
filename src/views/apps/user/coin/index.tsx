@@ -325,12 +325,12 @@ const CoinAiDareU = () => {
         <Card>
           <CardContent>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <CustomAvatar skin='light' variant='rounded' color='primary' sx={{ width: 56, height: 56 }}>
+              <CustomAvatar skin='light' variant='rounded' color='warning' sx={{ width: 56, height: 56 }}>
                 <Icon icon='mdi:coins' fontSize={32} />
               </CustomAvatar>
               <Box>
-                <Typography variant='h4' sx={{ fontWeight: 600, color: 'primary.main' }}>
-                  {formatNumber(summary.coin_saat_ini)}
+                <Typography variant='h4' sx={{ fontWeight: 600, color: 'warning.main' }}>
+                  {formatNumber(summary.coin_saat_ini)} Pts
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                   Coin Saat Ini
@@ -350,7 +350,7 @@ const CoinAiDareU = () => {
               </CustomAvatar>
               <Box>
                 <Typography variant='h4' sx={{ fontWeight: 600, color: 'success.main' }}>
-                  +{formatNumber(summary.total_coin_masuk)}
+                  + {formatNumber(summary.total_coin_masuk)} Pts
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                   Coin Masuk
@@ -370,7 +370,7 @@ const CoinAiDareU = () => {
               </CustomAvatar>
               <Box>
                 <Typography variant='h4' sx={{ fontWeight: 600, color: 'error.main' }}>
-                  -{formatNumber(summary.total_coin_keluar)}
+                  - {formatNumber(summary.total_coin_keluar)} Pts
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                   Coin Keluar
@@ -397,8 +397,8 @@ const CoinAiDareU = () => {
 
           <CardContent>
             {/* Filter Row */}
-            <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Rows Per Page */}
+            <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+              {/* Left Side - Rows Per Page */}
               <CustomTextField
                 select
                 value={rowsPerPage}
@@ -414,154 +414,167 @@ const CoinAiDareU = () => {
                 <MenuItem value={100}>Show 100</MenuItem>
               </CustomTextField>
 
-              {/* Search */}
-              <TextField
-                size='small'
-                placeholder='Cari keterangan...'
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyPress={e => {
-                  if (e.key === 'Enter') {
-                    handleSearchSubmit()
-                  }
-                }}
-                sx={{ minWidth: 220 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Icon icon='mdi:magnify' fontSize={18} />
-                    </InputAdornment>
-                  )
-                }}
-              />
+              {/* Right Side - Search and Filters */}
+              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Search */}
+                <TextField
+                  size='small'
+                  placeholder='Cari keterangan...'
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      handleSearchSubmit()
+                    }
+                  }}
+                  sx={{ minWidth: 220 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <Icon icon='mdi:magnify' fontSize={18} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
 
-              {/* Date Range Picker */}
-              <Button
-                variant='outlined'
-                size='small'
-                onClick={e => setDateRangeAnchor(e.currentTarget)}
-                startIcon={<Icon icon='mdi:calendar' fontSize={18} />}
-                sx={{
-                  minWidth: 200,
-                  height: '40px',
-                  px: 1.5,
-                  fontSize: '0.875rem'
-                }}
-              >
-                {formatDateRangeDisplay()}
-              </Button>
+                {/* Date Range Picker */}
+                <Button
+                  variant='outlined'
+                  size='small'
+                  onClick={e => setDateRangeAnchor(e.currentTarget)}
+                  startIcon={<Icon icon='mdi:calendar' fontSize={18} />}
+                  sx={{
+                    minWidth: 200,
+                    height: '40px',
+                    px: 1.5,
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  {formatDateRangeDisplay()}
+                </Button>
 
-              <Popover
-                open={Boolean(dateRangeAnchor)}
-                anchorEl={dateRangeAnchor}
-                onClose={() => setDateRangeAnchor(null)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              >
-                <Box sx={{ p: 2.5, minWidth: 320 }}>
-                  <Typography variant='subtitle2' sx={{ mb: 2, fontSize: '0.875rem', fontWeight: 600 }}>
-                    Pilih Range Tanggal
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                      fullWidth
-                      type='date'
-                      label='Dari Tanggal'
-                      value={dateRange[0] ? formatDateForAPI(dateRange[0]) : ''}
-                      onChange={e => {
-                        const newDate = e.target.value ? new Date(e.target.value) : null
-                        setDateRange([newDate, dateRange[1]])
-                      }}
-                      InputLabelProps={{ shrink: true }}
-                      size='small'
-                      sx={{
-                        '& .MuiInputBase-input': {
-                          fontSize: '0.875rem',
-                          py: 1
-                        },
-                        '& .MuiInputLabel-root': {
-                          fontSize: '0.875rem'
-                        }
-                      }}
-                    />
-                    <TextField
-                      fullWidth
-                      type='date'
-                      label='Sampai Tanggal'
-                      value={dateRange[1] ? formatDateForAPI(dateRange[1]) : ''}
-                      onChange={e => {
-                        const newDate = e.target.value ? new Date(e.target.value) : null
-                        setDateRange([dateRange[0], newDate])
-                      }}
-                      InputLabelProps={{ shrink: true }}
-                      size='small'
-                      sx={{
-                        '& .MuiInputBase-input': {
-                          fontSize: '0.875rem',
-                          py: 1
-                        },
-                        '& .MuiInputLabel-root': {
-                          fontSize: '0.875rem'
-                        }
-                      }}
-                    />
+                <Popover
+                  open={Boolean(dateRangeAnchor)}
+                  anchorEl={dateRangeAnchor}
+                  onClose={() => setDateRangeAnchor(null)}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                >
+                  <Box sx={{ p: 2.5, minWidth: 340 }}>
+                    <Typography variant='subtitle2' sx={{ mb: 2, fontSize: '0.875rem', fontWeight: 600 }}>
+                      Pilih Range Tanggal
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                      <TextField
+                        fullWidth
+                        type='date'
+                        label='Dari Tanggal'
+                        value={dateRange[0] ? formatDateForAPI(dateRange[0]) : ''}
+                        onChange={e => {
+                          const newDate = e.target.value ? new Date(e.target.value) : null
+                          setDateRange([newDate, dateRange[1]])
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                        size='small'
+                        sx={{
+                          '& .MuiInputBase-root': {
+                            height: '40px'
+                          },
+                          '& .MuiInputBase-input': {
+                            fontSize: '0.875rem',
+                            py: 1,
+                            height: '40px',
+                            boxSizing: 'border-box'
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontSize: '0.875rem'
+                          }
+                        }}
+                      />
+                      <TextField
+                        fullWidth
+                        type='date'
+                        label='Sampai Tanggal'
+                        value={dateRange[1] ? formatDateForAPI(dateRange[1]) : ''}
+                        onChange={e => {
+                          const newDate = e.target.value ? new Date(e.target.value) : null
+                          setDateRange([dateRange[0], newDate])
+                        }}
+                        InputLabelProps={{ shrink: true }}
+                        size='small'
+                        sx={{
+                          '& .MuiInputBase-root': {
+                            height: '40px'
+                          },
+                          '& .MuiInputBase-input': {
+                            fontSize: '0.875rem',
+                            py: 1,
+                            height: '40px',
+                            boxSizing: 'border-box'
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontSize: '0.875rem'
+                          }
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1.5, mt: 3, justifyContent: 'flex-end' }}>
+                      <Button
+                        size='small'
+                        onClick={() => {
+                          setDateRange([null, null])
+                          setDateRangeAnchor(null)
+                        }}
+                        sx={{
+                          fontSize: '0.8125rem',
+                          px: 2.5,
+                          py: 0.75,
+                          minWidth: 80,
+                          textTransform: 'none'
+                        }}
+                      >
+                        Clear
+                      </Button>
+                      <Button
+                        size='small'
+                        variant='contained'
+                        onClick={() => {
+                          setDateRangeAnchor(null)
+                          handleSearchSubmit()
+                        }}
+                        sx={{
+                          fontSize: '0.8125rem',
+                          px: 2.5,
+                          py: 0.75,
+                          minWidth: 80,
+                          textTransform: 'none'
+                        }}
+                      >
+                        Apply
+                      </Button>
+                    </Box>
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1.5, mt: 2.5, justifyContent: 'flex-end' }}>
-                    <Button
-                      size='small'
-                      onClick={() => {
-                        setDateRange([null, null])
-                        setDateRangeAnchor(null)
-                      }}
-                      sx={{
-                        fontSize: '0.8125rem',
-                        px: 2,
-                        py: 0.75,
-                        minWidth: 70,
-                        textTransform: 'none'
-                      }}
-                    >
-                      Clear
-                    </Button>
-                    <Button
-                      size='small'
-                      variant='contained'
-                      onClick={() => {
-                        setDateRangeAnchor(null)
-                        handleSearchSubmit()
-                      }}
-                      sx={{
-                        fontSize: '0.8125rem',
-                        px: 2,
-                        py: 0.75,
-                        minWidth: 70,
-                        textTransform: 'none'
-                      }}
-                    >
-                      Apply
-                    </Button>
-                  </Box>
-                </Box>
-              </Popover>
+                </Popover>
 
-              {/* Filter & Reset Buttons */}
-              <Button
-                size='small'
-                variant='contained'
-                onClick={handleSearchSubmit}
-                startIcon={<Icon icon='mdi:filter' fontSize={18} />}
-                sx={{ height: '40px', px: 1.5, fontSize: '0.875rem' }}
-              >
-                Filter
-              </Button>
-              <Button
-                size='small'
-                variant='outlined'
-                onClick={handleResetFilter}
-                startIcon={<Icon icon='mdi:refresh' fontSize={18} />}
-                sx={{ height: '40px', px: 1.5, fontSize: '0.875rem' }}
-              >
-                Reset
-              </Button>
+                {/* Filter & Reset Buttons */}
+                <Button
+                  size='small'
+                  variant='contained'
+                  onClick={handleSearchSubmit}
+                  startIcon={<Icon icon='mdi:filter' fontSize={18} />}
+                  sx={{ height: '40px', px: 2.5, fontSize: '0.875rem' }}
+                >
+                  Filter
+                </Button>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  onClick={handleResetFilter}
+                  startIcon={<Icon icon='mdi:refresh' fontSize={18} />}
+                  sx={{ height: '40px', px: 2.5, fontSize: '0.875rem' }}
+                >
+                  Reset
+                </Button>
+              </Box>
             </Box>
 
             {error && (
@@ -606,11 +619,11 @@ const CoinAiDareU = () => {
                             <td align='right'>
                               {transaction.coin_masuk > 0 ? (
                                 <Typography variant='body2' sx={{ fontWeight: 600, color: 'success.main' }}>
-                                  + Rp. {formatNumber(transaction.coin_masuk)}
+                                  + {formatNumber(transaction.coin_masuk)} Pts
                                 </Typography>
                               ) : (
                                 <Typography variant='body2' sx={{ fontWeight: 600, color: 'error.main' }}>
-                                  - Rp. {formatNumber(transaction.coin_keluar)}
+                                  - {formatNumber(transaction.coin_keluar)} Pts
                                 </Typography>
                               )}
                             </td>
