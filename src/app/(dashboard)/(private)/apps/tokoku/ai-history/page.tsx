@@ -8,17 +8,12 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
 import Pagination from '@mui/material/Pagination'
 import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
+import Chip from '@mui/material/Chip'
 import CustomTextField from '@core/components/mui/TextField'
 import { Icon } from '@iconify/react'
 
@@ -30,7 +25,7 @@ interface AiHistory {
   created_at: string
 }
 
-interface Pagination {
+interface PaginationType {
   current_page: number
   last_page: number
   per_page: number
@@ -39,14 +34,14 @@ interface Pagination {
 
 const AIHistoryPage = () => {
   const [histories, setHistories] = useState<AiHistory[]>([])
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState<PaginationType>({
     current_page: 1,
     last_page: 1,
-    per_page: 10,
+    per_page: 12,
     total: 0
   })
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(12)
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -91,7 +86,7 @@ const AIHistoryPage = () => {
           setPagination({
             current_page: result.data.current_page || 1,
             last_page: result.data.last_page || 1,
-            per_page: result.data.per_page || 10,
+            per_page: result.data.per_page || 12,
             total: result.data.total || 0
           })
         }
@@ -138,47 +133,17 @@ const AIHistoryPage = () => {
     setOpenPreview(true)
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus history ini?')) {
-      return
+  const getAiType = (keterangan: string): string => {
+    if (keterangan.toLowerCase().includes('logo')) {
+      return 'AiDareU/Logo'
+    } else if (keterangan.toLowerCase().includes('foto produk') || keterangan.toLowerCase().includes('product')) {
+      return 'AiDareU/Photo-Product'
+    } else if (keterangan.toLowerCase().includes('fashion')) {
+      return 'AiDareU/Photo-Fashion'
+    } else if (keterangan.toLowerCase().includes('merge') || keterangan.toLowerCase().includes('gabung')) {
+      return 'AiDareU/Photo-Merge'
     }
-
-    try {
-      const authToken = localStorage.getItem('auth_token')
-
-      if (!authToken) {
-        console.error('No auth token found')
-        return
-      }
-
-      const response = await fetch(`${backendUrl}/api/ai-history/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          Accept: 'application/json'
-        },
-        credentials: 'include'
-      })
-
-      if (response.ok) {
-        fetchHistories()
-      } else {
-        console.error('Failed to delete history')
-      }
-    } catch (error) {
-      console.error('Error deleting history:', error)
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    return 'AiDareU/Generated'
   }
 
   return (
@@ -197,13 +162,13 @@ const AIHistoryPage = () => {
               sx={{
                 display: 'flex',
                 gap: 1.5,
-                mb: 3,
+                mb: 4,
                 flexWrap: 'wrap',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              {/* Left Side - Rows Per Page */}
+              {/* Left Side - Items Per Page */}
               <CustomTextField
                 select
                 value={rowsPerPage}
@@ -211,12 +176,12 @@ const AIHistoryPage = () => {
                   setRowsPerPage(Number(e.target.value))
                   setPage(0)
                 }}
-                sx={{ minWidth: 100 }}
+                sx={{ minWidth: 120 }}
                 size='small'
               >
-                <MenuItem value={10}>Show 10</MenuItem>
-                <MenuItem value={50}>Show 50</MenuItem>
-                <MenuItem value={100}>Show 100</MenuItem>
+                <MenuItem value={12}>Show 12</MenuItem>
+                <MenuItem value={24}>Show 24</MenuItem>
+                <MenuItem value={48}>Show 48</MenuItem>
               </CustomTextField>
 
               {/* Right Side - Search and Filters */}
@@ -265,107 +230,129 @@ const AIHistoryPage = () => {
               </Box>
             </Box>
 
-            {/* Table */}
-            <TableContainer>
-              <Table>
-                <TableHead
-                  sx={{
-                    backgroundColor: 'error.main',
-                    '& .MuiTableCell-root': {
-                      color: 'white',
-                      fontWeight: 600,
-                      fontSize: '0.875rem',
-                      py: 2
-                    }
-                  }}
-                >
-                  <TableRow>
-                    <TableCell>No</TableCell>
-                    <TableCell>Tanggal</TableCell>
-                    <TableCell>Keterangan</TableCell>
-                    <TableCell align='center'>Preview</TableCell>
-                    <TableCell align='center'>Coin Digunakan</TableCell>
-                    <TableCell align='center'>Aksi</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
-                        <Typography>Loading...</Typography>
-                      </TableCell>
-                    </TableRow>
-                  ) : histories.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} align='center' sx={{ py: 8 }}>
-                        <Typography>Tidak ada riwayat AI generation</Typography>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    histories.map((history, index) => (
-                      <TableRow
-                        key={history.id}
+            {/* Gallery Grid */}
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <Typography>Loading...</Typography>
+              </Box>
+            ) : histories.length === 0 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+                <Typography color='text.secondary'>Tidak ada riwayat AI generation</Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {histories.map(history => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={history.id}>
+                    <Card
+                      sx={{
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: 4
+                        }
+                      }}
+                    >
+                      {/* Image Container */}
+                      <Box
                         sx={{
-                          backgroundColor: index % 2 === 0 ? 'action.hover' : 'transparent',
-                          '&:hover': { backgroundColor: 'action.selected' }
+                          position: 'relative',
+                          paddingTop: '100%',
+                          overflow: 'hidden',
+                          bgcolor: 'action.hover'
                         }}
+                        onClick={() => handlePreview(history.hasil_generated)}
                       >
-                        <TableCell sx={{ fontSize: '0.875rem' }}>
-                          {page * rowsPerPage + index + 1}
-                        </TableCell>
-                        <TableCell sx={{ fontSize: '0.875rem' }}>{formatDate(history.created_at)}</TableCell>
-                        <TableCell sx={{ fontSize: '0.875rem' }}>{history.keterangan}</TableCell>
-                        <TableCell align='center'>
-                          <Box
-                            component='img'
-                            src={history.hasil_generated}
-                            alt={history.keterangan}
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              objectFit: 'cover',
-                              borderRadius: 1,
-                              cursor: 'pointer',
-                              border: '1px solid',
-                              borderColor: 'divider'
-                            }}
-                            onClick={() => handlePreview(history.hasil_generated)}
-                          />
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Typography variant='body2' sx={{ fontWeight: 600, color: 'warning.main' }}>
-                            {history.coin_used} Pts
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='center'>
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                            <IconButton
-                              size='small'
-                              color='primary'
-                              onClick={() => handleDownload(history.hasil_generated, history.keterangan)}
-                              title='Download'
-                            >
-                              <Icon icon='mdi:download' fontSize={20} />
-                            </IconButton>
-                            <IconButton
-                              size='small'
-                              color='error'
-                              onClick={() => handleDelete(history.id)}
-                              title='Hapus'
-                            >
-                              <Icon icon='mdi:delete' fontSize={20} />
-                            </IconButton>
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                        <Box
+                          component='img'
+                          src={history.hasil_generated}
+                          alt={history.keterangan}
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+
+                        {/* Download Button Overlay */}
+                        <IconButton
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleDownload(history.hasil_generated, history.keterangan)
+                          }}
+                          sx={{
+                            position: 'absolute',
+                            bottom: 8,
+                            left: 8,
+                            bgcolor: 'rgba(0, 0, 0, 0.6)',
+                            color: 'white',
+                            '&:hover': {
+                              bgcolor: 'rgba(0, 0, 0, 0.8)'
+                            }
+                          }}
+                          size='small'
+                        >
+                          <Icon icon='mdi:download' fontSize={20} />
+                        </IconButton>
+
+                        {/* Coin Badge */}
+                        <Chip
+                          label={`${history.coin_used} Pts`}
+                          size='small'
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            bgcolor: 'rgba(245, 158, 11, 0.9)',
+                            color: 'white',
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
+                        />
+                      </Box>
+
+                      {/* Card Content */}
+                      <CardContent sx={{ p: 2 }}>
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            fontWeight: 600,
+                            mb: 0.5,
+                            color: 'text.primary',
+                            fontSize: '0.875rem'
+                          }}
+                        >
+                          {getAiType(history.keterangan)}
+                        </Typography>
+                        <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
+                          {new Date(history.created_at).toLocaleDateString('id-ID', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
 
             {/* Pagination */}
-            <Box className='flex justify-between items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                mt: 4,
+                gap: 2
+              }}
+            >
               <Typography color='text.disabled' sx={{ fontSize: '0.8125rem' }}>
                 {`Showing ${pagination.total === 0 ? 0 : page * rowsPerPage + 1} to ${Math.min(
                   (page + 1) * rowsPerPage,
@@ -388,10 +375,19 @@ const AIHistoryPage = () => {
       </Grid>
 
       {/* Preview Dialog */}
-      <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth='md' fullWidth>
-        <DialogContent sx={{ p: 0, position: 'relative' }}>
+      <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth='lg' fullWidth>
+        <DialogContent sx={{ p: 0, position: 'relative', bgcolor: 'black' }}>
           <IconButton
-            sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'background.paper', zIndex: 1 }}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              bgcolor: 'rgba(255, 255, 255, 0.9)',
+              zIndex: 1,
+              '&:hover': {
+                bgcolor: 'white'
+              }
+            }}
             onClick={() => setOpenPreview(false)}
           >
             <Icon icon='mdi:close' />
@@ -401,7 +397,13 @@ const AIHistoryPage = () => {
               component='img'
               src={previewImage}
               alt='Preview'
-              sx={{ width: '100%', height: 'auto', display: 'block' }}
+              sx={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+                display: 'block'
+              }}
             />
           )}
         </DialogContent>

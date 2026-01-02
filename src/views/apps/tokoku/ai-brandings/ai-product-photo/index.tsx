@@ -16,6 +16,10 @@ import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 
 // Third-party Imports
 import { toast } from 'react-toastify'
@@ -52,6 +56,8 @@ const AIProductPhotoTab = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [photoResults, setPhotoResults] = useState<PhotoResult[]>([])
   const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null)
+  const [insufficientCoinModal, setInsufficientCoinModal] = useState(false)
+  const [coinInfo, setCoinInfo] = useState({ current: 0, required: 0 })
 
   // Ref
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -163,7 +169,15 @@ const AIProductPhotoTab = () => {
         toast.success(data.message || 'Foto produk berhasil di-generate!')
       } else {
         console.error('API Error:', data.message)
-        toast.error(data.message || 'Gagal generate foto produk')
+        if (data.insufficient_coin) {
+          setCoinInfo({
+            current: data.current_coin || 0,
+            required: data.required_coin || 0
+          })
+          setInsufficientCoinModal(true)
+        } else {
+          toast.error(data.message || 'Gagal generate foto produk')
+        }
       }
     } catch (error) {
       console.error('Generate error:', error)
@@ -694,6 +708,76 @@ const AIProductPhotoTab = () => {
           </Grid>
         </Box>
       )}
+
+      {/* Insufficient Coin Modal */}
+      <Dialog open={insufficientCoinModal} onClose={() => setInsufficientCoinModal(false)} maxWidth='sm' fullWidth>
+        <DialogTitle sx={{ pb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                bgcolor: 'warning.lighter',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <i className='tabler-coin' style={{ fontSize: 32, color: '#f59e0b' }} />
+            </Box>
+            <Typography variant='h5' sx={{ fontWeight: 600 }}>
+              Coin Tidak Cukup
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant='body1' sx={{ mb: 3, color: 'text.secondary' }}>
+            Maaf, Anda tidak memiliki cukup coin untuk generate AI Foto Produk.
+          </Typography>
+          <Box
+            sx={{
+              p: 2.5,
+              bgcolor: 'action.hover',
+              borderRadius: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Box>
+              <Typography variant='body2' sx={{ color: 'text.secondary', mb: 0.5 }}>
+                Coin Anda Saat Ini
+              </Typography>
+              <Typography variant='h6' sx={{ fontWeight: 600, color: 'error.main' }}>
+                {coinInfo.current} Pts
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography variant='body2' sx={{ color: 'text.secondary', mb: 0.5 }}>
+                Coin yang Dibutuhkan
+              </Typography>
+              <Typography variant='h6' sx={{ fontWeight: 600, color: 'success.main' }}>
+                {coinInfo.required} Pts
+              </Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setInsufficientCoinModal(false)} color='inherit'>
+            Tutup
+          </Button>
+          <Button
+            variant='contained'
+            color='warning'
+            startIcon={<i className='tabler-coin' />}
+            href='#'
+            sx={{ fontWeight: 600 }}
+          >
+            Top Up Coin
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
