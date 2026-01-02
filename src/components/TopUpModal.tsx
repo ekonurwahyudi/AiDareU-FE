@@ -128,15 +128,17 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
               sx={{
                 cursor: 'pointer',
                 border: 2,
-                borderColor: selectedTopUp === amount ? 'warning.main' : 'transparent',
+                borderColor: selectedTopUp === amount ? 'warning.main' : 'divider',
                 bgcolor: selectedTopUp === amount ? 'warning.lighter' : 'background.paper',
                 transition: 'all 0.2s',
                 flex: '1 1 auto',
                 minWidth: '110px',
+                boxShadow: selectedTopUp === amount ? 3 : 0,
                 '&:hover': {
                   borderColor: 'warning.main',
                   transform: 'translateY(-2px)',
-                  boxShadow: 2
+                  boxShadow: 4,
+                  bgcolor: selectedTopUp === amount ? 'warning.lighter' : 'action.hover'
                 }
               }}
             >
@@ -161,9 +163,15 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           sx={{
             cursor: 'pointer',
             border: 2,
-            borderColor: selectedTopUp === 0 ? 'warning.main' : 'transparent',
+            borderColor: selectedTopUp === 0 ? 'warning.main' : 'divider',
             bgcolor: selectedTopUp === 0 ? 'warning.lighter' : 'background.paper',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            boxShadow: selectedTopUp === 0 ? 3 : 0,
+            '&:hover': {
+              borderColor: 'warning.main',
+              boxShadow: 4,
+              bgcolor: selectedTopUp === 0 ? 'warning.lighter' : 'action.hover'
+            }
           }}
         >
           <CardContent sx={{ py: 2 }}>
