@@ -104,6 +104,32 @@ const AILogoTab = () => {
     setIsGenerating(true)
 
     try {
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+
+      // Step 1: Check if user has enough coin
+      const coinCheckResponse = await fetch(`${backendUrl}/api/ai-history/check-coin`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Accept': 'application/json'
+        }
+      })
+
+      const coinCheckResult = await coinCheckResponse.json()
+
+      if (!coinCheckResponse.ok || !coinCheckResult.success) {
+        throw new Error('Gagal mengecek coin')
+      }
+
+      if (!coinCheckResult.data.has_enough) {
+        toast.error(`Coin tidak cukup! Anda memiliki ${coinCheckResult.data.current_coin} Pts, membutuhkan ${coinCheckResult.data.required_coin} Pts`)
+        setIsGenerating(false)
+        return
+      }
+
+      // Step 2: Generate Logo
       const formData = new FormData()
       formData.append('business_name', businessName)
       formData.append('prompt', prompt)
@@ -112,10 +138,6 @@ const AILogoTab = () => {
         formData.append('image', uploadedImage)
       }
 
-      // Get auth token
-      const authToken = localStorage.getItem('auth_token')
-
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const response = await fetch(`${backendUrl}/api/ai/generate-logo`, {
         method: 'POST',
         credentials: 'include',
@@ -129,9 +151,31 @@ const AILogoTab = () => {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        // Generate 4 results with different variations
         setLogoResults(result.data)
-        toast.success('Logo berhasil di-generate!')
+
+        // Step 3: Save to history and deduct coin for each generated logo
+        for (const logo of result.data) {
+          try {
+            await fetch(`${backendUrl}/api/ai-history`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                keterangan: `Generate AI Logo - ${businessName}`,
+                hasil_generated: logo.imageUrl,
+                coin_used: 2
+              })
+            })
+          } catch (historyError) {
+            console.error('Error saving history:', historyError)
+          }
+        }
+
+        toast.success(`Logo berhasil di-generate! ${result.data.length * 2} Pts telah dikurangi.`)
       } else {
         throw new Error(result.message || 'Gagal generate logo')
       }
@@ -201,13 +245,29 @@ const AILogoTab = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
-          AI Logo & Brand Kit Generator
-        </Typography>
-        <Typography variant='body1' sx={{ color: '#6B7280' }}>
-          Buat logo profesional dengan AI. Upload sketsa atau gunakan prompt untuk hasil terbaik.
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+        <Box>
+          <Typography variant='h4' sx={{ fontWeight: 700, color: '#1F2937', mb: 1 }}>
+            AI Logo & Brand Kit Generator
+          </Typography>
+          <Typography variant='body1' sx={{ color: '#6B7280' }}>
+            Buat logo profesional dengan AI. Upload sketsa atau gunakan prompt untuk hasil terbaik.
+          </Typography>
+        </Box>
+        <Button
+          variant='outlined'
+          color='primary'
+          startIcon={<i className='tabler-history' />}
+          onClick={() => window.location.href = '/apps/tokoku/ai-history'}
+          sx={{
+            borderRadius: 2,
+            px: 3,
+            textTransform: 'none',
+            fontWeight: 600
+          }}
+        >
+          Riwayat AI
+        </Button>
       </Box>
 
       {/* Input Section */}
