@@ -679,84 +679,85 @@ const AILogoTab = () => {
             Pilih Paket Top Up
           </Typography>
 
-          <Grid container spacing={2}>
+          <Box sx={{ display: 'flex', gap: 1.5, mb: 2, flexWrap: 'wrap' }}>
             {[5, 10, 20, 50, 100].map(amount => (
-              <Grid size={{ xs: 6, sm: 4 }} key={amount}>
-                <Card
-                  onClick={() => {
-                    setSelectedTopUp(amount)
-                    setCustomAmount('')
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                    border: 2,
-                    borderColor: selectedTopUp === amount ? 'warning.main' : 'transparent',
-                    bgcolor: selectedTopUp === amount ? 'warning.lighter' : 'background.paper',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      borderColor: 'warning.main',
-                      transform: 'translateY(-2px)',
-                      boxShadow: 2
-                    }
-                  }}
-                >
-                  <CardContent sx={{ textAlign: 'center', py: 2 }}>
-                    <i className='tabler-coin' style={{ fontSize: 32, color: '#f59e0b' }} />
-                    <Typography variant='h6' sx={{ fontWeight: 700, my: 1 }}>
-                      {amount} Pts
-                    </Typography>
-                    <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
-                      Rp {amount * 1000}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-
-            {/* Custom Amount */}
-            <Grid size={{ xs: 12 }}>
               <Card
-                onClick={() => setSelectedTopUp(0)}
+                key={amount}
+                onClick={() => {
+                  setSelectedTopUp(amount)
+                  setCustomAmount('')
+                }}
                 sx={{
                   cursor: 'pointer',
                   border: 2,
-                  borderColor: selectedTopUp === 0 ? 'warning.main' : 'transparent',
-                  bgcolor: selectedTopUp === 0 ? 'warning.lighter' : 'background.paper',
-                  transition: 'all 0.2s'
+                  borderColor: selectedTopUp === amount ? 'warning.main' : 'transparent',
+                  bgcolor: selectedTopUp === amount ? 'warning.lighter' : 'background.paper',
+                  transition: 'all 0.2s',
+                  flex: '1 1 auto',
+                  minWidth: '110px',
+                  '&:hover': {
+                    borderColor: 'warning.main',
+                    transform: 'translateY(-2px)',
+                    boxShadow: 2
+                  }
                 }}
               >
-                <CardContent sx={{ py: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <i className='tabler-edit' style={{ fontSize: 24, color: '#f59e0b' }} />
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant='subtitle2' sx={{ fontWeight: 600, mb: 1 }}>
-                        Custom Amount
-                      </Typography>
-                      {selectedTopUp === 0 && (
-                        <TextField
-                          fullWidth
-                          size='small'
-                          type='number'
-                          placeholder='Masukkan jumlah coin...'
-                          value={customAmount}
-                          onChange={(e) => setCustomAmount(e.target.value)}
-                          InputProps={{
-                            endAdornment: <Typography variant='caption' sx={{ ml: 1 }}>Pts</Typography>
-                          }}
-                          sx={{ mt: 1 }}
-                        />
-                      )}
-                      {selectedTopUp === 0 && customAmount && (
-                        <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1, fontSize: '0.75rem' }}>
-                          Total: Rp {parseInt(customAmount || '0') * 1000}
-                        </Typography>
-                      )}
-                    </Box>
+                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 1.5, px: 1.5, '&:last-child': { pb: 1.5 } }}>
+                  <i className='tabler-coin' style={{ fontSize: 20, color: '#f59e0b', flexShrink: 0 }} />
+                  <Box>
+                    <Typography variant='body2' sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                      {amount} Pts
+                    </Typography>
+                    <Typography variant='caption' sx={{ color: 'text.secondary', fontSize: '0.7rem', lineHeight: 1 }}>
+                      Rp {(amount * 1000).toLocaleString('id-ID')}
+                    </Typography>
                   </Box>
                 </CardContent>
               </Card>
-            </Grid>
-          </Grid>
+            ))}
+          </Box>
+
+          {/* Custom Amount */}
+          <Card
+            onClick={() => setSelectedTopUp(0)}
+            sx={{
+              cursor: 'pointer',
+              border: 2,
+              borderColor: selectedTopUp === 0 ? 'warning.main' : 'transparent',
+              bgcolor: selectedTopUp === 0 ? 'warning.lighter' : 'background.paper',
+              transition: 'all 0.2s'
+            }}
+          >
+            <CardContent sx={{ py: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <i className='tabler-edit' style={{ fontSize: 24, color: '#f59e0b' }} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant='subtitle2' sx={{ fontWeight: 600, mb: 1 }}>
+                    Custom Top Up
+                  </Typography>
+                  {selectedTopUp === 0 && (
+                    <TextField
+                      fullWidth
+                      size='small'
+                      type='number'
+                      placeholder='Masukkan jumlah coin...'
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      InputProps={{
+                        endAdornment: <Typography variant='caption' sx={{ ml: 1 }}>Pts</Typography>
+                      }}
+                      sx={{ mt: 1 }}
+                    />
+                  )}
+                  {selectedTopUp === 0 && customAmount && (
+                    <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1, fontSize: '0.75rem' }}>
+                      Total: Rp {(parseInt(customAmount || '0') * 1000).toLocaleString('id-ID')}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
           <Button
