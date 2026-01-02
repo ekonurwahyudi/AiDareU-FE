@@ -222,7 +222,7 @@ const HorizontalMenu = () => {
               <MenuItem href="#" icon={<i className='tabler-album' />}>
                 Learning Management
               </MenuItem>
-              <MenuItem href="#" icon={<i className='tabler-augmented-reality' />}>
+              <MenuItem href="/apps/master-data/produk-management" icon={<i className='tabler-augmented-reality' />}>
                 Product Management
               </MenuItem>
             </SubMenu>
