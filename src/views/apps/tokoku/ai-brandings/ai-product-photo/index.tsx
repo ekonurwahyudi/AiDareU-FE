@@ -129,29 +129,6 @@ const AIProductPhotoTab = () => {
       const authToken = localStorage.getItem('auth_token')
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
-      // Step 1: Check if user has enough coin
-      const coinCheckResponse = await fetch(`${backendUrl}/api/ai-history/check-coin`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      })
-
-      const coinCheckResult = await coinCheckResponse.json()
-
-      if (!coinCheckResponse.ok || !coinCheckResult.success) {
-        throw new Error('Gagal mengecek coin')
-      }
-
-      if (!coinCheckResult.data.has_enough) {
-        toast.error(`Coin tidak cukup! Anda memiliki ${coinCheckResult.data.current_coin} Pts, membutuhkan ${coinCheckResult.data.required_coin} Pts`)
-        setIsGenerating(false)
-        return
-      }
-
-      // Step 2: Generate Product Photo
       const formData = new FormData()
       formData.append('image', productImage)
       formData.append('lighting', lighting)
@@ -183,30 +160,7 @@ const AIProductPhotoTab = () => {
       if (data.success) {
         console.log('Product photo results:', data.data)
         setPhotoResults(data.data)
-
-        // Step 3: Save to history and deduct coin for each generated photo
-        for (const photo of data.data) {
-          try {
-            await fetch(`${backendUrl}/api/ai-history`, {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                keterangan: `Generate AI Foto Produk - ${lighting} ${ambiance}`,
-                hasil_generated: photo.imageUrl,
-                coin_used: 2
-              })
-            })
-          } catch (historyError) {
-            console.error('Error saving history:', historyError)
-          }
-        }
-
-        toast.success(`Foto produk berhasil di-generate! ${data.data.length * 2} Pts telah dikurangi.`)
+        toast.success(data.message || 'Foto produk berhasil di-generate!')
       } else {
         console.error('API Error:', data.message)
         toast.error(data.message || 'Gagal generate foto produk')

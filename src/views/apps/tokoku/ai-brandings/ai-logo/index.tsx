@@ -107,29 +107,6 @@ const AILogoTab = () => {
       const authToken = localStorage.getItem('auth_token')
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
-      // Step 1: Check if user has enough coin
-      const coinCheckResponse = await fetch(`${backendUrl}/api/ai-history/check-coin`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'Accept': 'application/json'
-        }
-      })
-
-      const coinCheckResult = await coinCheckResponse.json()
-
-      if (!coinCheckResponse.ok || !coinCheckResult.success) {
-        throw new Error('Gagal mengecek coin')
-      }
-
-      if (!coinCheckResult.data.has_enough) {
-        toast.error(`Coin tidak cukup! Anda memiliki ${coinCheckResult.data.current_coin} Pts, membutuhkan ${coinCheckResult.data.required_coin} Pts`)
-        setIsGenerating(false)
-        return
-      }
-
-      // Step 2: Generate Logo
       const formData = new FormData()
       formData.append('business_name', businessName)
       formData.append('prompt', prompt)
@@ -152,30 +129,7 @@ const AILogoTab = () => {
 
       if (response.ok && result.success) {
         setLogoResults(result.data)
-
-        // Step 3: Save to history and deduct coin for each generated logo
-        for (const logo of result.data) {
-          try {
-            await fetch(`${backendUrl}/api/ai-history`, {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                keterangan: `Generate AI Logo - ${businessName}`,
-                hasil_generated: logo.imageUrl,
-                coin_used: 2
-              })
-            })
-          } catch (historyError) {
-            console.error('Error saving history:', historyError)
-          }
-        }
-
-        toast.success(`Logo berhasil di-generate! ${result.data.length * 2} Pts telah dikurangi.`)
+        toast.success(result.message || 'Logo berhasil di-generate!')
       } else {
         throw new Error(result.message || 'Gagal generate logo')
       }
