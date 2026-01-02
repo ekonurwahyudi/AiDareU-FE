@@ -113,18 +113,39 @@ const AIHistoryPage = () => {
 
   const handleDownload = async (imageUrl: string, keterangan: string) => {
     try {
-      const response = await fetch(imageUrl)
+      // Extract filename from URL or use keterangan
+      const urlParts = imageUrl.split('/')
+      const filename = urlParts[urlParts.length - 1]
+
+      // Determine file extension from URL or default to png
+      const extension = filename.includes('.') ? filename.split('.').pop() : 'png'
+
+      const response = await fetch(imageUrl, {
+        mode: 'cors',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch image')
+      }
+
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${keterangan.replace(/\s+/g, '_')}_${Date.now()}.png`
+      a.download = `${keterangan.replace(/\s+/g, '_')}_${Date.now()}.${extension}`
+      a.style.display = 'none'
       document.body.appendChild(a)
       a.click()
-      document.body.removeChild(a)
-      window.URL.revokeObjectURL(url)
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
     } catch (error) {
       console.error('Error downloading image:', error)
+      // Fallback: open in new tab
+      window.open(imageUrl, '_blank')
     }
   }
 
@@ -144,6 +165,10 @@ const AIHistoryPage = () => {
       return 'AiDareU/Photo-Merge'
     }
     return 'AiDareU/Generated'
+  }
+
+  const isLogoType = (keterangan: string): boolean => {
+    return keterangan.toLowerCase().includes('logo')
   }
 
   return (
@@ -241,42 +266,45 @@ const AIHistoryPage = () => {
               </Box>
             ) : (
               <Grid container spacing={3}>
-                {histories.map(history => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={history.id}>
-                    <Card
-                      sx={{
-                        position: 'relative',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s',
-                        '&:hover': {
-                          transform: 'translateY(-4px)',
-                          boxShadow: 4
-                        }
-                      }}
-                    >
-                      {/* Image Container */}
-                      <Box
+                {histories.map(history => {
+                  const isLogo = isLogoType(history.keterangan)
+                  return (
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={history.id}>
+                      <Card
                         sx={{
                           position: 'relative',
-                          paddingTop: '100%',
-                          overflow: 'hidden',
-                          bgcolor: 'action.hover'
+                          cursor: 'pointer',
+                          transition: 'all 0.3s',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 4
+                          }
                         }}
-                        onClick={() => handlePreview(history.hasil_generated)}
                       >
+                        {/* Image Container */}
                         <Box
-                          component='img'
-                          src={history.hasil_generated}
-                          alt={history.keterangan}
                           sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
+                            position: 'relative',
+                            paddingTop: '100%',
+                            overflow: 'hidden',
+                            bgcolor: isLogo ? 'white' : 'action.hover'
                           }}
-                        />
+                          onClick={() => handlePreview(history.hasil_generated)}
+                        >
+                          <Box
+                            component='img'
+                            src={history.hasil_generated}
+                            alt={history.keterangan}
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: isLogo ? 'contain' : 'cover',
+                              padding: isLogo ? 2 : 0
+                            }}
+                          />
 
                         {/* Download Button Overlay */}
                         <IconButton
@@ -315,30 +343,32 @@ const AIHistoryPage = () => {
                         />
                       </Box>
 
-                      {/* Card Content */}
-                      <CardContent sx={{ p: 2 }}>
-                        <Typography
-                          variant='body2'
-                          sx={{
-                            fontWeight: 600,
-                            mb: 0.5,
-                            color: 'text.primary',
-                            fontSize: '0.875rem'
-                          }}
-                        >
-                          {getAiType(history.keterangan)}
-                        </Typography>
-                        <Typography variant='caption' sx={{ color: 'text.secondary', display: 'block' }}>
-                          {new Date(history.created_at).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
+                        {/* Card Content */}
+                        <CardContent sx={{ p: 2 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 600,
+                                color: 'text.primary',
+                                fontSize: '0.875rem'
+                              }}
+                            >
+                              {getAiType(history.keterangan)}
+                            </Typography>
+                            <Typography variant='caption' sx={{ color: 'text.secondary' }}>
+                              {new Date(history.created_at).toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              })}
+                            </Typography>
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )
+                })}
               </Grid>
             )}
 
@@ -376,16 +406,17 @@ const AIHistoryPage = () => {
 
       {/* Preview Dialog */}
       <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth='lg' fullWidth>
-        <DialogContent sx={{ p: 0, position: 'relative', bgcolor: 'black' }}>
+        <DialogContent sx={{ p: 0, position: 'relative', bgcolor: 'white' }}>
           <IconButton
             sx={{
               position: 'absolute',
               top: 16,
               right: 16,
-              bgcolor: 'rgba(255, 255, 255, 0.9)',
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              color: 'white',
               zIndex: 1,
               '&:hover': {
-                bgcolor: 'white'
+                bgcolor: 'rgba(0, 0, 0, 0.7)'
               }
             }}
             onClick={() => setOpenPreview(false)}
