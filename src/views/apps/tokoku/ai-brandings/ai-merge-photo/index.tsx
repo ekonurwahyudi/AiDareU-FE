@@ -370,7 +370,7 @@ const AIMergePhotoTab = () => {
                   disabled={isGeneratingInstruction || uploadedImages.length < 2}
                   sx={{ textTransform: 'none', borderRadius: 2 }}
                 >
-                  {isGeneratingInstruction ? 'Generating...' : 'Generate Instruksi AI'}
+                  {isGeneratingInstruction ? 'Generating...' : 'Generate Instruksi AI (2 Coin)'}
                 </Button>
               </Box>
               <TextField

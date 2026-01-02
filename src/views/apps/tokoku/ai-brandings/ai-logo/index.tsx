@@ -45,6 +45,8 @@ const AILogoTab = () => {
   const [logoResults, setLogoResults] = useState<LogoResult[]>([])
   const [insufficientCoinModal, setInsufficientCoinModal] = useState(false)
   const [coinInfo, setCoinInfo] = useState({ current: 0, required: 0 })
+  const [selectedTopUp, setSelectedTopUp] = useState<number | null>(null)
+  const [customAmount, setCustomAmount] = useState('')
 
   // Ref
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -599,8 +601,17 @@ const AILogoTab = () => {
         </Card>
       )}
 
-      {/* Insufficient Coin Modal */}
-      <Dialog open={insufficientCoinModal} onClose={() => setInsufficientCoinModal(false)} maxWidth='sm' fullWidth>
+      {/* Insufficient Coin Modal with Top Up Options */}
+      <Dialog
+        open={insufficientCoinModal}
+        onClose={() => {
+          setInsufficientCoinModal(false)
+          setSelectedTopUp(null)
+          setCustomAmount('')
+        }}
+        maxWidth='md'
+        fullWidth
+      >
         <DialogTitle sx={{ pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box
@@ -625,6 +636,8 @@ const AILogoTab = () => {
           <Typography variant='body1' sx={{ mb: 3, color: 'text.secondary' }}>
             Maaf, Anda tidak memiliki cukup coin untuk generate AI Logo.
           </Typography>
+
+          {/* Current vs Required Coin */}
           <Box
             sx={{
               p: 2.5,
@@ -632,7 +645,8 @@ const AILogoTab = () => {
               borderRadius: 2,
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center'
+              alignItems: 'center',
+              mb: 3
             }}
           >
             <Box>
@@ -652,22 +666,124 @@ const AILogoTab = () => {
               </Typography>
             </Box>
           </Box>
-          <Typography variant='body2' sx={{ mt: 3, color: 'text.secondary' }}>
-            Silakan top up coin Anda untuk melanjutkan generate AI Logo.
+
+          {/* Price Info */}
+          <Box sx={{ mb: 3, p: 2, bgcolor: '#FFF7ED', borderRadius: 2, border: '1px solid #FDBA74' }}>
+            <Typography variant='body2' sx={{ fontWeight: 600, color: '#C2410C', textAlign: 'center' }}>
+              💰 1 Coin = Rp 1.000
+            </Typography>
+          </Box>
+
+          {/* Top Up Packages */}
+          <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+            Pilih Paket Top Up
           </Typography>
+
+          <Grid container spacing={2}>
+            {[5, 10, 20, 50, 100].map(amount => (
+              <Grid size={{ xs: 6, sm: 4 }} key={amount}>
+                <Card
+                  onClick={() => {
+                    setSelectedTopUp(amount)
+                    setCustomAmount('')
+                  }}
+                  sx={{
+                    cursor: 'pointer',
+                    border: 2,
+                    borderColor: selectedTopUp === amount ? 'warning.main' : 'transparent',
+                    bgcolor: selectedTopUp === amount ? 'warning.lighter' : 'background.paper',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      borderColor: 'warning.main',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 2
+                    }
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', py: 2 }}>
+                    <i className='tabler-coin' style={{ fontSize: 32, color: '#f59e0b' }} />
+                    <Typography variant='h6' sx={{ fontWeight: 700, my: 1 }}>
+                      {amount} Pts
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+                      Rp {amount * 1000}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+
+            {/* Custom Amount */}
+            <Grid size={{ xs: 12 }}>
+              <Card
+                onClick={() => setSelectedTopUp(0)}
+                sx={{
+                  cursor: 'pointer',
+                  border: 2,
+                  borderColor: selectedTopUp === 0 ? 'warning.main' : 'transparent',
+                  bgcolor: selectedTopUp === 0 ? 'warning.lighter' : 'background.paper',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <CardContent sx={{ py: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <i className='tabler-edit' style={{ fontSize: 24, color: '#f59e0b' }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant='subtitle2' sx={{ fontWeight: 600, mb: 1 }}>
+                        Custom Amount
+                      </Typography>
+                      {selectedTopUp === 0 && (
+                        <TextField
+                          fullWidth
+                          size='small'
+                          type='number'
+                          placeholder='Masukkan jumlah coin...'
+                          value={customAmount}
+                          onChange={(e) => setCustomAmount(e.target.value)}
+                          InputProps={{
+                            endAdornment: <Typography variant='caption' sx={{ ml: 1 }}>Pts</Typography>
+                          }}
+                          sx={{ mt: 1 }}
+                        />
+                      )}
+                      {selectedTopUp === 0 && customAmount && (
+                        <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1, fontSize: '0.75rem' }}>
+                          Total: Rp {parseInt(customAmount || '0') * 1000}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setInsufficientCoinModal(false)} color='inherit'>
-            Tutup
+        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+          <Button
+            onClick={() => {
+              setInsufficientCoinModal(false)
+              setSelectedTopUp(null)
+              setCustomAmount('')
+            }}
+            color='inherit'
+          >
+            Batal
           </Button>
           <Button
             variant='contained'
             color='warning'
+            disabled={selectedTopUp === null || (selectedTopUp === 0 && !customAmount)}
             startIcon={<i className='tabler-coin' />}
-            href='#'
+            onClick={() => {
+              if (selectedTopUp === null) return
+              const amount = selectedTopUp === 0 ? parseInt(customAmount) : selectedTopUp
+              console.log('Top up amount:', amount)
+              // TODO: Implement top up logic
+              alert(`Top up ${amount} Pts (Rp ${(amount * 1000).toLocaleString('id-ID')})`)
+            }}
             sx={{ fontWeight: 600 }}
           >
-            Top Up Coin
+            Top Up {selectedTopUp === 0 && customAmount ? customAmount : selectedTopUp || ''} {(selectedTopUp !== null && (selectedTopUp > 0 || customAmount)) ? 'Pts' : 'Coin'}
           </Button>
         </DialogActions>
       </Dialog>
