@@ -219,7 +219,14 @@ const UserManagementTable = () => {
       const result = await response.json()
 
       if (result.status === 'success') {
-        setUsers(result.data.data || [])
+        // Sanitize user data to ensure roles is always an array of strings
+        const sanitizedUsers = (result.data.data || []).map((user: any) => ({
+          ...user,
+          roles: Array.isArray(user.roles)
+            ? user.roles.filter((r: any) => typeof r === 'string')
+            : []
+        }))
+        setUsers(sanitizedUsers)
         setTotalRows(result.data.total || 0)
       } else {
         throw new Error(result.message || 'Failed to fetch users')
@@ -592,27 +599,36 @@ const UserManagementTable = () => {
       id: 'roles',
       header: 'Roles',
       cell: ({ row }) => {
-        const roles = Array.isArray(row.original.roles)
-          ? row.original.roles
-          : (row.original.roles ? [row.original.roles] : [])
+        try {
+          let roles: string[] = []
 
-        return (
-          <div className="flex flex-wrap gap-1">
-            {roles.length > 0 ? (
-              roles.map((role, index) => (
-                <Chip
-                  key={index}
-                  label={role}
-                  size="small"
-                  color="primary"
-                  variant="tonal"
-                />
-              ))
-            ) : (
-              <Typography variant="caption" color="text.secondary">-</Typography>
-            )}
-          </div>
-        )
+          if (Array.isArray(row.original.roles)) {
+            roles = row.original.roles.filter(r => typeof r === 'string')
+          } else if (typeof row.original.roles === 'string') {
+            roles = [row.original.roles]
+          }
+
+          return (
+            <div className="flex flex-wrap gap-1">
+              {roles.length > 0 ? (
+                roles.map((role, index) => (
+                  <Chip
+                    key={`role-${index}-${role}`}
+                    label={String(role)}
+                    size="small"
+                    color="primary"
+                    variant="tonal"
+                  />
+                ))
+              ) : (
+                <Typography variant="caption" color="text.secondary">-</Typography>
+              )}
+            </div>
+          )
+        } catch (error) {
+          console.error('Error rendering roles:', error, row.original.roles)
+          return <Typography variant="caption" color="error">Error</Typography>
+        }
       }
     }),
     columnHelper.accessor('is_active', {
@@ -625,7 +641,8 @@ const UserManagementTable = () => {
         />
       )
     }),
-    columnHelper.accessor('action', {
+    columnHelper.display({
+      id: 'action',
       header: 'Actions',
       cell: ({ row }) => (
         <div className="flex items-center">
@@ -639,7 +656,7 @@ const UserManagementTable = () => {
       ),
       enableSorting: false
     })
-  ], [pagination.pageIndex, pagination.pageSize])
+  ], [])
 
   // Table setup
   const table = useReactTable({
