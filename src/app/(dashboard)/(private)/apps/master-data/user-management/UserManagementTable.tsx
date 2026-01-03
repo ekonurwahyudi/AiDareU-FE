@@ -76,6 +76,11 @@ type User = {
   no_hp?: string
   roles?: string[] | string
   is_active: boolean
+  alasan_gabung?: string
+  info_dari?: string
+  location?: string
+  address?: string
+  paket?: string
   created_at: string
   updated_at: string
 }
@@ -92,6 +97,11 @@ type UserFormData = {
   password?: string
   roles: string[]
   is_active: boolean
+  alasan_gabung?: string
+  info_dari?: string
+  location?: string
+  address?: string
+  paket?: string
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -163,7 +173,12 @@ const UserManagementTable = () => {
     no_hp: '',
     password: '',
     roles: ['user'],
-    is_active: true
+    is_active: true,
+    alasan_gabung: '',
+    info_dari: '',
+    location: '',
+    address: '',
+    paket: ''
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
@@ -305,7 +320,12 @@ const UserManagementTable = () => {
       no_hp: '',
       password: '',
       roles: ['user'],
-      is_active: true
+      is_active: true,
+      alasan_gabung: '',
+      info_dari: '',
+      location: '',
+      address: '',
+      paket: ''
     })
     setFormErrors({})
     setDialogOpen(true)
@@ -321,7 +341,12 @@ const UserManagementTable = () => {
       no_hp: user.no_hp || '',
       password: '',
       roles: Array.isArray(user.roles) ? user.roles : (user.roles ? [user.roles] : ['user']),
-      is_active: user.is_active
+      is_active: user.is_active,
+      alasan_gabung: user.alasan_gabung || '',
+      info_dari: user.info_dari || '',
+      location: user.location || '',
+      address: user.address || '',
+      paket: user.paket || ''
     })
     setFormErrors({})
     setDialogOpen(true)
@@ -395,6 +420,26 @@ const UserManagementTable = () => {
 
       if (formData.password) {
         payload.password = formData.password
+      }
+
+      if (formData.alasan_gabung) {
+        payload.alasan_gabung = formData.alasan_gabung
+      }
+
+      if (formData.info_dari) {
+        payload.info_dari = formData.info_dari
+      }
+
+      if (formData.location) {
+        payload.location = formData.location
+      }
+
+      if (formData.address) {
+        payload.address = formData.address
+      }
+
+      if (formData.paket) {
+        payload.paket = formData.paket
       }
 
       const url = userToEdit
@@ -925,6 +970,45 @@ const UserManagementTable = () => {
               onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
               error={!!formErrors.password}
               helperText={formErrors.password || (userToEdit ? 'Leave blank to keep current password' : '')}
+            />
+
+            <CustomTextField
+              fullWidth
+              label="Alasan Gabung"
+              multiline
+              rows={2}
+              value={formData.alasan_gabung}
+              onChange={e => setFormData(prev => ({ ...prev, alasan_gabung: e.target.value }))}
+            />
+
+            <CustomTextField
+              fullWidth
+              label="Info Dari"
+              value={formData.info_dari}
+              onChange={e => setFormData(prev => ({ ...prev, info_dari: e.target.value }))}
+            />
+
+            <CustomTextField
+              fullWidth
+              label="Location / Lokasi"
+              value={formData.location}
+              onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))}
+            />
+
+            <CustomTextField
+              fullWidth
+              label="Address / Alamat"
+              multiline
+              rows={2}
+              value={formData.address}
+              onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
+            />
+
+            <CustomTextField
+              fullWidth
+              label="Paket"
+              value={formData.paket}
+              onChange={e => setFormData(prev => ({ ...prev, paket: e.target.value }))}
             />
 
             <div>
