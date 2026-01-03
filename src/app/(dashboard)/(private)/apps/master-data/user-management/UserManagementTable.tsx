@@ -234,13 +234,36 @@ const UserManagementTable = () => {
       const result = await response.json()
 
       if (result.status === 'success') {
+        // Debug: Log raw data
+        console.log('Raw API Response:', result.data.data)
+
         // Sanitize user data to ensure roles is always an array of strings
-        const sanitizedUsers = (result.data.data || []).map((user: any) => ({
-          ...user,
-          roles: Array.isArray(user.roles)
-            ? user.roles.filter((r: any) => typeof r === 'string')
-            : []
-        }))
+        const sanitizedUsers = (result.data.data || []).map((user: any) => {
+          // Handle roles that might be objects
+          let roles: string[] = []
+
+          if (Array.isArray(user.roles)) {
+            roles = user.roles.map((role: any) => {
+              // If role is an object with name property, extract the name
+              if (typeof role === 'object' && role !== null && role.name) {
+                return String(role.name)
+              }
+              // If role is already a string, use it
+              if (typeof role === 'string') {
+                return role
+              }
+              return ''
+            }).filter((r: string) => r !== '')
+          }
+
+          console.log('User:', user.name, 'Roles:', roles)
+
+          return {
+            ...user,
+            roles
+          }
+        })
+
         setUsers(sanitizedUsers)
         setTotalRows(result.data.total || 0)
       } else {
