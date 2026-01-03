@@ -517,8 +517,10 @@ const UserManagementTable = () => {
         credentials: 'include',
         headers,
         body: JSON.stringify({
-          ...user,
-          is_active: !user.is_active
+          name: user.name,
+          email: user.email,
+          is_active: !user.is_active,
+          roles: Array.isArray(user.roles) ? user.roles : (user.roles ? [user.roles] : ['user'])
         })
       })
 
