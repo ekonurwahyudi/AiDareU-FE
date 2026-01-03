@@ -216,7 +216,7 @@ const HorizontalMenu = () => {
               <MenuItem href="#" icon={<i className='tabler-world-www' />}>
                 Domain Management
               </MenuItem>
-              <MenuItem href="#" icon={<i className='tabler-mood-search' />}>
+              <MenuItem href="/apps/master-data/customer-management" icon={<i className='tabler-mood-search' />}>
                 Customer Management
               </MenuItem>
               <MenuItem href="#" icon={<i className='tabler-album' />}>
