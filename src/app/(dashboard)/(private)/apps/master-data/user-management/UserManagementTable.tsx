@@ -644,7 +644,7 @@ const UserManagementTable = () => {
           <Typography color="text.primary" className="font-medium">
             {row.original.name}
           </Typography>
-          {row.original.store_name ? (
+          {row.original.store_name && row.original.store_name !== '-' ? (
             <Typography variant="caption" color="text.secondary">
               {row.original.store_name}
             </Typography>
@@ -652,7 +652,11 @@ const UserManagementTable = () => {
             <Typography variant="caption" color="text.secondary">
               {row.original.nama_lengkap}
             </Typography>
-          ) : null}
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              -
+            </Typography>
+          )}
         </div>
       )
     }),
