@@ -588,7 +588,8 @@ const UserManagementTable = () => {
         <Typography>{row.original.no_hp || '-'}</Typography>
       )
     }),
-    columnHelper.accessor('roles', {
+    columnHelper.display({
+      id: 'roles',
       header: 'Roles',
       cell: ({ row }) => {
         const roles = Array.isArray(row.original.roles)
