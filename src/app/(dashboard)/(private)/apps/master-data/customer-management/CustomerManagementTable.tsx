@@ -216,8 +216,8 @@ const CustomerManagementTable = () => {
         'Nama': customer.nama,
         'No HP': customer.no_hp,
         'Email': customer.email || '-',
-        'Toko': customer.store?.nama_toko || '-',
-        'Subdomain': customer.store?.subdomain || '-',
+        'Toko': customer.store?.nama_toko || customer.store?.name || customer.store?.store_name || '-',
+        'Subdomain': customer.store?.subdomain || customer.store?.sub_domain || '-',
         'Kota': customer.kota,
         'Kecamatan': customer.kecamatan,
         'Provinsi': customer.provinsi,
@@ -292,8 +292,10 @@ const CustomerManagementTable = () => {
     columnHelper.accessor('store', {
       header: 'Toko',
       cell: ({ row }) => {
-        const storeName = row.original.store?.nama_toko || '-'
-        const subdomain = row.original.store?.subdomain || ''
+        // Fallback untuk nama toko yang mungkin menggunakan 'nama_toko', 'name', atau 'store_name'
+        const storeName = row.original.store?.nama_toko || row.original.store?.name || row.original.store?.store_name || '-'
+        // Fallback untuk subdomain yang mungkin menggunakan 'subdomain' atau 'sub_domain'
+        const subdomain = row.original.store?.subdomain || row.original.store?.sub_domain || ''
 
         return (
           <div className="flex flex-col">
