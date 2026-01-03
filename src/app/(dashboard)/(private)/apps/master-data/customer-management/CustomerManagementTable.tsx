@@ -288,8 +288,9 @@ const CustomerManagementTable = () => {
         <Typography>{row.original.email || '-'}</Typography>
       )
     }),
-    // ADDED: Store column
-    columnHelper.accessor('store', {
+    // ADDED: Store column - using display to avoid object serialization issues
+    columnHelper.display({
+      id: 'store',
       header: 'Toko',
       cell: ({ row }) => {
         // Fallback untuk nama toko yang mungkin menggunakan 'nama_toko', 'name', atau 'store_name'
