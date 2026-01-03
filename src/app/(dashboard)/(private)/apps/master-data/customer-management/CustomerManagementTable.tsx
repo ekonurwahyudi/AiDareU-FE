@@ -69,8 +69,11 @@ type Customer = {
   alamat: string
   uuid_store: string
   store?: {
-    nama_toko: string
-    subdomain: string
+    nama_toko?: string
+    name?: string
+    store_name?: string
+    subdomain?: string
+    sub_domain?: string
   }
   created_at: string
   updated_at: string
