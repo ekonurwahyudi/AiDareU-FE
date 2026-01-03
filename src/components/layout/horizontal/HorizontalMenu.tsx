@@ -204,7 +204,7 @@ const HorizontalMenu = () => {
               </svg>
             }
           >
-              <MenuItem href="#" icon={<i className='tabler-user-screen' />}>
+              <MenuItem href="/apps/master-data/user-management" icon={<i className='tabler-user-screen' />}>
                 User Management
               </MenuItem>
               <MenuItem href="#" icon={<i className='tabler-building-store' />}>
