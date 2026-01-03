@@ -81,6 +81,7 @@ type User = {
   location?: string
   address?: string
   paket?: string
+  store_name?: string
   created_at: string
   updated_at: string
 }
