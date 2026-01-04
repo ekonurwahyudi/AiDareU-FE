@@ -648,11 +648,7 @@ const UserManagementTable = () => {
             <Typography variant="caption" color="text.secondary">
               {row.original.store_name}
             </Typography>
-          ) : row.original.nama_lengkap ? (
-            <Typography variant="caption" color="text.secondary">
-              {row.original.nama_lengkap}
-            </Typography>
-          ) : (
+          ): (
             <Typography variant="caption" color="text.secondary">
               -
             </Typography>
