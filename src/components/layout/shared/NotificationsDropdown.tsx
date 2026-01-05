@@ -414,7 +414,6 @@ const NotificationDropdown = () => {
   }
 
   const handleViewAllNotifications = () => {
-    // TODO: Create a dedicated notifications page
     router.push('/apps/notifications')
     handleClose()
   }
