@@ -45,35 +45,19 @@ import { useSettings } from '@core/hooks/useSettings'
 import { getInitials } from '@/utils/getInitials'
 
 export type NotificationsType = {
-  id: string
+  id: number
+  user_uuid: string
+  type: string // order, topup, subscription, reminder, info
   title: string
-  subtitle: string
-  time: string
-  read: boolean
-  orderId?: string
-} & (
-  | {
-      avatarImage?: string
-      avatarIcon?: never
-      avatarText?: never
-      avatarColor?: never
-      avatarSkin?: never
-    }
-  | {
-      avatarIcon?: string
-      avatarColor?: ThemeColor
-      avatarSkin?: CustomAvatarProps['skin']
-      avatarImage?: never
-      avatarText?: never
-    }
-  | {
-      avatarText?: string
-      avatarColor?: ThemeColor
-      avatarSkin?: CustomAvatarProps['skin']
-      avatarImage?: never
-      avatarIcon?: never
-    }
-)
+  description?: string
+  data?: any
+  icon?: string
+  color: ThemeColor
+  action_url?: string
+  is_read: boolean
+  read_at?: string
+  created_at: string
+}
 
 const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
   if (hidden) {
@@ -87,23 +71,19 @@ const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: bool
   }
 }
 
-const getAvatar = (
-  params: Pick<NotificationsType, 'avatarImage' | 'avatarIcon' | 'title' | 'avatarText' | 'avatarColor' | 'avatarSkin'>
-) => {
-  const { avatarImage, avatarIcon, avatarText, title, avatarColor, avatarSkin } = params
+const getAvatar = (params: { icon?: string; color: ThemeColor; title: string }) => {
+  const { icon, color, title } = params
 
-  if (avatarImage) {
-    return <Avatar src={avatarImage} />
-  } else if (avatarIcon) {
+  if (icon) {
     return (
-      <CustomAvatar color={avatarColor} skin={avatarSkin || 'light-static'}>
-        <i className={avatarIcon} />
+      <CustomAvatar color={color} skin='light-static'>
+        <i className={icon} />
       </CustomAvatar>
     )
   } else {
     return (
-      <CustomAvatar color={avatarColor} skin={avatarSkin || 'light-static'}>
-        {avatarText || getInitials(title)}
+      <CustomAvatar color={color} skin='light-static'>
+        {getInitials(title)}
       </CustomAvatar>
     )
   }
@@ -112,8 +92,8 @@ const getAvatar = (
 // Helper function to format time ago
 const formatTimeAgo = (date: string): string => {
   const now = new Date()
-  const orderDate = new Date(date)
-  const diffInMs = now.getTime() - orderDate.getTime()
+  const notifDate = new Date(date)
+  const diffInMs = now.getTime() - notifDate.getTime()
   const diffInMins = Math.floor(diffInMs / 60000)
   const diffInHours = Math.floor(diffInMs / 3600000)
   const diffInDays = Math.floor(diffInMs / 86400000)
@@ -122,12 +102,31 @@ const formatTimeAgo = (date: string): string => {
   if (diffInMins < 60) return `${diffInMins} menit yang lalu`
   if (diffInHours < 24) return `${diffInHours} jam yang lalu`
   if (diffInDays < 7) return `${diffInDays} hari yang lalu`
-  return orderDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+  return notifDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
 }
 
-// Helper function to format currency
-const formatRupiah = (amount: number): string => {
-  return `Rp ${Math.round(amount).toLocaleString('id-ID')}`
+// Get icon based on notification type
+const getIconByType = (type: string): string => {
+  const icons: Record<string, string> = {
+    order: 'tabler-shopping-cart',
+    topup: 'tabler-coin',
+    subscription: 'tabler-package',
+    reminder: 'tabler-bell-ringing',
+    info: 'tabler-info-circle'
+  }
+  return icons[type] || 'tabler-bell'
+}
+
+// Get color based on notification type
+const getColorByType = (type: string): ThemeColor => {
+  const colors: Record<string, ThemeColor> = {
+    order: 'success',
+    topup: 'warning',
+    subscription: 'primary',
+    reminder: 'info',
+    info: 'secondary'
+  }
+  return colors[type] || 'primary'
 }
 
 const NotificationDropdown = () => {
@@ -135,7 +134,7 @@ const NotificationDropdown = () => {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<NotificationsType[]>([])
   const [loading, setLoading] = useState(true)
-  const [storeUuid, setStoreUuid] = useState<string | null>(null)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   // Refs
   const anchorRef = useRef<HTMLButtonElement>(null)
@@ -147,124 +146,118 @@ const NotificationDropdown = () => {
   const isSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
   const { settings } = useSettings()
 
-  // Get unread notifications count
-  const notificationCount = notifications.filter(n => !n.read).length
-  const readAll = notifications.every(n => n.read)
+  // Check if all notifications are read
+  const readAll = notifications.every(n => n.is_read)
 
-  // Fetch store UUID and orders
-  useEffect(() => {
-    const fetchStoreUuid = async () => {
-      try {
-        const storedUserData = localStorage.getItem('user_data')
-        const authToken = localStorage.getItem('auth_token')
+  // Fetch notifications from API
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true)
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
 
-        if (!storedUserData) return
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
 
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (storedUserData) {
         const userData = JSON.parse(storedUserData)
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-
-        const headers: HeadersInit = {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        }
-
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`
-        }
-
         if (userData.uuid) {
           headers['X-User-UUID'] = userData.uuid
         }
-
-        const response = await fetch(`${backendUrl}/api/users/me`, {
-          headers,
-          credentials: 'include',
-          cache: 'no-store'
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.data?.store?.uuid) {
-            setStoreUuid(result.data.store.uuid)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching store UUID:', error)
       }
+
+      const response = await fetch(`${backendUrl}/api/notifications?per_page=10`, {
+        headers,
+        credentials: 'include',
+        cache: 'no-store'
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          // Ensure icon and color are set
+          const processedNotifications = (result.data || []).map((notif: NotificationsType) => ({
+            ...notif,
+            icon: notif.icon || getIconByType(notif.type),
+            color: notif.color || getColorByType(notif.type)
+          }))
+
+          setNotifications(processedNotifications)
+          setUnreadCount(result.unread_count || 0)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchStoreUuid()
-  }, [])
+  // Fetch unread count
+  const fetchUnreadCount = async () => {
+    try {
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
 
-  // Fetch orders when storeUuid is available
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData)
+        if (userData.uuid) {
+          headers['X-User-UUID'] = userData.uuid
+        }
+      }
+
+      const response = await fetch(`${backendUrl}/api/notifications/unread-count`, {
+        headers,
+        credentials: 'include',
+        cache: 'no-store'
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        if (result.success) {
+          setUnreadCount(result.unread_count || 0)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error)
+    }
+  }
+
+  // Initial fetch and polling
   useEffect(() => {
-    if (!storeUuid) return
+    fetchNotifications()
 
-    const fetchOrders = async () => {
-      try {
-        setLoading(true)
-        const storedUserData = localStorage.getItem('user_data')
-        const authToken = localStorage.getItem('auth_token')
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
-
-        const headers: HeadersInit = {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        }
-
-        if (authToken) {
-          headers['Authorization'] = `Bearer ${authToken}`
-        }
-
-        if (storedUserData) {
-          const userData = JSON.parse(storedUserData)
-          if (userData.uuid) {
-            headers['X-User-UUID'] = userData.uuid
-          }
-        }
-
-        const response = await fetch(`${backendUrl}/api/stores/${storeUuid}/orders?per_page=10&status=pending`, {
-          headers,
-          credentials: 'include',
-          cache: 'no-store'
-        })
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success && result.data?.data) {
-            // Get read notifications from localStorage
-            const readNotifications = JSON.parse(localStorage.getItem('read_order_notifications') || '[]')
-
-            // Convert orders to notifications
-            const orderNotifications: NotificationsType[] = result.data.data.map((order: any) => ({
-              id: order.uuid,
-              title: `Pesanan Baru #${order.nomor_order}`,
-              subtitle: `${order.customer?.nama} - ${formatRupiah(order.total_harga)}`,
-              time: formatTimeAgo(order.created_at),
-              read: readNotifications.includes(order.uuid),
-              orderId: order.uuid,
-              avatarIcon: 'tabler-shopping-cart',
-              avatarColor: 'success' as ThemeColor,
-              avatarSkin: 'light-static' as CustomAvatarProps['skin']
-            }))
-
-            setNotifications(orderNotifications)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching orders:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchOrders()
-
-    // Poll for new orders every 30 seconds
-    const interval = setInterval(fetchOrders, 30000)
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(() => {
+      fetchUnreadCount()
+    }, 30000)
 
     return () => clearInterval(interval)
-  }, [storeUuid])
+  }, [])
+
+  // Refetch when dropdown opens
+  useEffect(() => {
+    if (open) {
+      fetchNotifications()
+    }
+  }, [open])
 
   const handleClose = () => {
     setOpen(false)
@@ -274,90 +267,155 @@ const NotificationDropdown = () => {
     setOpen(prevOpen => !prevOpen)
   }
 
-  // Navigate to order detail and mark as read
-  const handleNotificationClick = (notification: NotificationsType) => {
-    if (notification.orderId) {
-      // Mark as read
-      const readNotifications = JSON.parse(localStorage.getItem('read_order_notifications') || '[]')
-      if (!readNotifications.includes(notification.id)) {
-        readNotifications.push(notification.id)
-        localStorage.setItem('read_order_notifications', JSON.stringify(readNotifications))
+  // Mark notification as read and navigate
+  const handleNotificationClick = async (notification: NotificationsType) => {
+    try {
+      // Mark as read if not already read
+      if (!notification.is_read) {
+        await markAsRead(notification.id)
       }
 
-      // Update local state
-      setNotifications(prev => prev.map(n =>
-        n.id === notification.id ? { ...n, read: true } : n
-      ))
-
-      // Navigate to order details
-      router.push(`/apps/tokoku/orders/details/${notification.orderId}`)
-      handleClose()
-    }
-  }
-
-  // Read notification when notification is clicked
-  const handleReadNotification = (event: MouseEvent<HTMLElement>, value: boolean, id: string) => {
-    event.stopPropagation()
-
-    const readNotifications = JSON.parse(localStorage.getItem('read_order_notifications') || '[]')
-
-    if (value && !readNotifications.includes(id)) {
-      readNotifications.push(id)
-      localStorage.setItem('read_order_notifications', JSON.stringify(readNotifications))
-    } else if (!value) {
-      const index = readNotifications.indexOf(id)
-      if (index > -1) {
-        readNotifications.splice(index, 1)
-        localStorage.setItem('read_order_notifications', JSON.stringify(readNotifications))
+      // Navigate if action_url is provided
+      if (notification.action_url) {
+        router.push(notification.action_url)
+        handleClose()
       }
+    } catch (error) {
+      console.error('Error handling notification click:', error)
     }
-
-    setNotifications(prev => prev.map(n =>
-      n.id === id ? { ...n, read: value } : n
-    ))
   }
 
-  // Remove notification when close icon is clicked
-  const handleRemoveNotification = (event: MouseEvent<HTMLElement>, id: string) => {
+  // Mark notification as read via API
+  const markAsRead = async (id: number) => {
+    try {
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData)
+        if (userData.uuid) {
+          headers['X-User-UUID'] = userData.uuid
+        }
+      }
+
+      const response = await fetch(`${backendUrl}/api/notifications/${id}/read`, {
+        method: 'POST',
+        headers,
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        // Update local state
+        setNotifications(prev => prev.map(n =>
+          n.id === id ? { ...n, is_read: true, read_at: new Date().toISOString() } : n
+        ))
+        setUnreadCount(prev => Math.max(0, prev - 1))
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error)
+    }
+  }
+
+  // Toggle read status
+  const handleReadNotification = async (event: MouseEvent<HTMLElement>, notification: NotificationsType) => {
     event.stopPropagation()
 
-    // Add to read notifications to hide it
-    const readNotifications = JSON.parse(localStorage.getItem('read_order_notifications') || '[]')
-    if (!readNotifications.includes(id)) {
-      readNotifications.push(id)
-      localStorage.setItem('read_order_notifications', JSON.stringify(readNotifications))
+    if (!notification.is_read) {
+      await markAsRead(notification.id)
     }
-
-    setNotifications(prev => prev.filter(n => n.id !== id))
   }
 
-  // Read or unread all notifications when read all icon is clicked
-  const readAllNotifications = () => {
-    const readNotifications = JSON.parse(localStorage.getItem('read_order_notifications') || '[]')
+  // Remove notification (soft delete)
+  const handleRemoveNotification = async (event: MouseEvent<HTMLElement>, id: number) => {
+    event.stopPropagation()
 
-    if (readAll) {
-      // Mark all as unread
-      notifications.forEach(n => {
-        const index = readNotifications.indexOf(n.id)
-        if (index > -1) {
-          readNotifications.splice(index, 1)
+    try {
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData)
+        if (userData.uuid) {
+          headers['X-User-UUID'] = userData.uuid
         }
+      }
+
+      const response = await fetch(`${backendUrl}/api/notifications/${id}`, {
+        method: 'DELETE',
+        headers,
+        credentials: 'include'
       })
-    } else {
-      // Mark all as read
-      notifications.forEach(n => {
-        if (!readNotifications.includes(n.id)) {
-          readNotifications.push(n.id)
-        }
-      })
+
+      if (response.ok) {
+        setNotifications(prev => prev.filter(n => n.id !== id))
+        fetchUnreadCount() // Update unread count
+      }
+    } catch (error) {
+      console.error('Error removing notification:', error)
     }
+  }
 
-    localStorage.setItem('read_order_notifications', JSON.stringify(readNotifications))
-    setNotifications(prev => prev.map(n => ({ ...n, read: !readAll })))
+  // Mark all as read
+  const readAllNotifications = async () => {
+    try {
+      const storedUserData = localStorage.getItem('user_data')
+      const authToken = localStorage.getItem('auth_token')
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
+
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+
+      if (storedUserData) {
+        const userData = JSON.parse(storedUserData)
+        if (userData.uuid) {
+          headers['X-User-UUID'] = userData.uuid
+        }
+      }
+
+      const response = await fetch(`${backendUrl}/api/notifications/mark-all-read`, {
+        method: 'POST',
+        headers,
+        credentials: 'include'
+      })
+
+      if (response.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true, read_at: new Date().toISOString() })))
+        setUnreadCount(0)
+      }
+    } catch (error) {
+      console.error('Error marking all as read:', error)
+    }
   }
 
   const handleViewAllNotifications = () => {
-    router.push('/apps/tokoku/orders')
+    // TODO: Create a dedicated notifications page
+    router.push('/apps/notifications')
     handleClose()
   }
 
@@ -378,13 +436,13 @@ const NotificationDropdown = () => {
       <IconButton ref={anchorRef} onClick={handleToggle} className='text-textPrimary'>
         <Badge
           color='error'
-          badgeContent={notificationCount}
+          badgeContent={unreadCount}
           className='cursor-pointer'
           overlap='circular'
-          invisible={notificationCount === 0}
+          invisible={unreadCount === 0}
           sx={{
             '& .MuiBadge-badge': {
-              minWidth: notificationCount > 9 ? '20px' : '16px',
+              minWidth: unreadCount > 9 ? '20px' : '16px',
               height: '16px',
               fontSize: '0.625rem',
               fontWeight: 600
@@ -425,26 +483,16 @@ const NotificationDropdown = () => {
                     <Typography variant='h6' className='flex-auto'>
                       Notifications
                     </Typography>
-                    {notificationCount > 0 && (
-                      <Chip size='small' variant='tonal' color='primary' label={`${notificationCount} New`} />
+                    {unreadCount > 0 && (
+                      <Chip size='small' variant='tonal' color='primary' label={`${unreadCount} New`} />
                     )}
                     {notifications.length > 0 && (
                       <Tooltip
-                        title={readAll ? 'Mark all as unread' : 'Mark all as read'}
+                        title='Mark all as read'
                         placement={placement === 'bottom-end' ? 'left' : 'right'}
-                        slotProps={{
-                          popper: {
-                            sx: {
-                              '& .MuiTooltip-tooltip': {
-                                transformOrigin:
-                                  placement === 'bottom-end' ? 'right center !important' : 'right center !important'
-                              }
-                            }
-                          }
-                        }}
                       >
                         <IconButton size='small' onClick={() => readAllNotifications()} className='text-textPrimary'>
-                          <i className={readAll ? 'tabler-mail' : 'tabler-mail-opened'} />
+                          <i className='tabler-mail-opened' />
                         </IconButton>
                       </Tooltip>
                     )}
@@ -460,65 +508,49 @@ const NotificationDropdown = () => {
                       </div>
                     ) : notifications.length > 0 ? (
                       notifications.map((notification) => {
-                        const {
-                          id,
-                          title,
-                          subtitle,
-                          time,
-                          read,
-                          avatarImage,
-                          avatarIcon,
-                          avatarText,
-                          avatarColor,
-                          avatarSkin
-                        } = notification
-
                         return (
                           <div
-                            key={id}
-                            className={classnames('flex flex-col plb-3 pli-4 gap-3 hover:bg-actionHover group', {
+                            key={notification.id}
+                            className={classnames('flex flex-col plb-3 pli-4 gap-3 cursor-pointer hover:bg-actionHover group', {
                               'border-be': true,
-                              'bg-actionHover bg-opacity-10': !read
+                              'bg-actionHover bg-opacity-10': !notification.is_read
                             })}
+                            onClick={() => handleNotificationClick(notification)}
                           >
                             <div className='flex gap-3'>
-                              {getAvatar({ avatarImage, avatarIcon, title, avatarText, avatarColor, avatarSkin })}
+                              {getAvatar({
+                                icon: notification.icon,
+                                color: notification.color,
+                                title: notification.title
+                              })}
                               <div className='flex flex-col flex-auto'>
                                 <Typography variant='body2' className='font-medium mbe-1' color='text.primary'>
-                                  {title}
+                                  {notification.title}
                                 </Typography>
-                                <Typography variant='caption' color='text.secondary' className='mbe-2'>
-                                  {subtitle}
-                                </Typography>
+                                {notification.description && (
+                                  <Typography variant='caption' color='text.secondary' className='mbe-2'>
+                                    {notification.description}
+                                  </Typography>
+                                )}
                                 <Typography variant='caption' color='text.disabled'>
-                                  {time}
+                                  {formatTimeAgo(notification.created_at)}
                                 </Typography>
                               </div>
                               <div className='flex flex-col items-end gap-2'>
                                 <Badge
                                   variant='dot'
-                                  color={read ? 'secondary' : 'primary'}
-                                  onClick={e => handleReadNotification(e, !read, id)}
+                                  color={notification.is_read ? 'secondary' : 'primary'}
+                                  onClick={e => handleReadNotification(e, notification)}
                                   className={classnames('mbs-1 mie-1', {
-                                    'invisible group-hover:visible': read
+                                    'invisible group-hover:visible': notification.is_read
                                   })}
                                 />
                                 <i
-                                  className='tabler-x text-xl invisible group-hover:visible'
-                                  onClick={e => handleRemoveNotification(e, id)}
+                                  className='tabler-x text-xl invisible group-hover:visible cursor-pointer'
+                                  onClick={e => handleRemoveNotification(e, notification.id)}
                                 />
                               </div>
                             </div>
-                            <Button
-                              fullWidth
-                              variant='outlined'
-                              size='small'
-                              color='primary'
-                              onClick={() => handleNotificationClick(notification)}
-                              startIcon={<i className='tabler-eye' />}
-                            >
-                              Lihat Order
-                            </Button>
                           </div>
                         )
                       })
@@ -534,7 +566,7 @@ const NotificationDropdown = () => {
                   <Divider />
                   <div className='p-4'>
                     <Button fullWidth variant='contained' size='small' onClick={handleViewAllNotifications}>
-                      View All Orders
+                      View All Notifications
                     </Button>
                   </div>
                 </div>
