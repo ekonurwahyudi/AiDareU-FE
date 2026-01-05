@@ -98,10 +98,10 @@ const NavbarContent = () => {
           return
         }
 
-        console.log('📡 [Notifications] Fetching notifications for user:', userUuid)
+        // console.log('📡 [Notifications] Fetching notifications for user:', userUuid)
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/notifications/orders?user_uuid=${userUuid}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/notifications/unread-count`,
           {
             cache: 'no-store',
             headers: {
@@ -112,17 +112,14 @@ const NavbarContent = () => {
 
         const result = await response.json()
 
-        console.log('📬 [Notifications] API Response:', result)
+        // console.log('📬 [Notifications] API Response:', result)
 
-        if (result.success && result.data) {
-          if (result.data.length > 0) {
-            console.log('✅ [Notifications] Setting', result.data.length, 'notifications')
-            setOrderNotifications(result.data)
-          } else {
-            console.log('ℹ️ [Notifications] No new orders found')
-          }
+        if (result.success) {
+          const count = result.unread_count || 0
+          // Set notification count for badge (not using setOrderNotifications anymore)
+          // The actual notifications are handled by NotificationsDropdown component
         } else {
-          console.warn('⚠️ [Notifications] Invalid API response:', result)
+          // console.warn('⚠️ [Notifications] Invalid API response:', result)
         }
       } catch (error) {
         console.error('❌ [Notifications] Error fetching notifications:', error)

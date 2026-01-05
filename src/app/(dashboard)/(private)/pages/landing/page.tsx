@@ -529,14 +529,14 @@ const LandingPage = () => {
 		const token = localStorage.getItem('auth_token')
 		const user = localStorage.getItem('user_data')
 		
-		console.log('Landing Page: Loading auth data', { hasToken: !!token, hasUser: !!user })
+// 		console.log('Landing Page: Loading auth data', { hasToken: !!token, hasUser: !!user })
 		
 		if (token && user) {
 			try {
 				setAuthToken(token)
 				setUserData(JSON.parse(user))
 				setAuthStatus('authenticated')
-				console.log('Landing Page: Auth loaded successfully')
+// 				console.log('Landing Page: Auth loaded successfully')
 			} catch (error) {
 				console.error('Landing Page: Error parsing user data:', error)
 				setAuthStatus('unauthenticated')

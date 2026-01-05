@@ -163,7 +163,7 @@ export default function DashboardEditorPage() {
       }
       
       if (response.ok) {
-        console.log('Save successful')
+//         console.log('Save successful')
         setLastSaved(new Date())
       } else {
         console.error('Save failed:', response.status, response.statusText)
@@ -225,7 +225,7 @@ export default function DashboardEditorPage() {
   }
 
   const handleVisualEditorSave = async (visualData: any) => {
-    console.log('Saving visual editor data:', visualData)
+//     console.log('Saving visual editor data:', visualData)
     // Convert visual editor data back to our JSON format
     const updatedJson = {
       ...json,
@@ -235,7 +235,7 @@ export default function DashboardEditorPage() {
       css: visualData.css || json.css,
       sections: visualData.sections || json.sections
     }
-    console.log('Updated JSON:', updatedJson)
+//     console.log('Updated JSON:', updatedJson)
     
     // Call save with the updated data immediately
     await handleSave(updatedJson)
