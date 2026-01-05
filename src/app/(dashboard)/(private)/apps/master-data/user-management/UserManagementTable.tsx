@@ -236,7 +236,7 @@ const UserManagementTable = () => {
 
       if (result.status === 'success') {
         // Debug: Log raw data
-        console.log('Raw API Response:', result.data.data)
+//         console.log('Raw API Response:', result.data.data)
 
         // Sanitize user data to ensure roles is always an array of strings
         const sanitizedUsers = (result.data.data || []).map((user: any) => {
@@ -257,7 +257,7 @@ const UserManagementTable = () => {
             }).filter((r: string) => r !== '')
           }
 
-          console.log('User:', user.name, 'Roles:', roles)
+//           console.log('User:', user.name, 'Roles:', roles)
 
           return {
             ...user,

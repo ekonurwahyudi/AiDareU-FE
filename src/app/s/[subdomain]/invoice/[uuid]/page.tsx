@@ -329,9 +329,9 @@ export default function InvoicePage() {
 
               // Debug logging
               if (index === 0) {
-                console.log('[Invoice] Item:', item)
-                console.log('[Invoice] Product:', item.product)
-                console.log('[Invoice] Product Image Raw:', productImageRaw)
+//                 console.log('[Invoice] Item:', item)
+//                 console.log('[Invoice] Product:', item.product)
+//                 console.log('[Invoice] Product Image Raw:', productImageRaw)
               }
 
               if (productImageRaw) {
@@ -351,7 +351,7 @@ export default function InvoicePage() {
 
               // Debug logging
               if (index === 0) {
-                console.log('[Invoice] Final Image URL:', imageUrl)
+//                 console.log('[Invoice] Final Image URL:', imageUrl)
               }
 
               return (

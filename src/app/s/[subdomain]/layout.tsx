@@ -11,7 +11,7 @@ async function fetchStoreData(subdomain: string) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
     const apiUrl = `${backendUrl}/api/store/${subdomain}`
 
-    console.log('[generateMetadata] Fetching from:', apiUrl)
+//     console.log('[generateMetadata] Fetching from:', apiUrl)
 
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -22,15 +22,15 @@ async function fetchStoreData(subdomain: string) {
       }
     })
 
-    console.log('[generateMetadata] Response status:', response.status)
+//     console.log('[generateMetadata] Response status:', response.status)
 
     if (!response.ok) {
-      console.log('[generateMetadata] Response not OK')
+//       console.log('[generateMetadata] Response not OK')
       return null
     }
 
     const data = await response.json()
-    console.log('[generateMetadata] Data received:', data ? 'Yes' : 'No')
+//     console.log('[generateMetadata] Data received:', data ? 'Yes' : 'No')
     return data.success ? data.data : null
   } catch (error) {
     console.error('[generateMetadata] Error fetching store data:', error)

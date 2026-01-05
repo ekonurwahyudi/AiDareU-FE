@@ -145,7 +145,7 @@ export default function OrderConfirmationPage() {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const apiUrl = `${backendUrl}/api/order/${orderId}`
 
-      console.log('[Order Details] Fetching from:', apiUrl)
+//       console.log('[Order Details] Fetching from:', apiUrl)
 
       const response = await fetch(apiUrl, {
         headers: {
@@ -153,7 +153,7 @@ export default function OrderConfirmationPage() {
         }
       })
 
-      console.log('[Order Details] Response status:', response.status)
+//       console.log('[Order Details] Response status:', response.status)
 
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
@@ -164,8 +164,8 @@ export default function OrderConfirmationPage() {
       }
 
       const result = await response.json()
-      console.log('[Order Details] Full response:', result)
-      console.log('[Order Details] Result data:', result.data)
+//       console.log('[Order Details] Full response:', result)
+//       console.log('[Order Details] Result data:', result.data)
 
       if (result.success && result.data) {
         // Transform data to match frontend expectations (camelCase)
@@ -187,8 +187,8 @@ export default function OrderConfirmationPage() {
           updatedAt: result.data.updated_at || result.data.updatedAt
         }
 
-        console.log('[Order Details] Transformed data:', transformedData)
-        console.log('[Order Details] Detail orders count:', transformedData.detailOrders?.length || 0)
+//         console.log('[Order Details] Transformed data:', transformedData)
+//         console.log('[Order Details] Detail orders count:', transformedData.detailOrders?.length || 0)
         setOrderData(transformedData)
       } else {
         console.error('[Order Details] API returned success:false', result)
@@ -331,8 +331,8 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
 
   // Debug log for bank account
-  console.log('[Order Confirmation] Bank Account:', bankAccount)
-  console.log('[Order Confirmation] Full Order Data:', orderData)
+//   console.log('[Order Confirmation] Bank Account:', bankAccount)
+//   console.log('[Order Confirmation] Full Order Data:', orderData)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -701,8 +701,8 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
                         // Debug logging
                         if (index === 0) {
-                          console.log('[Checkout Order] Product:', product)
-                          console.log('[Checkout Order] Product Image Raw:', productImageRaw)
+//                           console.log('[Checkout Order] Product:', product)
+//                           console.log('[Checkout Order] Product Image Raw:', productImageRaw)
                         }
 
                         if (productImageRaw) {
@@ -722,7 +722,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
 
                         // Debug logging
                         if (index === 0) {
-                          console.log('[Checkout Order] Final Image URL:', imageUrl)
+//                           console.log('[Checkout Order] Final Image URL:', imageUrl)
                         }
 
                         return (

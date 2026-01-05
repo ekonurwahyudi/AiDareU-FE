@@ -314,7 +314,7 @@ const DynamicStorePage = () => {
       return
     }
 
-    console.log('Adding to cart - Product:', product)
+//     console.log('Adding to cart - Product:', product)
 
     const cartItem = {
       id: product.id,
@@ -328,7 +328,7 @@ const DynamicStorePage = () => {
       jenis_produk: product.jenis_produk ?? 'fisik'
     }
 
-    console.log('Cart Item with UUID:', cartItem)
+//     console.log('Cart Item with UUID:', cartItem)
     addToCartContext(cartItem)
   }
 
@@ -341,9 +341,9 @@ const DynamicStorePage = () => {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
         const apiUrl = `${backendUrl}/api/store/${subdomain}`
 
-        console.log('[CLIENT] NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
-        console.log('[CLIENT] Subdomain from params:', subdomain)
-        console.log('[CLIENT] Fetching store data from:', apiUrl)
+//         console.log('[CLIENT] NEXT_PUBLIC_BACKEND_URL:', process.env.NEXT_PUBLIC_BACKEND_URL)
+//         console.log('[CLIENT] Subdomain from params:', subdomain)
+//         console.log('[CLIENT] Fetching store data from:', apiUrl)
 
         const response = await fetch(apiUrl, {
           cache: 'no-store', // Prevent caching issues
@@ -353,8 +353,8 @@ const DynamicStorePage = () => {
           }
         })
 
-        console.log('[CLIENT] Store API response status:', response.status)
-        console.log('[CLIENT] Store API content-type:', response.headers.get('content-type'))
+//         console.log('[CLIENT] Store API response status:', response.status)
+//         console.log('[CLIENT] Store API content-type:', response.headers.get('content-type'))
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -373,10 +373,10 @@ const DynamicStorePage = () => {
 
         const data = await response.json()
 
-        console.log('[CLIENT] ✅ Response data:', data)
+//         console.log('[CLIENT] ✅ Response data:', data)
 
         if (data.success && data.data) {
-          console.log('[CLIENT] ✅ Store data fetched successfully')
+//           console.log('[CLIENT] ✅ Store data fetched successfully')
           setStoreData(data.data)
           setStoreLoading(false) // Mark store data as loaded
           setStoreNotFound(false)
@@ -385,7 +385,7 @@ const DynamicStorePage = () => {
           if (data.data.products) {
             const productsWithoutUuid = data.data.products.filter((p: any) => !p.uuid)
             if (productsWithoutUuid.length > 0) {
-              console.warn('Products without UUID:', productsWithoutUuid)
+//               console.warn('Products without UUID:', productsWithoutUuid)
             }
             setProducts(data.data.products)
           }

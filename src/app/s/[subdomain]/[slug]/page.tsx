@@ -256,7 +256,7 @@ const renderHtmlDescription = (htmlString: string, descriptionRef: React.RefObje
   processedHtml = processedHtml.replace(/href=['"]([^'"]*)['"]/g, (match, href) => {
     let cleanHref = href
 
-    console.log('Processing href:', href) // Debug log
+//     console.log('Processing href:', href) // Debug log
 
     // Remove any localhost prefixes (more comprehensive)
     if (href.includes('localhost:8080') || href.includes('localhost:8000') || href.includes('127.0.0.1')) {
@@ -284,7 +284,7 @@ const renderHtmlDescription = (htmlString: string, descriptionRef: React.RefObje
       cleanHref = `https://${cleanHref}`
     }
 
-    console.log('Processed href:', cleanHref) // Debug log
+//     console.log('Processed href:', cleanHref) // Debug log
 
     return `href="${cleanHref}" target="_blank" rel="noopener noreferrer"`
   })
@@ -619,7 +619,7 @@ function ProductDetailPage() {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
         const apiUrl = `${backendUrl}/api/store/${subdomain}`
 
-        console.log('[Product Detail] Fetching store data from:', apiUrl)
+//         console.log('[Product Detail] Fetching store data from:', apiUrl)
 
         const response = await fetch(apiUrl, {
           cache: 'no-store', // Prevent caching issues
@@ -629,8 +629,8 @@ function ProductDetailPage() {
           }
         })
 
-        console.log('[Product Detail] Store API response status:', response.status)
-        console.log('[Product Detail] Store API content-type:', response.headers.get('content-type'))
+//         console.log('[Product Detail] Store API response status:', response.status)
+//         console.log('[Product Detail] Store API content-type:', response.headers.get('content-type'))
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -647,12 +647,12 @@ function ProductDetailPage() {
         }
 
         const data = await response.json()
-        console.log('[Product Detail] Store data received:', data)
+//         console.log('[Product Detail] Store data received:', data)
 
         if (data.success && data.data) {
           setStoreData(data.data)
-          console.log('[Product Detail] Store UUID:', data.data.uuid_store || data.data.uuid)
-          console.log('[Product Detail] Store object:', data.data.store)
+//           console.log('[Product Detail] Store UUID:', data.data.uuid_store || data.data.uuid)
+//           console.log('[Product Detail] Store object:', data.data.store)
         } else {
           console.error('[Product Detail] Invalid store data format:', data)
         }
@@ -696,17 +696,17 @@ function ProductDetailPage() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        console.log('Fetching product with slug:', slug)
-        console.log('Product UUID from URL:', productUuid)
-        console.log('Store data available:', !!storeData)
+//         console.log('Fetching product with slug:', slug)
+//         console.log('Product UUID from URL:', productUuid)
+//         console.log('Store data available:', !!storeData)
 
         // Get store UUID from correct field (try all possible locations)
         const storeUuid = storeData?.store?.uuid || storeData?.store?.uuid_store || storeData?.uuid_store || storeData?.uuid
-        console.log('Store UUID:', storeUuid)
+//         console.log('Store UUID:', storeUuid)
 
         // Wait for storeData to load first
         if (!storeUuid) {
-          console.log('Store UUID not available yet, waiting...')
+//           console.log('Store UUID not available yet, waiting...')
           return
         }
 
@@ -723,13 +723,13 @@ function ProductDetailPage() {
         if (productUuid) {
           apiUrl = `${backendUrl}/api/public/products/${productUuid}`
           fetchingSingleProduct = true
-          console.log('Fetching single product by UUID:', productUuid)
+//           console.log('Fetching single product by UUID:', productUuid)
         } else {
           apiUrl = `${backendUrl}/api/public/products?per_page=1000&store_uuid=${storeUuid}`
-          console.log('Fetching all products for store')
+//           console.log('Fetching all products for store')
         }
 
-        console.log('Fetching from:', apiUrl)
+//         console.log('Fetching from:', apiUrl)
 
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -740,8 +740,8 @@ function ProductDetailPage() {
           cache: 'no-store'
         })
 
-        console.log('Response status:', response.status)
-        console.log('Response headers:', response.headers.get('content-type'))
+//         console.log('Response status:', response.status)
+//         console.log('Response headers:', response.headers.get('content-type'))
 
         if (!response.ok) {
           const errorText = await response.text()
@@ -758,7 +758,7 @@ function ProductDetailPage() {
         }
 
         const data = await response.json()
-        console.log('Parsed data:', data)
+//         console.log('Parsed data:', data)
 
         // Helper function to transform product data
         const transformProduct = (product: any): Product => ({
@@ -805,27 +805,27 @@ function ProductDetailPage() {
 
         // Handle single product response (when fetching by UUID)
         if (fetchingSingleProduct && data.status === 'success' && data.data) {
-          console.log('Single product fetched successfully')
+//           console.log('Single product fetched successfully')
           const transformedProduct = transformProduct(data.data)
-          console.log('Transformed product:', transformedProduct.name)
+//           console.log('Transformed product:', transformedProduct.name)
           setProduct(transformedProduct)
         }
         // Handle list of products response (when fetching all products)
         else if (!fetchingSingleProduct && data.status === 'success' && data.data && data.data.data) {
-          console.log('Product list fetched, searching by slug')
+//           console.log('Product list fetched, searching by slug')
           const transformedProducts: Product[] = data.data.data.map(transformProduct)
 
           // Set all products for search functionality
           setProducts(transformedProducts)
 
-          console.log('Looking for slug:', slug)
-          console.log('Available slugs:', transformedProducts.map(p => p.slug))
+//           console.log('Looking for slug:', slug)
+//           console.log('Available slugs:', transformedProducts.map(p => p.slug))
 
           // Find product by slug
           const foundProduct = transformedProducts.find((p: Product) => p.slug === slug)
 
           if (foundProduct) {
-            console.log('Found product:', foundProduct.name)
+//             console.log('Found product:', foundProduct.name)
             setProduct(foundProduct)
           } else {
             console.error('Product not found! Available products:', transformedProducts.length)
@@ -909,7 +909,7 @@ function ProductDetailPage() {
 
           const transformedProducts: Product[] = data.data.data.map(transformProduct)
           setProducts(transformedProducts)
-          console.log('[Search] Loaded products for search:', transformedProducts.length)
+//           console.log('[Search] Loaded products for search:', transformedProducts.length)
         }
       } catch (error) {
         console.error('[Search] Error fetching all products:', error)
@@ -924,7 +924,7 @@ function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product) {
-      console.log('No product found, cannot add to cart')
+//       console.log('No product found, cannot add to cart')
       return
     }
 
@@ -941,14 +941,14 @@ function ProductDetailPage() {
       return
     }
 
-    console.log('Adding product to cart:', {
-      id: product.id,
-      uuid: product.uuid,
-      name: product.name,
-      price: product.price,
-      quantity: quantity,
-      selectedVariant: selectedVariant
-    })
+    // console.log('Adding product to cart:', {
+    //   id: product.id,
+    //   uuid: product.uuid,
+    //   name: product.name,
+    //   price: product.price,
+    //   quantity: quantity,
+    //   selectedVariant: selectedVariant
+    // })
 
     const cartItem = {
       id: product.id,
@@ -970,10 +970,10 @@ function ProductDetailPage() {
       berat_produk: product.berat_produk || 1000 // berat dalam gram
     }
 
-    console.log('Cart Item with UUID:', cartItem)
+//     console.log('Cart Item with UUID:', cartItem)
     addToCart(cartItem, quantity)
 
-    console.log('Product added to cart successfully')
+//     console.log('Product added to cart successfully')
   }
 
   const handleBack = () => {
@@ -986,14 +986,14 @@ function ProductDetailPage() {
   }
 
   const handleBuyNow = () => {
-    console.log('handleBuyNow called')
-    console.log('Product type:', product?.jenis_produk)
+//     console.log('handleBuyNow called')
+//     console.log('Product type:', product?.jenis_produk)
 
     // Always add to cart and redirect to checkout for both digital and physical products
-    console.log('Adding to cart and redirecting to checkout')
+//     console.log('Adding to cart and redirecting to checkout')
     handleAddToCart()
     // Redirect to checkout page - clean URL without /s/ prefix
-    console.log('Navigating to checkout...')
+//     console.log('Navigating to checkout...')
     router.push(`/checkout`)
   }
 

@@ -39,7 +39,7 @@ async function fetchProductByUuid(uuid: string) {
 
     // Try physical products first
     let apiUrl = `${backendUrl}/api/public/products/${uuid}`
-    console.log('[Product Metadata] Fetching product (physical):', apiUrl)
+//     console.log('[Product Metadata] Fetching product (physical):', apiUrl)
 
     let response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -54,14 +54,14 @@ async function fetchProductByUuid(uuid: string) {
       const data = await response.json()
       // Backend returns { status: "success", data: {...} }
       if (data.status === 'success' && data.data) {
-        console.log('[Product Metadata] ✅ Physical product found')
+//         console.log('[Product Metadata] ✅ Physical product found')
         return data.data
       }
     }
 
     // If not found, try digital products
     apiUrl = `${backendUrl}/api/public/products-digital/${uuid}`
-    console.log('[Product Metadata] Fetching product (digital):', apiUrl)
+//     console.log('[Product Metadata] Fetching product (digital):', apiUrl)
 
     response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -76,12 +76,12 @@ async function fetchProductByUuid(uuid: string) {
       const data = await response.json()
       // Backend returns { status: "success", data: {...} }
       if (data.status === 'success' && data.data) {
-        console.log('[Product Metadata] ✅ Digital product found')
+//         console.log('[Product Metadata] ✅ Digital product found')
         return data.data
       }
     }
 
-    console.log('[Product Metadata] ❌ Product not found in both endpoints')
+//     console.log('[Product Metadata] ❌ Product not found in both endpoints')
     return null
   } catch (error) {
     console.error('[Product Metadata] Error:', error)
@@ -100,7 +100,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     const search = await searchParams
     if (search?.uuid) {
       productUuid = search.uuid
-      console.log('[Product Metadata] UUID from searchParams:', productUuid)
+//       console.log('[Product Metadata] UUID from searchParams:', productUuid)
     }
   } catch (error) {
     console.error('[Product Metadata] Error getting searchParams:', error)
@@ -115,7 +115,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
     if (match) {
       productUuid = match[0]
-      console.log('[Product Metadata] Full UUID extracted from slug:', productUuid)
+//       console.log('[Product Metadata] Full UUID extracted from slug:', productUuid)
     } else {
       // Try partial UUID at end of slug (e.g., "product-name-e4d49228")
       const partialUuidPattern = /-([0-9a-f]{8})$/i
@@ -124,18 +124,18 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         // We have 8-char prefix, need to fetch using this prefix
         // Store the partial for now - backend API will need to handle prefix search
         productUuid = match[1]
-        console.log('[Product Metadata] Partial UUID (8 chars) extracted from slug:', productUuid)
-        console.log('[Product Metadata] ⚠️  Warning: Using partial UUID - may need full UUID from query param')
+//         console.log('[Product Metadata] Partial UUID (8 chars) extracted from slug:', productUuid)
+//         console.log('[Product Metadata] ⚠️  Warning: Using partial UUID - may need full UUID from query param')
       }
     }
   }
 
-  console.log('========================================')
-  console.log('[Product Metadata] LAYOUT CALLED!')
-  console.log('[Product Metadata] Final UUID:', productUuid)
-  console.log('[Product Metadata] Subdomain:', subdomain)
-  console.log('[Product Metadata] Slug:', slug)
-  console.log('========================================')
+//   console.log('========================================')
+//   console.log('[Product Metadata] LAYOUT CALLED!')
+//   console.log('[Product Metadata] Final UUID:', productUuid)
+//   console.log('[Product Metadata] Subdomain:', subdomain)
+//   console.log('[Product Metadata] Slug:', slug)
+//   console.log('========================================')
 
   // Fetch store data untuk SEO settings
   const storeData = await fetchStoreData(subdomain)
@@ -155,7 +155,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (productUuid) {
     try {
       productData = await fetchProductByUuid(productUuid)
-      console.log('[Product Metadata] Product data loaded:', !!productData)
+//       console.log('[Product Metadata] Product data loaded:', !!productData)
     } catch (error) {
       console.error('[Product Metadata] Error fetching product:', error)
       productData = null
@@ -164,11 +164,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   // If product data available, use it for OG tags
   if (productData) {
-    console.log('[Product Metadata] ✅ PRODUCT DATA FOUND - Using product OG tags')
+//     console.log('[Product Metadata] ✅ PRODUCT DATA FOUND - Using product OG tags')
     const productName = productData.nama_produk || 'Product'
     const storeName = storeData.settings?.site_title || storeData.store?.name || 'AiDareU Store'
-    console.log('[Product Metadata] Product Name:', productName)
-    console.log('[Product Metadata] Store Name:', storeName)
+//     console.log('[Product Metadata] Product Name:', productName)
+//     console.log('[Product Metadata] Store Name:', storeName)
 
     // Clean HTML from description
     // Backend can return either 'deskripsi' or 'deskripsi_produk'
@@ -180,7 +180,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         : ''
     }
 
-    console.log('[Product Metadata] Product Description:', productDescription || 'No description')
+//     console.log('[Product Metadata] Product Description:', productDescription || 'No description')
 
     // Get product image
     let productImage = ''
@@ -206,9 +206,9 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         : (storeData.settings?.logo ? `${backendUrl}/storage/${storeData.settings.logo}` : '')
     }
 
-    console.log('[Product Metadata] ✅ RETURNING PRODUCT METADATA')
-    console.log('[Product Metadata] Title:', `${productName} - ${storeName}`)
-    console.log('[Product Metadata] OG Image:', productImage)
+//     console.log('[Product Metadata] ✅ RETURNING PRODUCT METADATA')
+//     console.log('[Product Metadata] Title:', `${productName} - ${storeName}`)
+//     console.log('[Product Metadata] OG Image:', productImage)
 
     return {
       // Meta tags dari product data (prioritas produk, bukan store SEO)
