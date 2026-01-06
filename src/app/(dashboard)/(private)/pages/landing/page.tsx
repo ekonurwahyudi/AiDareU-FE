@@ -466,10 +466,33 @@ const LandingPage = () => {
 			
 			if (!res.ok) {
 				const j = await res.json().catch(() => ({}))
-				throw new Error(j.message || 'Failed to generate')
+				// Enhanced error message with debug info from backend
+				let errorMessage = j.message || 'Failed to generate'
+				if (j.error) {
+					errorMessage += ` (${j.error})`
+				}
+				if (j.debug) {
+					console.error('Backend Debug Info:', j.debug)
+				}
+				if (j.exception_message) {
+					console.error('Exception:', j.exception_message)
+					console.error('File:', j.exception_file, 'Line:', j.exception_line)
+				}
+				if (j.details) {
+					console.error('Error Details:', j.details)
+				}
+				throw new Error(errorMessage)
 			}
 			
 			const data = await res.json()
+
+			// Log debug info from successful generation
+			if (data.debug) {
+				console.log('Generation Success - AI Provider:', data.debug.ai_provider)
+				console.log('Text Model:', data.debug.text_model)
+				console.log('Image Model:', data.debug.image_model)
+				console.log('Business Category:', data.debug.business_category)
+			}
 
 			// Get UUID from backend
 			let generatedUuid: string | undefined
