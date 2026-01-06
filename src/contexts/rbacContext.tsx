@@ -37,15 +37,15 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
       if (storedUserData) {
         try {
           userData = JSON.parse(storedUserData)
-          console.log('User data loaded from localStorage:', userData)
-          console.log('Store from user data:', userData.store)
+          // console.log('User data loaded from localStorage:', userData)
+          // console.log('Store from user data:', userData.store)
 
           // Set user immediately
           setUser(userData)
 
           // If user has store data directly, set it as current store
           if (userData.store) {
-            console.log('Setting current store from user data:', userData.store)
+            // console.log('Setting current store from user data:', userData.store)
             setCurrentStore(userData.store)
           }
         } catch (error) {
@@ -99,17 +99,24 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
       }
       
       // Try to get available roles (optional)
-      try {
-        const rolesResponse = await fetch('/api/rbac/roles', {
-          credentials: 'include'
-        })
-        
-        if (rolesResponse.ok) {
-          const rolesData = await rolesResponse.json()
-          setRoles(rolesData.data)
+      if (authToken) {
+        try {
+          const rolesResponse = await fetch('/api/rbac/roles', {
+            credentials: 'include',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`
+            }
+          })
+
+          if (rolesResponse.ok) {
+            const rolesData = await rolesResponse.json()
+            setRoles(rolesData.data || [])
+          }
+        } catch (rolesError) {
+          // console.warn('Failed to fetch roles, continuing without them:', rolesError)
         }
-      } catch (rolesError) {
-        console.warn('Failed to fetch roles, continuing without them:', rolesError)
       }
       
     } catch (error) {
@@ -121,16 +128,24 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
 
   const refreshPermissions = async () => {
     try {
+      const authToken = localStorage.getItem('auth_token')
+      if (!authToken) return
+
       const response = await fetch('/api/rbac/permissions/me', {
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
       })
-      
+
       if (response.ok) {
         const data = await response.json()
-        setPermissions(data.data)
+        setPermissions(data.data || [])
       }
     } catch (error) {
-      console.error('Failed to refresh permissions:', error)
+      // console.error('Failed to refresh permissions:', error)
     }
   }
 

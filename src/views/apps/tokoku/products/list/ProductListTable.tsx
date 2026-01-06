@@ -226,7 +226,7 @@ const ProductListTable = () => {
     // Check for store UUID - prioritize uuid field over id
     const storeUuid = currentStore?.uuid || currentStore?.id
     if (!storeUuid) {
-      console.warn('No current store UUID available for fetching products')
+      // console.warn('No current store UUID available for fetching products')
       return
     }
 
@@ -256,7 +256,7 @@ const ProductListTable = () => {
         per_page: pagination.pageSize
       }
 
-      console.log('Fetching products for store UUID:', storeUuid, 'with filters:', filters)
+      // console.log('Fetching products for store UUID:', storeUuid, 'with filters:', filters)
 
       // Use public endpoint to fetch products
       const queryParams = new URLSearchParams()
@@ -306,17 +306,17 @@ const ProductListTable = () => {
 
       const result = await response.json()
 
-      console.log('Products fetched successfully:', result)
-      console.log('Pagination state - Page:', pagination.pageIndex + 1, 'PageSize:', pagination.pageSize)
-      console.log('API Response - Full data structure:', result.data)
-      console.log('API Response - Total:', result.data?.total, 'Data count:', result.data?.data?.length)
+      // console.log('Products fetched successfully:', result)
+      // console.log('Pagination state - Page:', pagination.pageIndex + 1, 'PageSize:', pagination.pageSize)
+      // console.log('API Response - Full data structure:', result.data)
+      // console.log('API Response - Total:', result.data?.total, 'Data count:', result.data?.data?.length)
 
       if (result.status === 'success') {
         // Laravel paginate returns: { data: [...], total: X, per_page: Y, current_page: Z }
         const productsData = result.data.data || []
         const total = result.data.total || result.data.meta?.total || 0
 
-        console.log('Setting products:', productsData.length, 'Total rows:', total)
+        // console.log('Setting products:', productsData.length, 'Total rows:', total)
 
         setProducts(productsData)
         setTotalRows(total)
@@ -376,7 +376,7 @@ const ProductListTable = () => {
   useEffect(() => {
     const refreshParam = searchParams.get('refresh')
     if (refreshParam === 'true' && currentStore && !rbacLoading) {
-      console.log('Detected refresh parameter, forcing data refresh after product edit')
+      // console.log('Detected refresh parameter, forcing data refresh after product edit')
       fetchProducts(true) // Force refresh to bypass cache
       
       // Clean up the URL parameter
@@ -397,7 +397,7 @@ const ProductListTable = () => {
         // Only refresh if user has been away for more than 10 minutes
         const timeSinceLastFetch = Date.now() - lastFetchTime
         if (hasBeenAway && timeSinceLastFetch > 600000 && currentStore && !rbacLoading) {
-          console.log('User returned after long absence, refreshing products...')
+          // console.log('User returned after long absence, refreshing products...')
           fetchProducts(false) // Don't force, allow cache
           setHasBeenAway(false)
         }
@@ -417,9 +417,9 @@ const ProductListTable = () => {
     const interval = setInterval(() => {
       const timeSinceLastFetch = Date.now() - lastFetchTime
       const isDataVeryStale = timeSinceLastFetch > 600000 // 10 minutes (increased from 5)
-      
+
       if (isUserActive && isDataVeryStale) {
-        console.log('Background refresh: data is very stale and user is active')
+        // console.log('Background refresh: data is very stale and user is active')
         fetchProducts(false) // Don't force refresh, respect cache
       }
     }, 300000) // Check every 5 minutes instead of 2 minutes
