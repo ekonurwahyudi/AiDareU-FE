@@ -67,7 +67,7 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
 
         if (userResponse.ok) {
           const userApiData = await userResponse.json()
-          console.log('User data loaded from /api/users/me:', userApiData)
+          // console.log('User data loaded from /api/users/me:', userApiData)
 
           // Update user data with fresh data from API
           if (userApiData.data || userApiData.status === 'success') {
@@ -78,16 +78,16 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
 
             // Update current store with user's actual store
             if (freshUserData.store) {
-              console.log('Setting current store from API (user\'s own store):', freshUserData.store)
+              // console.log('Setting current store from API (user\'s own store):', freshUserData.store)
               setCurrentStore(freshUserData.store)
             }
           }
         } else {
-          console.warn('Failed to fetch user data from API:', userResponse.status)
+          // console.warn('Failed to fetch user data from API:', userResponse.status)
           // Already have store from localStorage, so this is not critical
         }
       } catch (apiError) {
-        console.warn('API request failed, using stored data:', apiError)
+        // console.warn('API request failed, using stored data:', apiError)
         // Already have store from localStorage, so this is not critical
       }
       
@@ -95,7 +95,7 @@ export const RBACProvider = ({ children }: RBACProviderProps) => {
       try {
         await refreshPermissions()
       } catch (permError) {
-        console.warn('Failed to refresh permissions, continuing without them:', permError)
+        // console.warn('Failed to refresh permissions, continuing without them:', permError)
       }
       
       // Try to get available roles (optional)
