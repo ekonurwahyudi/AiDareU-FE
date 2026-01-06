@@ -138,7 +138,7 @@ const AIMergePhotoTab = () => {
       })
 
       const data = await response.json()
-      console.log('Generate instruction response:', data)
+//       console.log('Generate instruction response:', data)
 
       if (data.success && data.instruction) {
         setInstruction(data.instruction)
@@ -177,11 +177,11 @@ const AIMergePhotoTab = () => {
       formData.append('aspect_ratio', aspectRatio)
 
       const authToken = localStorage.getItem('auth_token')
-      console.log('Auth token:', authToken ? 'Present' : 'Missing')
+//       console.log('Auth token:', authToken ? 'Present' : 'Missing')
       
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
-      console.log('Backend URL:', backendUrl)
-      console.log('Request URL:', `${backendUrl}/api/ai/generate-merged-photo`)
+//       console.log('Backend URL:', backendUrl)
+//       console.log('Request URL:', `${backendUrl}/api/ai/generate-merged-photo`)
 
       const response = await fetch(`${backendUrl}/api/ai/generate-merged-photo`, {
         method: 'POST',
@@ -194,8 +194,8 @@ const AIMergePhotoTab = () => {
       })
 
       const data = await response.json()
-      console.log('Response status:', response.status)
-      console.log('Response data:', data)
+//       console.log('Response status:', response.status)
+//       console.log('Response data:', data)
 
       if (data.success) {
         setPhotoResults(data.data)
@@ -300,6 +300,7 @@ const AIMergePhotoTab = () => {
                       src={img.preview}
                       alt='Preview'
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      loading='lazy'
                     />
                     <IconButton
                       size='small'
@@ -505,6 +506,7 @@ const AIMergePhotoTab = () => {
                         height: 'auto',
                         objectFit: 'contain'
                       }}
+                      loading='lazy'
                     />
                     <Chip
                       label={`Variasi ${index + 1}`}

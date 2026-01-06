@@ -144,9 +144,9 @@ const AIProductPhotoTab = () => {
       formData.append('aspect_ratio', aspectRatio)
       formData.append('additional_instructions', additionalInstructions)
 
-      console.log('Auth token:', authToken ? 'Present' : 'Missing')
-      console.log('Backend URL:', backendUrl)
-      console.log('Request URL:', `${backendUrl}/api/ai/generate-product-photo`)
+//       console.log('Auth token:', authToken ? 'Present' : 'Missing')
+//       console.log('Backend URL:', backendUrl)
+//       console.log('Request URL:', `${backendUrl}/api/ai/generate-product-photo`)
 
       const response = await fetch(`${backendUrl}/api/ai/generate-product-photo`, {
         method: 'POST',
@@ -159,11 +159,11 @@ const AIProductPhotoTab = () => {
       })
 
       const data = await response.json()
-      console.log('Response status:', response.status)
-      console.log('Response data:', data)
+//       console.log('Response status:', response.status)
+//       console.log('Response data:', data)
 
       if (data.success) {
-        console.log('Product photo results:', data.data)
+//         console.log('Product photo results:', data.data)
         setPhotoResults(data.data)
         toast.success(data.message || 'Foto produk berhasil di-generate!')
       } else {
@@ -312,6 +312,7 @@ const AIProductPhotoTab = () => {
                         maxHeight: '300px',
                         borderRadius: '8px'
                       }}
+                      loading='lazy'
                     />
                     <IconButton
                       size='small'
@@ -647,6 +648,7 @@ const AIProductPhotoTab = () => {
                         height: 'auto',
                         objectFit: 'contain'
                       }}
+                      loading='lazy'
                     />
                     <Chip
                       label={`Variasi ${index + 1}`}
