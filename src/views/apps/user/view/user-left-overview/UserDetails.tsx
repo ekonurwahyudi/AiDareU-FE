@@ -52,7 +52,7 @@ const UserDetails = () => {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
       const apiUrl = `${backendUrl}/api/users/me`
 
-      console.log('Fetching user data from:', apiUrl)
+//       console.log('Fetching user data from:', apiUrl)
 
       // Get stored user data for authentication
       const storedUserData = localStorage.getItem('user_data')
@@ -85,8 +85,8 @@ const UserDetails = () => {
         credentials: 'include' // for session-based auth
       })
       
-      console.log('Response status:', response.status)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+//       console.log('Response status:', response.status)
+//       console.log('Response headers:', Object.fromEntries(response.headers.entries()))
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`)
@@ -100,7 +100,7 @@ const UserDetails = () => {
       }
       
       const result = await response.json()
-      console.log('API Response:', result)
+//       console.log('API Response:', result)
 
       if (result.success || result.status === 'success') {
         setUserData(result.data)
@@ -112,7 +112,7 @@ const UserDetails = () => {
       
       // Retry mechanism for network errors
       if (retryCount < 2 && (err instanceof TypeError || (err instanceof Error && err.message.includes('fetch')))) {
-        console.log(`Retrying request (attempt ${retryCount + 1}/3)...`)
+//         console.log(`Retrying request (attempt ${retryCount + 1}/3)...`)
         setTimeout(() => fetchUserData(retryCount + 1), 1000)
         return
       }

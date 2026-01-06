@@ -74,7 +74,7 @@ const getProductsDigital = async (): Promise<{ products: ProductDigital[] }> => 
 
     return { products: response.data || [] }
   } catch (error) {
-    console.error('Error fetching products digital:', error)
+    // console.error('Error fetching products digital:', error)
     return { products: [] }
   }
 }

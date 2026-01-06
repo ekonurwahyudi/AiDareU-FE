@@ -66,15 +66,15 @@ const General = () => {
   const storeName = currentStore?.nama_toko || currentStore?.name || ''
 
   useEffect(() => {
-    console.log('RBAC Loading:', rbacLoading)
-    console.log('Current Store from RBAC:', currentStore)
-    console.log('Store UUID:', storeUuid)
-    console.log('Store Name:', storeName)
+//     console.log('RBAC Loading:', rbacLoading)
+//     console.log('Current Store from RBAC:', currentStore)
+//     console.log('Store UUID:', storeUuid)
+//     console.log('Store Name:', storeName)
 
     if (storeUuid) {
       fetchSettings(storeUuid)
     } else {
-      console.warn('No store UUID available from RBAC context')
+//       console.warn('No store UUID available from RBAC context')
     }
   }, [storeUuid, rbacLoading])
 
@@ -92,11 +92,11 @@ const General = () => {
       })
       const data = await response.json()
 
-      console.log('Fetched settings data:', data)
+//       console.log('Fetched settings data:', data)
 
       if (data.success && data.data.settings) {
         const settings = data.data.settings
-        console.log('Settings object:', settings)
+//         console.log('Settings object:', settings)
 
         setFormData({
           site_title: settings.site_title || '',
@@ -121,7 +121,7 @@ const General = () => {
           }
         }, 100)
       } else {
-        console.log('No settings found or request failed')
+//         console.log('No settings found or request failed')
       }
     } catch (error) {
       console.error('Error fetching settings:', error)

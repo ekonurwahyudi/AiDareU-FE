@@ -196,7 +196,7 @@ const OrderListTable = () => {
   const fetchOrders = useCallback(async (forceRefresh = false) => {
     const storeUuid = currentStore?.uuid || currentStore?.id
     if (!storeUuid) {
-      console.warn('No current store UUID available for fetching orders')
+//       console.warn('No current store UUID available for fetching orders')
       return
     }
 
@@ -255,7 +255,7 @@ const OrderListTable = () => {
 
       const result = await response.json()
 
-      console.log('Orders fetched successfully:', result)
+//       console.log('Orders fetched successfully:', result)
       if (result.success) {
         // Normalize data - convert detail_orders to detailOrders if needed
         const ordersData = (result.data.data || []).map((order: any) => {
@@ -283,7 +283,7 @@ const OrderListTable = () => {
       // Check if we need to force refresh after status update
       const shouldRefresh = sessionStorage.getItem('orderStatusUpdated')
       if (shouldRefresh === 'true') {
-        console.log('Status was updated, force refreshing orders...')
+//         console.log('Status was updated, force refreshing orders...')
         sessionStorage.removeItem('orderStatusUpdated')
         fetchOrders(true) // Force refresh with cache buster
       } else {
@@ -296,7 +296,7 @@ const OrderListTable = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && currentStore && !rbacLoading) {
-        console.log('Page became visible, refreshing orders...')
+//         console.log('Page became visible, refreshing orders...')
         fetchOrders(true)
       }
     }
@@ -313,7 +313,7 @@ const OrderListTable = () => {
     if (!currentStore || rbacLoading) return
 
     const intervalId = setInterval(() => {
-      console.log('Auto-refreshing orders (30s interval)...')
+//       console.log('Auto-refreshing orders (30s interval)...')
       fetchOrders(true)
     }, 30000) // 30 seconds
 

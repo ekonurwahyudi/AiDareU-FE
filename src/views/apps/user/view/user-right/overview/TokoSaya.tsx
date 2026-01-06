@@ -409,7 +409,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             // For existing subdomain, mark as available to avoid false error
             setSubdomainAvailable(true)
           } else {
-            console.log('No store found for this user')
+//             console.log('No store found for this user')
           }
         } else {
           // Fallback: existing flow via `/api/users/me`
@@ -470,7 +470,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
 
             setSubdomainAvailable(true)
           } else {
-            console.log('No store found for this user')
+//             console.log('No store found for this user')
           }
         }
       } catch (err) {

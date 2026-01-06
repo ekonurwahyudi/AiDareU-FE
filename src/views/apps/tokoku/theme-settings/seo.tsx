@@ -73,11 +73,11 @@ const Seo = () => {
       })
       const data = await response.json()
 
-      console.log('Fetched SEO data:', data)
+//       console.log('Fetched SEO data:', data)
 
       if (data.success && data.data.seo) {
         const seo = data.data.seo
-        console.log('SEO object:', seo)
+//         console.log('SEO object:', seo)
 
         setFormData({
           meta_title: seo.meta_title || '',
@@ -100,7 +100,7 @@ const Seo = () => {
           }
         }, 100)
       } else {
-        console.log('No SEO settings found')
+//         console.log('No SEO settings found')
       }
     } catch (error) {
       console.error('Error fetching SEO settings:', error)
@@ -157,7 +157,7 @@ const Seo = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      console.log('Submitting SEO settings:', { storeUuid, authToken: authToken?.substring(0, 20) + '...' })
+//       console.log('Submitting SEO settings:', { storeUuid, authToken: authToken?.substring(0, 20) + '...' })
 
       const response = await fetch(`${backendUrl}/api/theme-settings/seo`, {
         method: 'POST',
@@ -168,10 +168,10 @@ const Seo = () => {
         body: formDataToSend
       })
 
-      console.log('SEO Response status:', response.status)
+//       console.log('SEO Response status:', response.status)
 
       const data = await response.json()
-      console.log('SEO Response data:', data)
+//       console.log('SEO Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`)

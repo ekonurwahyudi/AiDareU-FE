@@ -148,11 +148,11 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
 
-      console.log('Updating order status:', {
-        orderId,
-        newStatus,
-        url: `${apiUrl}/order/${orderId}/status`
-      })
+      // console.log('Updating order status:', {
+      //   orderId,
+      //   newStatus,
+      //   url: `${apiUrl}/order/${orderId}/status`
+      // })
 
       const response = await fetch(`${apiUrl}/order/${orderId}/status`, {
         method: 'PUT',
@@ -166,14 +166,14 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
 
       const result = await response.json()
 
-      console.log('Update status response:', result)
+//       console.log('Update status response:', result)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       if (result.success) {
-        console.log('Status updated successfully, redirecting...')
+//         console.log('Status updated successfully, redirecting...')
         // Store a flag in sessionStorage to trigger refresh
         sessionStorage.setItem('orderStatusUpdated', 'true')
         // Redirect to orders list after successful update

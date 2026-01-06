@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 
 // Next Imports
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 // Context Imports
@@ -221,12 +222,15 @@ const ProductDigitalCard = (props: Props) => {
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                 <div className='border rounded bs-full'>
                   <div className='pli-2 pbs-2 relative'>
-                    <div className='flex'>
-                      <img
+                    <div className='flex relative' style={{ height: '200px' }}>
+                      <Image
                         src={item.gambar || '/images/pages/product-placeholder.png'}
                         alt={item.nama_produk}
-                        className='is-full object-cover'
-                        style={{ height: '200px' }}
+                        fill
+                        className='object-cover'
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        loading="lazy"
+                        quality={75}
                       />
                     </div>
                     <IconButton

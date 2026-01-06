@@ -32,7 +32,7 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
   const [activeTab, setActiveTab] = useState('general')
 
   useEffect(() => {
-    console.log('Current Store from RBAC:', currentStore)
+//     console.log('Current Store from RBAC:', currentStore)
   }, [currentStore])
 
   const handleChange = (event: SyntheticEvent, value: string) => {
@@ -43,7 +43,7 @@ const ThemeSettings = ({ tabContentList }: { tabContentList: { [key: string]: Re
     // Get subdomain from RBAC context
     const subdomain = currentStore?.subdomain || currentStore?.slug
 
-    console.log('Opening store with subdomain:', subdomain)
+//     console.log('Opening store with subdomain:', subdomain)
 
     if (!subdomain) {
       alert('Toko tidak ditemukan. Silakan atur subdomain terlebih dahulu.')

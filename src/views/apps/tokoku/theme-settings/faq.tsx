@@ -71,13 +71,13 @@ const Faq = () => {
       })
       const data = await response.json()
 
-      console.log('Fetched FAQs data:', data)
+//       console.log('Fetched FAQs data:', data)
 
       if (data.success && data.data.faqs) {
-        console.log('FAQs array:', data.data.faqs)
+//         console.log('FAQs array:', data.data.faqs)
         setFaqs(data.data.faqs)
       } else {
-        console.log('No FAQs found')
+//         console.log('No FAQs found')
         setFaqs([])
       }
     } catch (error) {

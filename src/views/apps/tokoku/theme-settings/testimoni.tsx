@@ -77,13 +77,13 @@ const Testimoni = () => {
       })
       const data = await response.json()
 
-      console.log('Fetched testimonials data:', data)
+//       console.log('Fetched testimonials data:', data)
 
       if (data.success && data.data.testimonials) {
-        console.log('Testimonials array:', data.data.testimonials)
+//         console.log('Testimonials array:', data.data.testimonials)
         setTestimonials(data.data.testimonials)
       } else {
-        console.log('No testimonials found')
+//         console.log('No testimonials found')
         setTestimonials([])
       }
     } catch (error) {
@@ -157,7 +157,7 @@ const Testimoni = () => {
       // Get auth token from localStorage
       const authToken = localStorage.getItem('auth_token')
 
-      console.log('Submitting testimonial:', { url, method, body, authToken: authToken?.substring(0, 20) + '...' })
+//       console.log('Submitting testimonial:', { url, method, body, authToken: authToken?.substring(0, 20) + '...' })
 
       const response = await fetch(url, {
         method,
@@ -169,10 +169,10 @@ const Testimoni = () => {
         body: JSON.stringify(body)
       })
 
-      console.log('Response status:', response.status)
+//       console.log('Response status:', response.status)
 
       const data = await response.json()
-      console.log('Response data:', data)
+//       console.log('Response data:', data)
 
       if (!response.ok) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`)

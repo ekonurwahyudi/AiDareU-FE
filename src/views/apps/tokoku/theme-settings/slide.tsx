@@ -84,11 +84,11 @@ const Slide = () => {
       })
       const data = await response.json()
 
-      console.log('Fetched slides data:', data)
+//       console.log('Fetched slides data:', data)
 
       if (data.success && data.data.slides) {
         const slideData = data.data.slides
-        console.log('Slides object:', slideData)
+//         console.log('Slides object:', slideData)
 
         // Add timestamp to prevent browser caching
         const cacheBuster = `?t=${timestamp}`
@@ -109,7 +109,7 @@ const Slide = () => {
           })
         }, 100)
       } else {
-        console.log('No slides found')
+//         console.log('No slides found')
       }
     } catch (error) {
       console.error('Error fetching slides:', error)

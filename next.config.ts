@@ -42,6 +42,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'aidareu.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.aidareu.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'aidareu.site',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.aidareu.site',
+      },
     ],
   },
 
