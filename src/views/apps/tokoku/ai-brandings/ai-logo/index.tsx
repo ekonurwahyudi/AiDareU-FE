@@ -438,7 +438,7 @@ const AILogoTab = () => {
                   }
                 }}
               >
-                {isGenerating ? 'Sedang Generate Logo...' : 'Generate Logo (2 Coin)'}
+                {isGenerating ? 'Sedang Generate Logo...' : 'Generate Logo (🪙 2 Coin)'}
               </Button>
             </Grid>
           </Grid>

@@ -329,7 +329,7 @@ const AIHistoryPage = () => {
 
                         {/* Coin Badge */}
                         <Chip
-                          label={`${history.coin_used} Pts`}
+                          label={`🪙 ${history.coin_used} Pts`}
                           size='small'
                           sx={{
                             position: 'absolute',

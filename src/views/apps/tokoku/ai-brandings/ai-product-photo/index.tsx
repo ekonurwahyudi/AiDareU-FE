@@ -590,7 +590,7 @@ const AIProductPhotoTab = () => {
                   }
                 }}
               >
-                {isGenerating ? 'Sedang Generate Foto...' : 'Generate Foto Produk (2 Coin)'}
+                {isGenerating ? 'Sedang Generate Foto...' : 'Generate Foto Produk (🪙 2 Coin)'}
               </Button>
             </Grid>
           </Grid>

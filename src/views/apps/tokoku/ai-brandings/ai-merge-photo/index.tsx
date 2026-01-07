@@ -448,7 +448,7 @@ const AIMergePhotoTab = () => {
                   '&.Mui-disabled': { opacity: 0.6 }
                 }}
               >
-                {isGenerating ? 'Sedang Generate Foto...' : 'Generate Foto (2 Coin)'}
+                {isGenerating ? 'Sedang Generate Foto...' : 'Generate Foto (🪙 2 Coin)'}
               </Button>
             </Grid>
           </Grid>
