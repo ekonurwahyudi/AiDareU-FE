@@ -454,7 +454,7 @@ const LandingPage = () => {
 			}
 			headers['Authorization'] = `Bearer ${authToken}`
 			
-			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-landing`, {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/landing/generate`, {
 				method: 'POST',
 				headers,
 				credentials: 'include',

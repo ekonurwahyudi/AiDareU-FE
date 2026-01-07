@@ -350,7 +350,7 @@ const CoinAiDareU = () => {
               </CustomAvatar>
               <Box>
                 <Typography variant='h4' sx={{ fontWeight: 600, color: 'success.main' }}>
-                  + 🪙 {formatNumber(summary.total_coin_masuk)} Pts
+                  🪙 + {formatNumber(summary.total_coin_masuk)} Pts
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                   Coin Masuk
@@ -370,7 +370,7 @@ const CoinAiDareU = () => {
               </CustomAvatar>
               <Box>
                 <Typography variant='h4' sx={{ fontWeight: 600, color: 'error.main' }}>
-                - 🪙 {formatNumber(summary.total_coin_keluar)} Pts
+                🪙 - {formatNumber(summary.total_coin_keluar)} Pts
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                   Coin Keluar
@@ -619,11 +619,11 @@ const CoinAiDareU = () => {
                             <td align='right'>
                               {transaction.coin_masuk > 0 ? (
                                 <Typography variant='body2' sx={{ fontWeight: 600, color: 'success.main' }}>
-                                  + 🪙 {formatNumber(transaction.coin_masuk)} Pts
+                                  🪙 + {formatNumber(transaction.coin_masuk)} Pts
                                 </Typography>
                               ) : (
                                 <Typography variant='body2' sx={{ fontWeight: 600, color: 'error.main' }}>
-                                  - 🪙 {formatNumber(transaction.coin_keluar)} Pts
+                                  🪙 - {formatNumber(transaction.coin_keluar)} Pts
                                 </Typography>
                               )}
                             </td>

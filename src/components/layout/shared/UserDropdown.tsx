@@ -224,7 +224,7 @@ const UserDropdown = () => {
                     <div className='flex items-center justify-between flex-grow'>
                       <Typography color='text.primary'>Coin</Typography>
                       <Chip
-                        label={`${formatNumber(coinBalance)} Pts`}
+                        label={`🪙 ${formatNumber(coinBalance)} Pts`}
                         size='small'
                         color='warning'
                         variant='tonal'
