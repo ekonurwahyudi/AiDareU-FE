@@ -1,5 +1,5 @@
 // React Imports
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // MUI Imports
 import Typography from '@mui/material/Typography'
@@ -24,12 +24,39 @@ import frontCommonStyles from '@views/front-pages/styles.module.css'
 import styles from './styles.module.css'
 
 const ContactUs = () => {
+  // States
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  })
+
   // Refs
   const skipIntersection = useRef(true)
   const ref = useRef<null | HTMLDivElement>(null)
 
   // Hooks
   const { updateIntersections } = useIntersection()
+
+  // Handle form input changes
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  // Handle form submission - redirect to WhatsApp
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const { name, email, message } = formData
+    const whatsappNumber = '6281215554423' // 08121555423 with country code
+    const whatsappMessage = `Nama: ${name}%0AEmail: ${email}%0APesan: ${message}`
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
+
+    window.open(whatsappUrl, '_blank')
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -86,15 +113,15 @@ const ContactUs = () => {
                   alt='customer-service'
                   className={classnames('is-full', styles.contactRadius)}
                 />
-                <div className='flex justify-between flex-wrap gap-4 pli-6 pbs-4 pbe-[10px]'>
+                <div className='flex flex-col gap-4 pli-6 pbs-4 pbe-[10px]'>
                   <div className='flex gap-3'>
                     <CustomAvatar variant='rounded' size={36} skin='light' color='primary'>
-                      <i className='tabler-mail' />
+                      <i className='tabler-map-pin' />
                     </CustomAvatar>
                     <div>
-                      <Typography>Email</Typography>
+                      <Typography>Alamat</Typography>
                       <Typography color='text.primary' className='font-medium'>
-                        example@gamil.com
+                        The Telkom Hub Lt. M (Jl. Gatot Subroto No.Kav.52, RT.6/RW.1, Kuningan Bar., Kec. Mampang Prpt., Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta 12710)
                       </Typography>
                     </div>
                   </div>
@@ -105,7 +132,7 @@ const ContactUs = () => {
                     <div>
                       <Typography>Phone</Typography>
                       <Typography color='text.primary' className='font-medium'>
-                        +123 568 963
+                        08121555423
                       </Typography>
                     </div>
                   </div>
@@ -122,13 +149,37 @@ const ContactUs = () => {
                       have pre-sales questions, you&#39;re at the right place.
                     </Typography>
                   </div>
-                  <form className='flex flex-col items-start gap-6'>
+                  <form className='flex flex-col items-start gap-6' onSubmit={handleSubmit}>
                     <div className='flex gap-5 is-full'>
-                      <CustomTextField fullWidth label='Full name' id='name-input' />
-                      <CustomTextField fullWidth label='Email address' id='email-input' type='email' />
+                      <CustomTextField
+                        fullWidth
+                        label='Full name'
+                        id='name-input'
+                        value={formData.name}
+                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        required
+                      />
+                      <CustomTextField
+                        fullWidth
+                        label='Email address'
+                        id='email-input'
+                        type='email'
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                      />
                     </div>
-                    <CustomTextField fullWidth multiline rows={7} label='Message' id='message-input' />
-                    <Button variant='contained'>Send Inquiry</Button>
+                    <CustomTextField
+                      fullWidth
+                      multiline
+                      rows={7}
+                      label='Message'
+                      id='message-input'
+                      value={formData.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      required
+                    />
+                    <Button variant='contained' type='submit'>Send Inquiry</Button>
                   </form>
                 </CardContent>
               </Card>

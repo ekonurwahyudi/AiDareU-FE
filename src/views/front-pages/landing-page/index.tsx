@@ -10,6 +10,7 @@ import UsefulFeature from './UsefulFeature'
 import CustomerReviews from './CustomerReviews'
 import ProductStat from './ProductStat'
 import Faqs from './Faqs'
+import ContactUs from './ContactUs'
 import GetStarted from './GetStarted'
 import { useSettings } from '@core/hooks/useSettings'
 
@@ -43,6 +44,7 @@ const LandingPageWrapper = () => {
       <ProductStat />
       <CustomerReviews />
       <Faqs />
+      <ContactUs />
       <GetStarted mode={mode} />
     </div>
   )
