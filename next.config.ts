@@ -75,9 +75,47 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Cache headers for better performance
+  // Security and Cache headers
   async headers() {
+    // Security headers untuk semua routes
+    const securityHeaders = [
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+      },
+      {
+        key: 'X-XSS-Protection',
+        value: '1; mode=block',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'strict-origin-when-cross-origin',
+      },
+      {
+        key: 'Permissions-Policy',
+        value: 'camera=(), microphone=(), geolocation=()',
+      },
+    ];
+
+    // Tambahkan HSTS hanya di production
+    if (process.env.NODE_ENV === 'production') {
+      securityHeaders.push({
+        key: 'Strict-Transport-Security',
+        value: 'max-age=31536000; includeSubDomains',
+      });
+    }
+
     return [
+      // Security headers untuk semua routes
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+      // Cache headers untuk static assets
       {
         source: '/:all*(svg|jpg|jpeg|png|webp|gif|ico)',
         headers: [

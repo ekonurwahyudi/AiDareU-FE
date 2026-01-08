@@ -7,6 +7,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
+// Security Imports
+import { validateRedirectUrl, safeRedirect } from '@/utils/security'
+
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
@@ -171,7 +174,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
           console.log('Store data:', result.user?.store)
 
           toast.success('Login berhasil!')
-          const redirectURL = searchParams.get('redirectTo') ?? '/dashboards'
+          const redirectURL = validateRedirectUrl(searchParams.get('redirectTo'), '/dashboards')
           router.replace(redirectURL)
         }
       } else {

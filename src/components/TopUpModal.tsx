@@ -13,6 +13,8 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
+import InputAdornment from '@mui/material/InputAdornment'
+import { safeRedirect } from '@/utils/security'
 
 interface TopUpModalProps {
   open: boolean
@@ -218,14 +220,14 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           console.log('Payment success:', result)
           setLoading(false)
           handleClose()
-          // Redirect to coin history
-          window.location.href = '/apps/tokoku/coin-history'
+          // Redirect to coin history using safe redirect
+          safeRedirect('/apps/tokoku/coin-history')
         },
         pendingEvent: function(result: any) {
           console.log('Payment pending:', result)
           setLoading(false)
           handleClose()
-          window.location.href = '/apps/tokoku/coin-history'
+          safeRedirect('/apps/tokoku/coin-history')
         },
         errorEvent: function(result: any) {
           console.log('Payment error:', result)
@@ -404,8 +406,10 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
                     placeholder='Masukkan jumlah coin...'
                     value={customAmount}
                     onChange={(e) => setCustomAmount(e.target.value)}
-                    InputProps={{
-                      endAdornment: <Typography variant='caption' sx={{ ml: 1 }}>Pts</Typography>
+                    slotProps={{
+                      input: {
+                        endAdornment: <InputAdornment position='end'>Pts</InputAdornment>
+                      }
                     }}
                     sx={{ mt: 1 }}
                   />
