@@ -80,22 +80,22 @@ const ContactUs = () => {
     <section id='contact-us' className='plb-[100px] bg-backgroundDefault' ref={ref}>
       <div className={classnames('flex flex-col gap-14', frontCommonStyles.layoutSpacing)}>
         <div className='flex flex-col gap-y-4 items-center justify-center'>
-          <Chip size='small' variant='tonal' color='primary' label='Contact Us' />
+          <Chip size='small' variant='tonal' color='primary' label='Hubungi Kami' />
           <div className='flex flex-col items-center gap-y-1 justify-center flex-wrap'>
             <div className='flex items-center gap-x-2'>
               <Typography color='text.primary' variant='h4'>
                 <span className='relative z-[1] font-extrabold'>
-                  Let&#39;s work
+                  Mari Wujudkan
                   <img
                     src='/images/front-pages/landing-page/bg-shape.png'
                     alt='bg-shape'
                     className='absolute block-end-0 z-[1] bs-[40%] is-[132%] -inline-start-[19%] block-start-[17px]'
                   />
                 </span>{' '}
-                together
+                Ide Anda
               </Typography>
             </div>
-            <Typography className='text-center'>Any question or remark? just write us a message</Typography>
+            <Typography className='text-center'>Punya pertanyaan atau ingin bekerja sama? Hubungi kami sekarang!</Typography>
           </div>
         </div>
         <div className='lg:pis-[38px]'>
@@ -143,17 +143,17 @@ const ContactUs = () => {
               <Card>
                 <CardContent>
                   <div className='flex flex-col gap-y-[6px] mbe-6'>
-                    <Typography variant='h4'>Send a message</Typography>
+                    <Typography variant='h4'>Kirim Pesan</Typography>
                     <Typography>
-                      If you would like to discuss anything related to payment, account, licensing, partnerships, or
-                      have pre-sales questions, you&#39;re at the right place.
+                      Ada pertanyaan seputar pembayaran, akun, lisensi, kerjasama, atau hal lainnya?
+                      Kami siap membantu Anda!
                     </Typography>
                   </div>
                   <form className='flex flex-col items-start gap-6' onSubmit={handleSubmit}>
                     <div className='flex gap-5 is-full'>
                       <CustomTextField
                         fullWidth
-                        label='Full name'
+                        label='Nama Lengkap'
                         id='name-input'
                         value={formData.name}
                         onChange={(e) => handleInputChange('name', e.target.value)}
@@ -161,7 +161,7 @@ const ContactUs = () => {
                       />
                       <CustomTextField
                         fullWidth
-                        label='Email address'
+                        label='Alamat Email'
                         id='email-input'
                         type='email'
                         value={formData.email}
@@ -173,13 +173,13 @@ const ContactUs = () => {
                       fullWidth
                       multiline
                       rows={7}
-                      label='Message'
+                      label='Pesan Anda'
                       id='message-input'
                       value={formData.message}
                       onChange={(e) => handleInputChange('message', e.target.value)}
                       required
                     />
-                    <Button variant='contained' type='submit'>Send Inquiry</Button>
+                    <Button variant='contained' type='submit'>Kirim Pesan</Button>
                   </form>
                 </CardContent>
               </Card>
