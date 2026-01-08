@@ -42,6 +42,20 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
       console.log('[TopUpModal] Testing authentication...')
       setDebugInfo('Testing authentication...')
 
+      // Test session endpoint first
+      const sessionResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/test-session`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+
+      console.log('[TopUpModal] Session test status:', sessionResponse.status)
+      console.log('[TopUpModal] Session test headers:', Object.fromEntries(sessionResponse.headers.entries()))
+      const sessionResult = await sessionResponse.json()
+      console.log('[TopUpModal] Session test result:', sessionResult)
+
       // Test auth endpoint
       const authResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
         method: 'GET',
@@ -60,6 +74,9 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
       console.log('[TopUpModal] Cookies:', cookies)
 
       const debugOutput = [
+        '=== SESSION TEST ===',
+        JSON.stringify(sessionResult, null, 2),
+        '',
         '=== AUTH TEST RESULT ===',
         `Status: ${authResponse.status}`,
         `Authenticated: ${authResponse.ok ? 'YES' : 'NO'}`,
