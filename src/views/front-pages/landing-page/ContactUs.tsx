@@ -51,7 +51,7 @@ const ContactUs = () => {
     e.preventDefault()
 
     const { name, email, message } = formData
-    const whatsappNumber = '6281215554423' // 08121555423 with country code
+    const whatsappNumber = '628121555423' // 08121555423 with country code
     const whatsappMessage = `Nama: ${name}%0AEmail: ${email}%0APesan: ${message}`
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
 
