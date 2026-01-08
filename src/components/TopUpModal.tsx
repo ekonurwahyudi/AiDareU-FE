@@ -88,12 +88,23 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           initDuitkuCheckout(reference)
         }
       } else {
+        // Handle 401 Unauthorized
+        if (response.status === 401) {
+          setError('Sesi Anda telah berakhir. Silakan login kembali.')
+          setLoading(false)
+          // Redirect to login after 2 seconds
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 2000)
+          return
+        }
+
         setError(result.message || 'Gagal membuat pembayaran')
         setLoading(false)
       }
     } catch (err) {
       console.error('Top up error:', err)
-      setError('Terjadi kesalahan saat membuat pembayaran')
+      setError('Terjadi kesalahan saat membuat pembayaran. Pastikan Anda sudah login.')
       setLoading(false)
     }
   }
