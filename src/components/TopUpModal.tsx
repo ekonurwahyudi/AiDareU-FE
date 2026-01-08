@@ -11,6 +11,13 @@ import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
+import CircularProgress from '@mui/material/CircularProgress'
+import Alert from '@mui/material/Alert'
+import Radio from '@mui/material/Radio'
+import RadioGroup from '@mui/material/RadioGroup'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormControl from '@mui/material/FormControl'
+import FormLabel from '@mui/material/FormLabel'
 
 interface TopUpModalProps {
   open: boolean
@@ -23,22 +30,67 @@ interface TopUpModalProps {
 const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUpModalProps) => {
   const [selectedTopUp, setSelectedTopUp] = useState<number | null>(10) // Default 10 Pts
   const [customAmount, setCustomAmount] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('VC') // Default: Credit Card
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleClose = () => {
     setSelectedTopUp(10) // Reset to default
     setCustomAmount('')
+    setPaymentMethod('VC')
+    setError(null)
     onClose()
   }
 
-  const handleTopUp = () => {
+  const handleTopUp = async () => {
     if (selectedTopUp === null) return
     const amount = selectedTopUp === 0 ? parseInt(customAmount) : selectedTopUp
 
+    if (!amount || amount < 1) {
+      setError('Jumlah coin minimal 1')
+      return
+    }
+
+    // If onTopUp callback is provided (for testing), use it
     if (onTopUp) {
       onTopUp(amount)
-    } else {
-      console.log('Top up amount:', amount)
-      alert(`Top up ${amount} Pts (Rp ${(amount * 1000).toLocaleString('id-ID')})`)
+      return
+    }
+
+    // Otherwise, call Duitku API
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payment/duitku/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          coin_amount: amount,
+          payment_method: paymentMethod
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        // Redirect to payment URL
+        if (result.data.payment_url) {
+          window.location.href = result.data.payment_url
+        } else {
+          setError('Payment URL tidak ditemukan')
+        }
+      } else {
+        setError(result.message || 'Gagal membuat pembayaran')
+      }
+    } catch (err) {
+      console.error('Top up error:', err)
+      setError('Terjadi kesalahan saat membuat pembayaran')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -112,6 +164,13 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           </Typography>
         </Box>
 
+        {/* Error Message */}
+        {error && (
+          <Alert severity='error' sx={{ mb: 3 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
+
         {/* Top Up Packages */}
         <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
           Pilih Paket Top Up
@@ -155,6 +214,52 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
               </CardContent>
             </Card>
           ))}
+        </Box>
+
+        {/* Payment Method Selection */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
+            Metode Pembayaran
+          </Typography>
+          <FormControl component='fieldset'>
+            <RadioGroup
+              row
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              sx={{ gap: 2 }}
+            >
+              <FormControlLabel
+                value='VC'
+                control={<Radio />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <i className='tabler-credit-card' style={{ fontSize: 20 }} />
+                    <Typography variant='body2'>Credit Card</Typography>
+                  </Box>
+                }
+              />
+              <FormControlLabel
+                value='VA'
+                control={<Radio />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <i className='tabler-building-bank' style={{ fontSize: 20 }} />
+                    <Typography variant='body2'>Virtual Account</Typography>
+                  </Box>
+                }
+              />
+              <FormControlLabel
+                value='OV'
+                control={<Radio />}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <i className='tabler-wallet' style={{ fontSize: 20 }} />
+                    <Typography variant='body2'>E-Wallet</Typography>
+                  </Box>
+                }
+              />
+            </RadioGroup>
+          </FormControl>
         </Box>
 
         {/* Custom Amount */}
@@ -207,18 +312,18 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-        <Button onClick={handleClose} color='inherit'>
+        <Button onClick={handleClose} color='inherit' disabled={loading}>
           Batal
         </Button>
         <Button
           onClick={handleTopUp}
           variant='contained'
           color='warning'
-          disabled={selectedTopUp === null || (selectedTopUp === 0 && !customAmount)}
-          startIcon={<i className='tabler-coin' />}
+          disabled={selectedTopUp === null || (selectedTopUp === 0 && !customAmount) || loading}
+          startIcon={loading ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-coin' />}
           sx={{ fontWeight: 600 }}
         >
-          Top Up {selectedTopUp === 0 && customAmount ? parseInt(customAmount) : selectedTopUp} Pts
+          {loading ? 'Processing...' : `Top Up ${selectedTopUp === 0 && customAmount ? parseInt(customAmount) : selectedTopUp} Pts`}
         </Button>
       </DialogActions>
     </Dialog>
