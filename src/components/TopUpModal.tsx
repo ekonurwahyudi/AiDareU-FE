@@ -27,12 +27,62 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
   const [customAmount, setCustomAmount] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = useState<string | null>(null)
 
   const handleClose = () => {
     setSelectedTopUp(10) // Reset to default
     setCustomAmount('')
     setError(null)
+    setDebugInfo(null)
     onClose()
+  }
+
+  const testAuth = async () => {
+    try {
+      console.log('[TopUpModal] Testing authentication...')
+      setDebugInfo('Testing authentication...')
+
+      // Test auth endpoint
+      const authResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+
+      console.log('[TopUpModal] Auth test status:', authResponse.status)
+      const authResult = await authResponse.json()
+      console.log('[TopUpModal] Auth test result:', authResult)
+
+      // Get all cookies
+      const cookies = document.cookie.split(';').map(c => c.trim())
+      console.log('[TopUpModal] Cookies:', cookies)
+
+      const debugOutput = [
+        '=== AUTH TEST RESULT ===',
+        `Status: ${authResponse.status}`,
+        `Authenticated: ${authResponse.ok ? 'YES' : 'NO'}`,
+        '',
+        '=== USER INFO ===',
+        JSON.stringify(authResult, null, 2),
+        '',
+        '=== COOKIES ===',
+        cookies.join('\n'),
+        '',
+        '=== ENVIRONMENT ===',
+        `API URL: ${process.env.NEXT_PUBLIC_API_URL}`,
+        `Current URL: ${window.location.href}`,
+        `Origin: ${window.location.origin}`
+      ].join('\n')
+
+      setDebugInfo(debugOutput)
+      console.log('[TopUpModal] Debug output:', debugOutput)
+
+    } catch (err: any) {
+      console.error('[TopUpModal] Auth test error:', err)
+      setDebugInfo(`Error testing auth: ${err.message}`)
+    }
   }
 
   const handleTopUp = async () => {
@@ -55,7 +105,11 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payment/duitku/create`, {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/payment/duitku/create`
+      console.log('[TopUpModal] Calling API:', apiUrl)
+      console.log('[TopUpModal] Request body:', { coin_amount: amount })
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,11 +120,16 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
         })
       })
 
+      console.log('[TopUpModal] Response status:', response.status)
+      console.log('[TopUpModal] Response headers:', Object.fromEntries(response.headers.entries()))
+
       const result = await response.json()
+      console.log('[TopUpModal] Response body:', result)
 
       if (response.ok && result.success) {
         // Use Duitku Pop-up SDK
         const reference = result.data.reference
+        console.log('[TopUpModal] Got reference:', reference)
 
         // Load Duitku SDK if not already loaded
         if (typeof window !== 'undefined' && !(window as any).checkout) {
@@ -88,23 +147,47 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           initDuitkuCheckout(reference)
         }
       } else {
-        // Handle 401 Unauthorized
+        // Handle errors with detailed information
+        console.error('[TopUpModal] API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: result
+        })
+
         if (response.status === 401) {
-          setError('Sesi Anda telah berakhir. Silakan login kembali.')
+          // Don't auto-redirect, show detailed error for debugging
+          const errorDetails = [
+            'Error 401: Unauthorized',
+            `Message: ${result.message || 'No message'}`,
+            `API URL: ${apiUrl}`,
+            'Credentials: include',
+            '',
+            'Debug Info:',
+            '- Pastikan Anda sudah login',
+            '- Cek browser Console untuk detail lengkap',
+            '- Cek Network tab untuk melihat cookies yang terkirim',
+            '- Cek apakah session cookie ada di Application > Cookies'
+          ].join('\n')
+
+          setError(errorDetails)
           setLoading(false)
-          // Redirect to login after 2 seconds
-          setTimeout(() => {
-            window.location.href = '/login'
-          }, 2000)
           return
         }
 
-        setError(result.message || 'Gagal membuat pembayaran')
+        const errorMsg = result.message || result.error || 'Gagal membuat pembayaran'
+        setError(`Error ${response.status}: ${errorMsg}`)
         setLoading(false)
       }
-    } catch (err) {
-      console.error('Top up error:', err)
-      setError('Terjadi kesalahan saat membuat pembayaran. Pastikan Anda sudah login.')
+    } catch (err: any) {
+      console.error('[TopUpModal] Exception:', err)
+      const errorDetails = [
+        'Terjadi kesalahan:',
+        err.message || 'Unknown error',
+        '',
+        'Stack trace tersedia di browser console',
+        'Cek Network tab di DevTools untuk detail request'
+      ].join('\n')
+      setError(errorDetails)
       setLoading(false)
     }
   }
@@ -216,7 +299,14 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
         {/* Error Message */}
         {error && (
           <Alert severity='error' sx={{ mb: 3 }} onClose={() => setError(null)}>
-            {error}
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.85rem', margin: 0 }}>{error}</pre>
+          </Alert>
+        )}
+
+        {/* Debug Info */}
+        {debugInfo && (
+          <Alert severity='info' sx={{ mb: 3 }} onClose={() => setDebugInfo(null)}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.75rem', margin: 0, fontFamily: 'monospace' }}>{debugInfo}</pre>
           </Alert>
         )}
 
@@ -317,6 +407,16 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
       <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
         <Button onClick={handleClose} color='inherit' disabled={loading}>
           Batal
+        </Button>
+        <Button
+          onClick={testAuth}
+          variant='outlined'
+          color='info'
+          disabled={loading}
+          startIcon={<i className='tabler-bug' />}
+          sx={{ fontWeight: 600 }}
+        >
+          Test Auth
         </Button>
         <Button
           onClick={handleTopUp}
