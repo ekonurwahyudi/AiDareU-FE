@@ -13,11 +13,6 @@ import CardContent from '@mui/material/CardContent'
 import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
-import Radio from '@mui/material/Radio'
-import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import FormLabel from '@mui/material/FormLabel'
 
 interface TopUpModalProps {
   open: boolean
@@ -30,14 +25,12 @@ interface TopUpModalProps {
 const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUpModalProps) => {
   const [selectedTopUp, setSelectedTopUp] = useState<number | null>(10) // Default 10 Pts
   const [customAmount, setCustomAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState('VC') // Default: Credit Card
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleClose = () => {
     setSelectedTopUp(10) // Reset to default
     setCustomAmount('')
-    setPaymentMethod('VC')
     setError(null)
     onClose()
   }
@@ -69,27 +62,72 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
         },
         credentials: 'include',
         body: JSON.stringify({
-          coin_amount: amount,
-          payment_method: paymentMethod
+          coin_amount: amount
         })
       })
 
       const result = await response.json()
 
       if (response.ok && result.success) {
-        // Redirect to payment URL
-        if (result.data.payment_url) {
-          window.location.href = result.data.payment_url
+        // Use Duitku Pop-up SDK
+        const reference = result.data.reference
+
+        // Load Duitku SDK if not already loaded
+        if (typeof window !== 'undefined' && !(window as any).checkout) {
+          const script = document.createElement('script')
+          script.src = process.env.NEXT_PUBLIC_DUITKU_SANDBOX === 'true'
+            ? 'https://app-sandbox.duitku.com/lib/js/duitku.js'
+            : 'https://app.duitku.com/lib/js/duitku.js'
+          script.async = true
+          document.body.appendChild(script)
+
+          script.onload = () => {
+            initDuitkuCheckout(reference)
+          }
         } else {
-          setError('Payment URL tidak ditemukan')
+          initDuitkuCheckout(reference)
         }
       } else {
         setError(result.message || 'Gagal membuat pembayaran')
+        setLoading(false)
       }
     } catch (err) {
       console.error('Top up error:', err)
       setError('Terjadi kesalahan saat membuat pembayaran')
-    } finally {
+      setLoading(false)
+    }
+  }
+
+  const initDuitkuCheckout = (reference: string) => {
+    const checkout = (window as any).checkout
+    if (checkout && checkout.process) {
+      checkout.process(reference, {
+        defaultLanguage: 'id',
+        successEvent: function(result: any) {
+          console.log('Payment success:', result)
+          setLoading(false)
+          handleClose()
+          // Redirect to coin history
+          window.location.href = '/apps/tokoku/coin-history'
+        },
+        pendingEvent: function(result: any) {
+          console.log('Payment pending:', result)
+          setLoading(false)
+          handleClose()
+          window.location.href = '/apps/tokoku/coin-history'
+        },
+        errorEvent: function(result: any) {
+          console.log('Payment error:', result)
+          setError('Pembayaran gagal. Silakan coba lagi.')
+          setLoading(false)
+        },
+        closeEvent: function(result: any) {
+          console.log('Payment closed:', result)
+          setLoading(false)
+        }
+      })
+    } else {
+      setError('Duitku SDK belum ter-load. Silakan refresh halaman.')
       setLoading(false)
     }
   }
@@ -214,52 +252,6 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
               </CardContent>
             </Card>
           ))}
-        </Box>
-
-        {/* Payment Method Selection */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant='subtitle1' sx={{ fontWeight: 600, mb: 2 }}>
-            Metode Pembayaran
-          </Typography>
-          <FormControl component='fieldset'>
-            <RadioGroup
-              row
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-              sx={{ gap: 2 }}
-            >
-              <FormControlLabel
-                value='VC'
-                control={<Radio />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <i className='tabler-credit-card' style={{ fontSize: 20 }} />
-                    <Typography variant='body2'>Credit Card</Typography>
-                  </Box>
-                }
-              />
-              <FormControlLabel
-                value='VA'
-                control={<Radio />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <i className='tabler-building-bank' style={{ fontSize: 20 }} />
-                    <Typography variant='body2'>Virtual Account</Typography>
-                  </Box>
-                }
-              />
-              <FormControlLabel
-                value='OV'
-                control={<Radio />}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <i className='tabler-wallet' style={{ fontSize: 20 }} />
-                    <Typography variant='body2'>E-Wallet</Typography>
-                  </Box>
-                }
-              />
-            </RadioGroup>
-          </FormControl>
         </Box>
 
         {/* Custom Amount */}
