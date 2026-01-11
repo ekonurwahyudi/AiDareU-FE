@@ -14,6 +14,7 @@ import TextField from '@mui/material/TextField'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
 import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
 import { safeRedirect } from '@/utils/security'
 import QRCode from 'qrcode'
 
@@ -90,8 +91,12 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const checkPaymentStatus = async (orderId: string) => {
+  const [checkingStatus, setCheckingStatus] = useState(false)
+
+  const checkPaymentStatus = async (orderId: string, isManualCheck = false) => {
     try {
+      if (isManualCheck) setCheckingStatus(true)
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payment/duitku/status/${orderId}`, {
         method: 'GET',
         credentials: 'include',
@@ -103,25 +108,40 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
         if (result.success && result.data.status === 'success') {
           if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current)
           if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
+          setCheckingStatus(false)
           setLoading(false)
           setShowQRCode(false)
           alert('Pembayaran berhasil! Coin Anda telah ditambahkan.')
           safeRedirect('/apps/user/coin')
-        } else if (result.data.status === 'failed') {
+        } else if (result.data.status === 'failed' || result.data.status === 'canceled') {
           if (pollingIntervalRef.current) clearInterval(pollingIntervalRef.current)
-          setError('Pembayaran gagal. Silakan coba lagi.')
+          setError('Pembayaran gagal atau dibatalkan. Silakan coba lagi.')
+          setCheckingStatus(false)
           setLoading(false)
           setShowQRCode(false)
+        } else if (isManualCheck) {
+          // Still pending
+          setError('Pembayaran belum diterima. Silakan selesaikan pembayaran terlebih dahulu.')
+          setCheckingStatus(false)
+        }
+      } else {
+        if (isManualCheck) {
+          setError('Gagal memeriksa status pembayaran. Silakan coba lagi.')
+          setCheckingStatus(false)
         }
       }
     } catch (err) {
       console.error('Error checking payment status:', err)
+      if (isManualCheck) {
+        setError('Terjadi kesalahan saat memeriksa status.')
+        setCheckingStatus(false)
+      }
     }
   }
 
   const startPolling = (orderId: string) => {
     pollingIntervalRef.current = setInterval(() => {
-      checkPaymentStatus(orderId)
+      checkPaymentStatus(orderId, false)
     }, 3000)
   }
 
@@ -204,7 +224,7 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth='md' fullWidth>
-      <DialogTitle sx={{ pb: 2 }}>
+      <DialogTitle sx={{ pb: 2, pr: showQRCode ? 6 : 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box
             sx={{
@@ -219,9 +239,23 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
           </Typography>
         </Box>
         {showQRCode && (
-          <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1 }}>
-            Gunakan aplikasi e-wallet kamu untuk memindai kode QR ini
-          </Typography>
+          <>
+            <Typography variant='body2' sx={{ color: 'text.secondary', mt: 1 }}>
+              Gunakan aplikasi e-wallet kamu untuk memindai kode QR ini
+            </Typography>
+            <IconButton
+              aria-label='close'
+              onClick={handleClose}
+              sx={{
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: 'grey.500',
+              }}
+            >
+              <i className='tabler-x' style={{ fontSize: 20 }} />
+            </IconButton>
+          </>
         )}
       </DialogTitle>
 
@@ -376,54 +410,53 @@ const TopUpModal = ({ open, onClose, currentCoin, requiredCoin, onTopUp }: TopUp
               <Alert severity='error' sx={{ mb: 2 }} onClose={() => setError(null)}>{error}</Alert>
             )}
 
-            {/* Download Button */}
-            <Button
-              variant='outlined'
-              fullWidth
-              startIcon={<i className='tabler-download' />}
-              onClick={downloadQRCode}
-              sx={{ mb: 2 }}
-            >
-              Download QRIS
-            </Button>
+            {/* Buttons - Side by side on desktop, stacked on mobile */}
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2 
+            }}>
+              <Button
+                variant='outlined'
+                color='primary'
+                fullWidth
+                startIcon={<i className='tabler-download' />}
+                onClick={downloadQRCode}
+              >
+                Download QRIS
+              </Button>
 
-            {/* Check Status Button */}
-            <Button
-              variant='contained'
-              fullWidth
-              onClick={() => checkPaymentStatus(merchantOrderId!)}
-              sx={{ 
-                bgcolor: '#1a1a1a', 
-                '&:hover': { bgcolor: '#333' },
-                py: 1.5,
-                fontWeight: 600
-              }}
-            >
-              Cek Status Pembayaran
-            </Button>
+              <Button
+                variant='contained'
+                color='primary'
+                fullWidth
+                disabled={checkingStatus}
+                onClick={() => checkPaymentStatus(merchantOrderId!, true)}
+                startIcon={checkingStatus ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-refresh' />}
+                sx={{ fontWeight: 600 }}
+              >
+                {checkingStatus ? 'Memeriksa...' : 'Cek Status Pembayaran'}
+              </Button>
+            </Box>
           </Box>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-        {!showQRCode ? (
-          <>
-            <Button onClick={handleClose} color='inherit'>Batal</Button>
-            <Button
-              onClick={handleTopUp}
-              variant='contained'
-              color='warning'
-              disabled={selectedTopUp === null || (selectedTopUp === 0 && !customAmount) || loading}
-              startIcon={loading ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-coin' />}
-              sx={{ fontWeight: 600 }}
-            >
-              {loading ? 'Memproses...' : `Top Up ${selectedTopUp === 0 && customAmount ? parseInt(customAmount) : selectedTopUp} Pts`}
-            </Button>
-          </>
-        ) : (
-          <Button onClick={handleClose} color='inherit' fullWidth>Tutup</Button>
-        )}
-      </DialogActions>
+      {!showQRCode && (
+        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+          <Button onClick={handleClose} color='inherit'>Batal</Button>
+          <Button
+            onClick={handleTopUp}
+            variant='contained'
+            color='warning'
+            disabled={selectedTopUp === null || (selectedTopUp === 0 && !customAmount) || loading}
+            startIcon={loading ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-coin' />}
+            sx={{ fontWeight: 600 }}
+          >
+            {loading ? 'Memproses...' : `Top Up ${selectedTopUp === 0 && customAmount ? parseInt(customAmount) : selectedTopUp} Pts`}
+          </Button>
+        </DialogActions>
+      )}
     </Dialog>
   )
 }
