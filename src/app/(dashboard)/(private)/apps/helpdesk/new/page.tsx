@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -17,13 +17,12 @@ import {
   Grid
 } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
 
 export default function NewTicketPage() {
   const router = useRouter()
-  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [userData, setUserData] = useState<{ name: string; email: string } | null>(null)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -35,6 +34,30 @@ export default function NewTicketPage() {
   })
 
   const [attachment, setAttachment] = useState<File | null>(null)
+
+  // Fetch user data from API
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          credentials: 'include'
+        })
+        if (response.ok) {
+          const result = await response.json()
+          if (result.user) {
+            setUserData({
+              name: result.user.name || '',
+              email: result.user.email || ''
+            })
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching user data:', err)
+      }
+    }
+
+    fetchUserData()
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -152,7 +175,7 @@ export default function NewTicketPage() {
                 <TextField
                   fullWidth
                   label='Nama'
-                  value={user?.name || ''}
+                  value={userData?.name || ''}
                   disabled
                 />
               </Grid>
@@ -162,7 +185,7 @@ export default function NewTicketPage() {
                   fullWidth
                   label='Email'
                   type='email'
-                  value={user?.email || ''}
+                  value={userData?.email || ''}
                   disabled
                 />
               </Grid>

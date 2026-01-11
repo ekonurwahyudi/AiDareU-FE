@@ -19,7 +19,6 @@ import {
 import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { useAuth } from '@/contexts/AuthContext'
 
 interface TicketDetail {
   uuid: string
@@ -52,7 +51,6 @@ interface TicketDetail {
 export default function TicketDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const { user } = useAuth()
   const ticketNumber = params.ticketNumber as string
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null)
@@ -61,10 +59,28 @@ export default function TicketDetailPage() {
   const [replyAttachment, setReplyAttachment] = useState<File | null>(null)
   const [sendingReply, setSendingReply] = useState(false)
   const [error, setError] = useState('')
+  const [userData, setUserData] = useState<{ name: string } | null>(null)
 
   useEffect(() => {
     fetchTicketDetail()
+    fetchUserData()
   }, [ticketNumber])
+
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        credentials: 'include'
+      })
+      if (response.ok) {
+        const result = await response.json()
+        if (result.user) {
+          setUserData({ name: result.user.name || '' })
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching user data:', err)
+    }
+  }
 
   const fetchTicketDetail = async () => {
     try {
@@ -282,7 +298,7 @@ export default function TicketDetailPage() {
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Avatar sx={{ bgcolor: `${roleInfo.color}.main` }}>
                     {isOwner
-                      ? user?.name?.charAt(0).toUpperCase()
+                      ? userData?.name?.charAt(0).toUpperCase() || 'U'
                       : detail.pic?.charAt(0).toUpperCase() || 'A'}
                   </Avatar>
                   <Box sx={{ flex: 1 }}>
