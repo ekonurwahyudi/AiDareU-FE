@@ -847,7 +847,7 @@ const ProductListTable = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <CustomAvatar skin='light' variant='rounded' color='success' sx={{ width: 56, height: 56 }}>
-                  <i className='tabler-check' style={{ fontSize: 28 }} />
+                  <i className='tabler-circle-check' style={{ fontSize: 28 }} />
                 </CustomAvatar>
                 <Box>
                   <Typography variant='h4' sx={{ fontWeight: 600, color: 'success.main' }}>
@@ -868,7 +868,7 @@ const ProductListTable = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <CustomAvatar skin='light' variant='rounded' color='error' sx={{ width: 56, height: 56 }}>
-                  <i className='tabler-x' style={{ fontSize: 28 }} />
+                  <i className='tabler-circle-x' style={{ fontSize: 28 }} />
                 </CustomAvatar>
                 <Box>
                   <Typography variant='h4' sx={{ fontWeight: 600, color: 'error.main' }}>
@@ -889,7 +889,7 @@ const ProductListTable = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <CustomAvatar skin='light' variant='rounded' color='warning' sx={{ width: 56, height: 56 }}>
-                  <i className='tabler-file-pencil' style={{ fontSize: 28 }} />
+                  <i className='tabler-edit' style={{ fontSize: 28 }} />
                 </CustomAvatar>
                 <Box>
                   <Typography variant='h4' sx={{ fontWeight: 600, color: 'warning.main' }}>
@@ -910,7 +910,7 @@ const ProductListTable = () => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <CustomAvatar skin='light' variant='rounded' color='primary' sx={{ width: 56, height: 56 }}>
-                  <i className='tabler-shopping-bag' style={{ fontSize: 28 }} />
+                  <i className='tabler-package' style={{ fontSize: 28 }} />
                 </CustomAvatar>
                 <Box>
                   <Typography variant='h4' sx={{ fontWeight: 600, color: 'primary.main' }}>
