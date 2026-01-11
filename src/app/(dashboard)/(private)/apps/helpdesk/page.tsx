@@ -1,17 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
+  Card,
+  CardContent,
+  Button,
+  Chip,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
+  TableRow,
+  Paper,
+  Typography,
+  CircularProgress,
+  Box
+} from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
@@ -56,29 +61,29 @@ export default function MyTicketPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' }> = {
-      open: { label: 'Open', variant: 'default' },
-      waiting_reply: { label: 'Waiting Reply', variant: 'secondary' },
-      replied: { label: 'Replied', variant: 'success' },
-      closed: { label: 'Closed', variant: 'destructive' }
+  const getStatusChip = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
+      open: { label: 'Open', color: 'info' },
+      waiting_reply: { label: 'Waiting Reply', color: 'warning' },
+      replied: { label: 'Replied', color: 'success' },
+      closed: { label: 'Closed', color: 'error' }
     }
 
-    const config = statusConfig[status] || { label: status, variant: 'default' }
+    const config = statusConfig[status] || { label: status, color: 'default' }
 
-    return <Badge variant={config.variant}>{config.label}</Badge>
+    return <Chip label={config.label} color={config.color} size='small' />
   }
 
-  const getPriorityBadge = (priority: string) => {
-    const priorityConfig: Record<string, { label: string; className: string }> = {
-      low: { label: 'Low', className: 'bg-blue-100 text-blue-800' },
-      medium: { label: 'Medium', className: 'bg-yellow-100 text-yellow-800' },
-      high: { label: 'High', className: 'bg-red-100 text-red-800' }
+  const getPriorityChip = (priority: string) => {
+    const priorityConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
+      low: { label: 'Low', color: 'info' },
+      medium: { label: 'Medium', color: 'warning' },
+      high: { label: 'High', color: 'error' }
     }
 
-    const config = priorityConfig[priority] || { label: priority, className: '' }
+    const config = priorityConfig[priority] || { label: priority, color: 'default' }
 
-    return <Badge className={config.className}>{config.label}</Badge>
+    return <Chip label={config.label} color={config.color} size='small' />
   }
 
   const formatDate = (dateString: string) => {
@@ -90,76 +95,89 @@ export default function MyTicketPage() {
   }
 
   return (
-    <div className='container mx-auto p-6'>
-      <div className='flex justify-between items-center mb-6'>
-        <div>
-          <h1 className='text-3xl font-bold'>My Tickets</h1>
-          <p className='text-muted-foreground mt-1'>Kelola semua tiket support Anda</p>
-        </div>
-        <Button onClick={() => router.push('/apps/helpdesk/new')}>
-          <i className='tabler-plus mr-2' />
+    <Box className='container mx-auto p-6'>
+      <Box className='flex justify-between items-center mb-6'>
+        <Box>
+          <Typography variant='h4' className='font-bold'>My Tickets</Typography>
+          <Typography variant='body2' color='text.secondary' className='mt-1'>
+            Kelola semua tiket support Anda
+          </Typography>
+        </Box>
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={() => router.push('/apps/helpdesk/new')}
+          startIcon={<i className='tabler-plus' />}
+        >
           Buat Tiket Baru
         </Button>
-      </div>
+      </Box>
 
       <Card>
         <CardContent className='p-0'>
           {loading ? (
-            <div className='text-center py-8'>
-              <p>Loading...</p>
-            </div>
+            <Box className='text-center py-8'>
+              <CircularProgress />
+            </Box>
           ) : tickets.length === 0 ? (
-            <div className='text-center py-8'>
-              <p className='text-muted-foreground'>Belum ada tiket</p>
-              <Button className='mt-4' onClick={() => router.push('/apps/helpdesk/new')}>
+            <Box className='text-center py-8'>
+              <Typography color='text.secondary'>Belum ada tiket</Typography>
+              <Button
+                className='mt-4'
+                variant='contained'
+                onClick={() => router.push('/apps/helpdesk/new')}
+              >
                 Buat Tiket Pertama
               </Button>
-            </div>
+            </Box>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='w-[100px]'>No. Tiket</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Judul</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Update Terakhir</TableHead>
-                  <TableHead className='text-right'>Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tickets.map((ticket) => (
-                  <TableRow
-                    key={ticket.uuid}
-                    className='cursor-pointer hover:bg-muted/50'
-                    onClick={() => router.push(`/apps/helpdesk/${ticket.ticket_number}`)}
-                  >
-                    <TableCell className='font-medium'>{ticket.ticket_number}</TableCell>
-                    <TableCell>{ticket.department}</TableCell>
-                    <TableCell className='max-w-md truncate'>{ticket.title}</TableCell>
-                    <TableCell>{getStatusBadge(ticket.status)}</TableCell>
-                    <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
-                    <TableCell>{formatDate(ticket.latest_update)}</TableCell>
-                    <TableCell className='text-right'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          router.push(`/apps/helpdesk/${ticket.ticket_number}`)
-                        }}
-                      >
-                        Lihat
-                      </Button>
-                    </TableCell>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>No. Tiket</TableCell>
+                    <TableCell>Department</TableCell>
+                    <TableCell>Judul</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Priority</TableCell>
+                    <TableCell>Update Terakhir</TableCell>
+                    <TableCell align='right'>Aksi</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {tickets.map((ticket) => (
+                    <TableRow
+                      key={ticket.uuid}
+                      hover
+                      onClick={() => router.push(`/apps/helpdesk/${ticket.ticket_number}`)}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell sx={{ fontWeight: 'bold' }}>{ticket.ticket_number}</TableCell>
+                      <TableCell>{ticket.department}</TableCell>
+                      <TableCell sx={{ maxWidth: 400 }}>{ticket.title}</TableCell>
+                      <TableCell>{getStatusChip(ticket.status)}</TableCell>
+                      <TableCell>{getPriorityChip(ticket.priority)}</TableCell>
+                      <TableCell>{formatDate(ticket.latest_update)}</TableCell>
+                      <TableCell align='right'>
+                        <Button
+                          variant='text'
+                          size='small'
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            router.push(`/apps/helpdesk/${ticket.ticket_number}`)
+                          }}
+                        >
+                          Lihat
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           )}
         </CardContent>
       </Card>
-    </div>
+    </Box>
   )
 }

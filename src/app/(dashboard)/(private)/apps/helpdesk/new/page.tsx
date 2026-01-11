@@ -1,20 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  Button,
+  TextField,
+  MenuItem,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+  FormControl,
+  InputLabel,
+  Alert,
+  Typography,
+  Box,
+  Grid
+} from '@mui/material'
 import { useRouter } from 'next/navigation'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function NewTicketPage() {
@@ -38,13 +40,11 @@ export default function NewTicketPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
 
-      // Validate file size (max 30MB)
       if (file.size > 30 * 1024 * 1024) {
         setError('Ukuran file maksimal 30MB')
         return
       }
 
-      // Validate file type
       const allowedTypes = [
         'image/jpeg',
         'image/jpg',
@@ -73,7 +73,6 @@ export default function NewTicketPage() {
     setLoading(true)
 
     try {
-      // Validation
       if (!formData.title.trim()) {
         setError('Judul harus diisi')
         setLoading(false)
@@ -86,12 +85,10 @@ export default function NewTicketPage() {
         return
       }
 
-      // Prepare form data
       const submitData = new FormData()
       submitData.append('title', formData.title.trim())
       submitData.append('department', formData.department)
 
-      // Category handling
       if (formData.category === 'Lainnya' && formData.customCategory.trim()) {
         submitData.append('category', formData.customCategory.trim())
       } else {
@@ -127,181 +124,192 @@ export default function NewTicketPage() {
   }
 
   return (
-    <div className='container mx-auto p-6 max-w-4xl'>
-      <Button variant='ghost' className='mb-4' onClick={() => router.back()}>
-        <i className='tabler-arrow-left mr-2' />
+    <Box className='container mx-auto p-6' sx={{ maxWidth: 900 }}>
+      <Button
+        variant='text'
+        className='mb-4'
+        onClick={() => router.back()}
+        startIcon={<i className='tabler-arrow-left' />}
+      >
         Kembali
       </Button>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Buat Tiket Support Baru</CardTitle>
-          <CardDescription>
-            Isi formulir di bawah untuk membuat tiket support. Tim kami akan segera membantu Anda.
-          </CardDescription>
-        </CardHeader>
+        <CardHeader
+          title='Buat Tiket Support Baru'
+          subheader='Isi formulir di bawah untuk membuat tiket support. Tim kami akan segera membantu Anda.'
+        />
         <CardContent>
-          <form onSubmit={handleSubmit} className='space-y-6'>
-            {error && (
-              <Alert variant='destructive'>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* Nama - Auto filled */}
-            <div className='space-y-2'>
-              <Label htmlFor='name'>Nama</Label>
-              <Input id='name' value={user?.name || ''} disabled />
-            </div>
-
-            {/* Email - Auto filled */}
-            <div className='space-y-2'>
-              <Label htmlFor='email'>Email</Label>
-              <Input id='email' type='email' value={user?.email || ''} disabled />
-            </div>
-
-            {/* Subject/Title */}
-            <div className='space-y-2'>
-              <Label htmlFor='title'>
-                Judul <span className='text-red-500'>*</span>
-              </Label>
-              <Input
-                id='title'
-                placeholder='Jelaskan masalah Anda secara singkat'
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                maxLength={255}
-                required
-              />
-            </div>
-
-            {/* Department */}
-            <div className='space-y-2'>
-              <Label htmlFor='department'>
-                Department <span className='text-red-500'>*</span>
-              </Label>
-              <Select value={formData.department} onValueChange={(val) => setFormData({ ...formData, department: val })}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Department' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Support IT'>Support IT</SelectItem>
-                  <SelectItem value='Sales/Billing'>Sales/Billing</SelectItem>
-                  <SelectItem value='Abuse'>Abuse</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Category */}
-            <div className='space-y-2'>
-              <Label htmlFor='category'>
-                Kategori <span className='text-red-500'>*</span>
-              </Label>
-              <Select value={formData.category} onValueChange={(val) => setFormData({ ...formData, category: val })}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Kategori' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='Bugs/Error'>Bugs/Error</SelectItem>
-                  <SelectItem value='Pembayaran'>Pembayaran</SelectItem>
-                  <SelectItem value='Kecurangan'>Kecurangan</SelectItem>
-                  <SelectItem value='Lainnya'>Lainnya</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Custom Category - Show if "Lainnya" is selected */}
-            {formData.category === 'Lainnya' && (
-              <div className='space-y-2'>
-                <Label htmlFor='customCategory'>
-                  Kategori Lainnya <span className='text-red-500'>*</span>
-                </Label>
-                <Input
-                  id='customCategory'
-                  placeholder='Masukkan kategori'
-                  value={formData.customCategory}
-                  onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
-                  maxLength={100}
-                  required
-                />
-              </div>
-            )}
-
-            {/* Priority */}
-            <div className='space-y-2'>
-              <Label htmlFor='priority'>
-                Priority <span className='text-red-500'>*</span>
-              </Label>
-              <Select value={formData.priority} onValueChange={(val) => setFormData({ ...formData, priority: val })}>
-                <SelectTrigger>
-                  <SelectValue placeholder='Pilih Priority' />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value='low'>Low</SelectItem>
-                  <SelectItem value='medium'>Medium</SelectItem>
-                  <SelectItem value='high'>High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Message */}
-            <div className='space-y-2'>
-              <Label htmlFor='message'>
-                Pesan <span className='text-red-500'>*</span>
-              </Label>
-              <Textarea
-                id='message'
-                placeholder='Jelaskan masalah Anda secara detail'
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                rows={8}
-                maxLength={10000}
-                required
-                className='resize-none'
-              />
-              <p className='text-sm text-muted-foreground'>{formData.message.length} / 10000 karakter</p>
-            </div>
-
-            {/* Attachment */}
-            <div className='space-y-2'>
-              <Label htmlFor='attachment'>Lampiran (Opsional)</Label>
-              <Input
-                id='attachment'
-                type='file'
-                onChange={handleFileChange}
-                accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-              />
-              <p className='text-sm text-muted-foreground'>
-                Allowed File Extensions: .jpg, .jpeg, .gif, .png, .zip, .gz, .txt, .pdf (Max 30MB)
-              </p>
-              {attachment && (
-                <div className='flex items-center gap-2 text-sm'>
-                  <i className='tabler-file' />
-                  <span>{attachment.name}</span>
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    size='sm'
-                    onClick={() => setAttachment(null)}
-                  >
-                    <i className='tabler-x' />
-                  </Button>
-                </div>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={4}>
+              {error && (
+                <Grid item xs={12}>
+                  <Alert severity='error'>{error}</Alert>
+                </Grid>
               )}
-            </div>
 
-            {/* Submit Button */}
-            <div className='flex gap-4'>
-              <Button type='submit' disabled={loading} className='flex-1'>
-                {loading ? 'Mengirim...' : 'Submit'}
-              </Button>
-              <Button type='button' variant='outline' onClick={() => router.back()}>
-                Cancel
-              </Button>
-            </div>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Nama'
+                  value={user?.name || ''}
+                  disabled
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Email'
+                  type='email'
+                  value={user?.email || ''}
+                  disabled
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  label='Judul'
+                  placeholder='Jelaskan masalah Anda secara singkat'
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  inputProps={{ maxLength: 255 }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth required>
+                  <InputLabel>Department</InputLabel>
+                  <Select
+                    value={formData.department}
+                    label='Department'
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  >
+                    <MenuItem value='Support IT'>Support IT</MenuItem>
+                    <MenuItem value='Sales/Billing'>Sales/Billing</MenuItem>
+                    <MenuItem value='Abuse'>Abuse</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth required>
+                  <InputLabel>Kategori</InputLabel>
+                  <Select
+                    value={formData.category}
+                    label='Kategori'
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    <MenuItem value='Bugs/Error'>Bugs/Error</MenuItem>
+                    <MenuItem value='Pembayaran'>Pembayaran</MenuItem>
+                    <MenuItem value='Kecurangan'>Kecurangan</MenuItem>
+                    <MenuItem value='Lainnya'>Lainnya</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              {formData.category === 'Lainnya' && (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    required
+                    label='Kategori Lainnya'
+                    placeholder='Masukkan kategori'
+                    value={formData.customCategory}
+                    onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
+                    inputProps={{ maxLength: 100 }}
+                  />
+                </Grid>
+              )}
+
+              <Grid item xs={12}>
+                <FormControl fullWidth required>
+                  <InputLabel>Priority</InputLabel>
+                  <Select
+                    value={formData.priority}
+                    label='Priority'
+                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                  >
+                    <MenuItem value='low'>Low</MenuItem>
+                    <MenuItem value='medium'>Medium</MenuItem>
+                    <MenuItem value='high'>High</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  required
+                  multiline
+                  rows={8}
+                  label='Pesan'
+                  placeholder='Jelaskan masalah Anda secara detail'
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  inputProps={{ maxLength: 10000 }}
+                />
+                <Typography variant='caption' color='text.secondary'>
+                  {formData.message.length} / 10000 karakter
+                </Typography>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Upload Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
+                <Typography variant='caption' display='block' color='text.secondary' sx={{ mt: 1 }}>
+                  Allowed File Extensions: .jpg, .jpeg, .gif, .png, .zip, .gz, .txt, .pdf (Max 30MB)
+                </Typography>
+                {attachment && (
+                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <i className='tabler-file' />
+                    <Typography variant='body2'>{attachment.name}</Typography>
+                    <Button
+                      size='small'
+                      onClick={() => setAttachment(null)}
+                      startIcon={<i className='tabler-x' />}
+                    >
+                      Hapus
+                    </Button>
+                  </Box>
+                )}
+              </Grid>
+
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button
+                    type='submit'
+                    variant='contained'
+                    disabled={loading}
+                    fullWidth
+                  >
+                    {loading ? 'Mengirim...' : 'Submit'}
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    onClick={() => router.back()}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </form>
         </CardContent>
       </Card>
-    </div>
+    </Box>
   )
 }

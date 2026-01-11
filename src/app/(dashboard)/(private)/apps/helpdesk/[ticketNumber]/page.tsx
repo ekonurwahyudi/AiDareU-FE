@@ -1,18 +1,25 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Textarea } from '@/components/ui/textarea'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Button,
+  Chip,
+  TextField,
+  Alert,
+  Typography,
+  Box,
+  Avatar,
+  Paper,
+  Divider,
+  CircularProgress
+} from '@mui/material'
 import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { useAuth } from '@/contexts/AuthContext'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 interface TicketDetail {
   uuid: string
@@ -140,7 +147,7 @@ export default function TicketDetailPage() {
       if (response.ok && result.success) {
         setReplyMessage('')
         setReplyAttachment(null)
-        fetchTicketDetail() // Refresh ticket detail
+        fetchTicketDetail()
       } else {
         setError(result.message || 'Gagal mengirim balasan')
       }
@@ -162,7 +169,7 @@ export default function TicketDetailPage() {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        fetchTicketDetail() // Refresh ticket detail
+        fetchTicketDetail()
       } else {
         setError(result.message || 'Gagal membuka kembali tiket')
       }
@@ -172,39 +179,37 @@ export default function TicketDetailPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'success' | 'destructive' }> = {
-      open: { label: 'Open', variant: 'default' },
-      waiting_reply: { label: 'Waiting Reply', variant: 'secondary' },
-      replied: { label: 'Replied', variant: 'success' },
-      closed: { label: 'Closed', variant: 'destructive' }
+  const getStatusChip = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
+      open: { label: 'Open', color: 'info' },
+      waiting_reply: { label: 'Waiting Reply', color: 'warning' },
+      replied: { label: 'Replied', color: 'success' },
+      closed: { label: 'Closed', color: 'error' }
     }
 
-    const config = statusConfig[status] || { label: status, variant: 'default' }
-
-    return <Badge variant={config.variant}>{config.label}</Badge>
+    const config = statusConfig[status] || { label: status, color: 'default' }
+    return <Chip label={config.label} color={config.color} size='small' />
   }
 
-  const getPriorityBadge = (priority: string) => {
-    const priorityConfig: Record<string, { label: string; className: string }> = {
-      low: { label: 'Low', className: 'bg-blue-100 text-blue-800' },
-      medium: { label: 'Medium', className: 'bg-yellow-100 text-yellow-800' },
-      high: { label: 'High', className: 'bg-red-100 text-red-800' }
+  const getPriorityChip = (priority: string) => {
+    const priorityConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
+      low: { label: 'Low', color: 'info' },
+      medium: { label: 'Medium', color: 'warning' },
+      high: { label: 'High', color: 'error' }
     }
 
-    const config = priorityConfig[priority] || { label: priority, className: '' }
-
-    return <Badge className={config.className}>{config.label}</Badge>
+    const config = priorityConfig[priority] || { label: priority, color: 'default' }
+    return <Chip label={config.label} color={config.color} size='small' />
   }
 
   const getUserRole = (detail: TicketDetail['details'][0]) => {
     if (detail.type === 'answer') {
       if (detail.pic) {
-        return { role: 'Operator', color: 'bg-purple-100 text-purple-800' }
+        return { role: 'Operator', color: 'secondary' as const }
       }
-      return { role: 'Admin', color: 'bg-green-100 text-green-800' }
+      return { role: 'Admin', color: 'success' as const }
     }
-    return { role: 'Owner', color: 'bg-blue-100 text-blue-800' }
+    return { role: 'Owner', color: 'primary' as const }
   }
 
   const formatDate = (dateString: string) => {
@@ -217,168 +222,181 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <div className='container mx-auto p-6'>
-        <p>Loading...</p>
-      </div>
+      <Box className='container mx-auto p-6' sx={{ textAlign: 'center' }}>
+        <CircularProgress />
+      </Box>
     )
   }
 
   if (!ticket) {
     return (
-      <div className='container mx-auto p-6'>
-        <Alert variant='destructive'>
-          <AlertDescription>{error || 'Tiket tidak ditemukan'}</AlertDescription>
-        </Alert>
-        <Button className='mt-4' onClick={() => router.push('/apps/helpdesk')}>
+      <Box className='container mx-auto p-6'>
+        <Alert severity='error'>{error || 'Tiket tidak ditemukan'}</Alert>
+        <Button className='mt-4' variant='contained' onClick={() => router.push('/apps/helpdesk')}>
           Kembali ke Daftar Tiket
         </Button>
-      </div>
+      </Box>
     )
   }
 
   return (
-    <div className='container mx-auto p-6 max-w-5xl'>
-      <Button variant='ghost' className='mb-4' onClick={() => router.push('/apps/helpdesk')}>
-        <i className='tabler-arrow-left mr-2' />
+    <Box className='container mx-auto p-6' sx={{ maxWidth: 1200 }}>
+      <Button
+        variant='text'
+        className='mb-4'
+        onClick={() => router.push('/apps/helpdesk')}
+        startIcon={<i className='tabler-arrow-left' />}
+      >
         Kembali
       </Button>
 
       {/* Ticket Header */}
       <Card className='mb-6'>
-        <CardHeader>
-          <div className='flex justify-between items-start'>
-            <div className='flex-1'>
-              <div className='flex items-center gap-2 mb-2'>
-                <CardTitle className='text-2xl'>{ticket.title}</CardTitle>
-              </div>
-              <div className='flex items-center gap-4 text-sm text-muted-foreground'>
-                <span>Tiket {ticket.ticket_number}</span>
-                <span>•</span>
-                <span>{ticket.department}</span>
-                <span>•</span>
-                <span>{ticket.category}</span>
-              </div>
-            </div>
-            <div className='flex flex-col gap-2 items-end'>
-              {getStatusBadge(ticket.status)}
-              {getPriorityBadge(ticket.priority)}
-            </div>
-          </div>
-        </CardHeader>
+        <CardHeader
+          title={
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+              <Box>
+                <Typography variant='h5' sx={{ mb: 1 }}>{ticket.title}</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Tiket {ticket.ticket_number} • {ticket.department} • {ticket.category}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-end' }}>
+                {getStatusChip(ticket.status)}
+                {getPriorityChip(ticket.priority)}
+              </Box>
+            </Box>
+          }
+        />
       </Card>
 
       {/* Ticket Messages */}
-      <div className='space-y-4 mb-6'>
-        {ticket.details.map((detail, index) => {
+      <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
+        {ticket.details.map((detail) => {
           const roleInfo = getUserRole(detail)
           const isOwner = detail.type === 'question'
 
           return (
             <Card key={detail.uuid}>
-              <CardContent className='p-6'>
-                <div className='flex gap-4'>
-                  <Avatar className='w-10 h-10'>
-                    <AvatarFallback>
-                      {isOwner
-                        ? user?.name?.charAt(0).toUpperCase()
-                        : detail.pic?.charAt(0).toUpperCase() || 'A'}
-                    </AvatarFallback>
+              <CardContent>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: `${roleInfo.color}.main` }}>
+                    {isOwner
+                      ? user?.name?.charAt(0).toUpperCase()
+                      : detail.pic?.charAt(0).toUpperCase() || 'A'}
                   </Avatar>
-                  <div className='flex-1'>
-                    <div className='flex items-center gap-2 mb-2'>
-                      <span className='font-semibold'>
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <Typography variant='subtitle1' sx={{ fontWeight: 'bold' }}>
                         {isOwner ? ticket.user.name : detail.pic || 'Admin'}
-                      </span>
-                      <Badge className={roleInfo.color}>{roleInfo.role}</Badge>
-                      <span className='text-sm text-muted-foreground'>{formatDate(detail.created_at)}</span>
-                    </div>
-                    <div
-                      className='prose prose-sm max-w-none'
+                      </Typography>
+                      <Chip label={roleInfo.role} color={roleInfo.color} size='small' />
+                      <Typography variant='caption' color='text.secondary'>
+                        {formatDate(detail.created_at)}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant='body2'
                       dangerouslySetInnerHTML={{ __html: detail.message }}
+                      sx={{ whiteSpace: 'pre-wrap' }}
                     />
                     {detail.file_name && (
-                      <div className='mt-4'>
-                        <a
+                      <Box sx={{ mt: 2 }}>
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          component='a'
                           href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.file_path}`}
                           target='_blank'
                           rel='noopener noreferrer'
-                          className='inline-flex items-center gap-2 text-sm text-blue-600 hover:underline'
+                          startIcon={<i className='tabler-paperclip' />}
                         >
-                          <i className='tabler-paperclip' />
                           {detail.file_name}
-                        </a>
-                      </div>
+                        </Button>
+                      </Box>
                     )}
-                  </div>
-                </div>
+                  </Box>
+                </Box>
               </CardContent>
             </Card>
           )
         })}
-      </div>
+      </Box>
 
       {/* Reply Section */}
       {ticket.status === 'closed' ? (
         <Card>
-          <CardContent className='p-6'>
-            <Alert>
-              <AlertDescription>
-                Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
-              </AlertDescription>
+          <CardContent>
+            <Alert severity='info' sx={{ mb: 2 }}>
+              Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
             </Alert>
-            <Button className='mt-4' onClick={handleReopenTicket}>
+            <Button variant='contained' onClick={handleReopenTicket}>
               Buka Kembali Tiket
             </Button>
           </CardContent>
         </Card>
       ) : (
         <Card>
-          <CardHeader>
-            <CardTitle>Tambahkan Balasan</CardTitle>
-          </CardHeader>
+          <CardHeader title='Tambahkan Balasan' />
           <CardContent>
-            {error && (
-              <Alert variant='destructive' className='mb-4'>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
 
-            <div className='space-y-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='reply-message'>Pesan</Label>
-                <Textarea
-                  id='reply-message'
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={6}
                   placeholder='Tulis balasan Anda...'
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
-                  rows={6}
-                  maxLength={10000}
-                  className='resize-none'
+                  inputProps={{ maxLength: 10000 }}
                 />
-                <p className='text-sm text-muted-foreground'>{replyMessage.length} / 10000 karakter</p>
-              </div>
+                <Typography variant='caption' color='text.secondary'>
+                  {replyMessage.length} / 10000 karakter
+                </Typography>
+              </Box>
 
-              <div className='space-y-2'>
-                <Label htmlFor='reply-attachment'>Lampiran (Opsional)</Label>
-                <Input id='reply-attachment' type='file' onChange={handleFileChange} accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf' />
+              <Box>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Upload Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
                 {replyAttachment && (
-                  <div className='flex items-center gap-2 text-sm'>
+                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
                     <i className='tabler-file' />
-                    <span>{replyAttachment.name}</span>
-                    <Button type='button' variant='ghost' size='sm' onClick={() => setReplyAttachment(null)}>
-                      <i className='tabler-x' />
+                    <Typography variant='body2'>{replyAttachment.name}</Typography>
+                    <Button
+                      size='small'
+                      onClick={() => setReplyAttachment(null)}
+                      startIcon={<i className='tabler-x' />}
+                    >
+                      Hapus
                     </Button>
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
 
-              <Button onClick={handleSendReply} disabled={sendingReply || !replyMessage.trim()}>
+              <Button
+                variant='contained'
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+              >
                 {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
               </Button>
-            </div>
+            </Box>
           </CardContent>
         </Card>
       )}
-    </div>
+    </Box>
   )
 }
