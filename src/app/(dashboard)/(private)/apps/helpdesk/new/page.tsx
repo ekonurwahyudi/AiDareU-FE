@@ -135,7 +135,7 @@ export default function NewTicketPage() {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        router.push(`/apps/helpdesk/${encodeURIComponent(result.data.ticket_number)}`)
+        router.push('/apps/helpdesk')
       } else {
         setError(result.message || 'Gagal membuat tiket')
       }
@@ -191,11 +191,13 @@ export default function NewTicketPage() {
                 subheader='Jelaskan masalah Anda secara detail'
               />
               <CardContent>
-                <TiptapEditor
-                  content={formData.message}
-                  onChange={(content) => setFormData({ ...formData, message: content })}
-                  placeholder='Tulis deskripsi masalah Anda di sini...'
-                />
+                <Box sx={{ '& .ProseMirror': { minHeight: '200px !important' } }}>
+                  <TiptapEditor
+                    content={formData.message}
+                    onChange={(content) => setFormData({ ...formData, message: content })}
+                    placeholder='Tulis deskripsi masalah Anda di sini...'
+                  />
+                </Box>
                 <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
                   {formData.message.replace(/<[^>]*>/g, '').length} / 10000 karakter
                 </Typography>
@@ -253,7 +255,6 @@ export default function NewTicketPage() {
                       label='Nama'
                       value={userData?.name || ''}
                       disabled
-                      size='small'
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -263,7 +264,6 @@ export default function NewTicketPage() {
                       type='email'
                       value={userData?.email || ''}
                       disabled
-                      size='small'
                     />
                   </Grid>
                 </Grid>
@@ -276,7 +276,7 @@ export default function NewTicketPage() {
               <CardContent>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <FormControl fullWidth required size='small'>
+                    <FormControl fullWidth required>
                       <InputLabel>Department</InputLabel>
                       <Select
                         value={formData.department}
@@ -291,7 +291,7 @@ export default function NewTicketPage() {
                   </Grid>
 
                   <Grid item xs={12}>
-                    <FormControl fullWidth required size='small'>
+                    <FormControl fullWidth required>
                       <InputLabel>Kategori</InputLabel>
                       <Select
                         value={formData.category}
@@ -311,7 +311,6 @@ export default function NewTicketPage() {
                       <TextField
                         fullWidth
                         required
-                        size='small'
                         label='Kategori Lainnya'
                         placeholder='Masukkan kategori'
                         value={formData.customCategory}
@@ -322,7 +321,7 @@ export default function NewTicketPage() {
                   )}
 
                   <Grid item xs={12}>
-                    <FormControl fullWidth required size='small'>
+                    <FormControl fullWidth required>
                       <InputLabel>Priority</InputLabel>
                       <Select
                         value={formData.priority}

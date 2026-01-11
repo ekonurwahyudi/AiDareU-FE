@@ -14,7 +14,8 @@ import {
   Avatar,
   Paper,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Grid
 } from '@mui/material'
 import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
@@ -51,7 +52,7 @@ interface TicketDetail {
 export default function TicketDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const ticketNumber = params.ticketNumber as string
+  const ticketId = params.ticketNumber as string // UUID or ticket_number
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -64,7 +65,7 @@ export default function TicketDetailPage() {
   useEffect(() => {
     fetchTicketDetail()
     fetchUserData()
-  }, [ticketNumber])
+  }, [ticketId])
 
   const fetchUserData = async () => {
     try {
@@ -84,7 +85,7 @@ export default function TicketDetailPage() {
 
   const fetchTicketDetail = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketNumber}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}`, {
         credentials: 'include'
       })
 
@@ -152,7 +153,7 @@ export default function TicketDetailPage() {
         formData.append('attachment', replyAttachment)
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketNumber}/reply`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/reply`, {
         method: 'POST',
         credentials: 'include',
         body: formData
@@ -177,7 +178,7 @@ export default function TicketDetailPage() {
 
   const handleReopenTicket = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketNumber}/reopen`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/reopen`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -195,42 +196,19 @@ export default function TicketDetailPage() {
     }
   }
 
-  const getStatusChip = (status: string) => {
-    const statusConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
-      open: { label: 'Open', color: 'info' },
-      waiting_reply: { label: 'Waiting Reply', color: 'warning' },
-      replied: { label: 'Replied', color: 'success' },
-      closed: { label: 'Closed', color: 'error' }
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, 'default' | 'warning' | 'success' | 'error'> = {
+      open: 'warning',
+      waiting_reply: 'warning',
+      replied: 'success',
+      closed: 'error'
     }
-
-    const config = statusConfig[status] || { label: status, color: 'default' }
-    return <Chip label={config.label} color={config.color} size='small' />
-  }
-
-  const getPriorityChip = (priority: string) => {
-    const priorityConfig: Record<string, { label: string; color: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
-      low: { label: 'Low', color: 'info' },
-      medium: { label: 'Medium', color: 'warning' },
-      high: { label: 'High', color: 'error' }
-    }
-
-    const config = priorityConfig[priority] || { label: priority, color: 'default' }
-    return <Chip label={config.label} color={config.color} size='small' />
-  }
-
-  const getUserRole = (detail: TicketDetail['details'][0]) => {
-    if (detail.type === 'answer') {
-      if (detail.pic) {
-        return { role: 'Operator', color: 'secondary' as const }
-      }
-      return { role: 'Admin', color: 'success' as const }
-    }
-    return { role: 'Owner', color: 'primary' as const }
+    return colors[status] || 'default'
   }
 
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'dd MMMM yyyy, HH:mm', { locale: id })
+      return format(new Date(dateString), 'dd/MM/yyyy (HH:mm)', { locale: id })
     } catch {
       return dateString
     }
@@ -256,124 +234,115 @@ export default function TicketDetailPage() {
   }
 
   return (
-    <Box className='container mx-auto p-6' sx={{ maxWidth: 1200 }}>
-      <Button
-        variant='text'
-        className='mb-4'
-        onClick={() => router.push('/apps/helpdesk')}
-        startIcon={<i className='tabler-arrow-left' />}
-      >
-        Kembali
-      </Button>
-
-      {/* Ticket Header */}
-      <Card className='mb-6'>
-        <CardHeader
-          title={
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-              <Box>
-                <Typography variant='h5' sx={{ mb: 1 }}>{ticket.title}</Typography>
-                <Typography variant='body2' color='text.secondary'>
-                  Tiket {ticket.ticket_number} • {ticket.department} • {ticket.category}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'flex-end' }}>
-                {getStatusChip(ticket.status)}
-                {getPriorityChip(ticket.priority)}
-              </Box>
-            </Box>
-          }
-        />
-      </Card>
-
-      {/* Ticket Messages */}
-      <Box sx={{ mb: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {ticket.details.map((detail) => {
-          const roleInfo = getUserRole(detail)
-          const isOwner = detail.type === 'question'
-
-          return (
-            <Card key={detail.uuid}>
-              <CardContent>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Avatar sx={{ bgcolor: `${roleInfo.color}.main` }}>
-                    {isOwner
-                      ? userData?.name?.charAt(0).toUpperCase() || 'U'
-                      : detail.pic?.charAt(0).toUpperCase() || 'A'}
-                  </Avatar>
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <Typography variant='subtitle1' sx={{ fontWeight: 'bold' }}>
-                        {isOwner ? ticket.user.name : detail.pic || 'Admin'}
-                      </Typography>
-                      <Chip label={roleInfo.role} color={roleInfo.color} size='small' />
-                      <Typography variant='caption' color='text.secondary'>
-                        {formatDate(detail.created_at)}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      variant='body2'
-                      dangerouslySetInnerHTML={{ __html: detail.message }}
-                      sx={{ whiteSpace: 'pre-wrap' }}
-                    />
-                    {detail.file_name && (
-                      <Box sx={{ mt: 2 }}>
-                        <Button
-                          variant='outlined'
-                          size='small'
-                          component='a'
-                          href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.file_path}`}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          startIcon={<i className='tabler-paperclip' />}
-                        >
-                          {detail.file_name}
-                        </Button>
-                      </Box>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          )
-        })}
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 0.5 }}>
+            Ticket {ticket.ticket_number}
+          </Typography>
+          <Typography variant='h6'>{ticket.title}</Typography>
+        </Box>
+        <Button
+          variant='contained'
+          color='success'
+          startIcon={<i className='tabler-shopping-bag' />}
+        >
+          Buy Now
+        </Button>
       </Box>
 
-      {/* Reply Section */}
-      {ticket.status === 'closed' ? (
-        <Card>
-          <CardContent>
-            <Alert severity='info' sx={{ mb: 2 }}>
-              Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
+      {/* Breadcrumb */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant='body2' color='text.secondary'>
+          Dashboard / MyDomaiNesia / Support Tickets / View Ticket
+        </Typography>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* Main Content */}
+        <Grid item xs={12} md={9}>
+          {/* Alert jika closed */}
+          {ticket.status === 'closed' && (
+            <Alert severity='warning' sx={{ mb: 3 }}>
+              This ticket is closed. You may reply to this ticket to reopen it.
             </Alert>
-            <Button variant='contained' onClick={handleReopenTicket}>
-              Buka Kembali Tiket
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardHeader title='Tambahkan Balasan' />
-          <CardContent>
-            {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
+          )}
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <Box>
-                <TextField
-                  fullWidth
-                  multiline
-                  rows={6}
-                  placeholder='Tulis balasan Anda...'
-                  value={replyMessage}
-                  onChange={(e) => setReplyMessage(e.target.value)}
-                  inputProps={{ maxLength: 10000 }}
-                />
-                <Typography variant='caption' color='text.secondary'>
-                  {replyMessage.length} / 10000 karakter
-                </Typography>
-              </Box>
+          {/* Messages */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {ticket.details.map((detail, index) => {
+              const isOwner = detail.type === 'question'
+              const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'default')
+              const roleLabel = isOwner ? 'Owner' : (detail.pic ? 'Operator' : 'Admin')
 
-              <Box>
+              return (
+                <Paper key={detail.uuid} sx={{ p: 3, borderRadius: 2 }}>
+                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                    <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                      Posted by{' '}
+                      <Typography component='span' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                        {isOwner ? ticket.user.name : detail.pic || 'Admin'}
+                      </Typography>{' '}
+                      on {formatDate(detail.created_at)}
+                    </Typography>
+                    <Chip label={roleLabel} color={roleColor} size='small' />
+                  </Box>
+
+                  <Box
+                    dangerouslySetInnerHTML={{ __html: detail.message }}
+                    sx={{
+                      '& p': { mb: 1 },
+                      '& ul, & ol': { pl: 3, mb: 1 },
+                      color: 'text.primary',
+                      lineHeight: 1.6
+                    }}
+                  />
+
+                  {detail.file_name && (
+                    <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 'bold' }}>
+                        Attachments
+                      </Typography>
+                      <Button
+                        variant='outlined'
+                        size='small'
+                        component='a'
+                        href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.file_path}`}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        startIcon={<i className='tabler-file' />}
+                      >
+                        {detail.file_name}
+                      </Button>
+                    </Box>
+                  )}
+                </Paper>
+              )
+            })}
+          </Box>
+
+          {/* Reply Section */}
+          {ticket.status !== 'closed' && (
+            <Paper sx={{ p: 3, mt: 3, borderRadius: 2 }}>
+              <Typography variant='h6' sx={{ mb: 2, fontWeight: 'bold' }}>
+                Tambahkan Balasan
+              </Typography>
+
+              {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
+
+              <TextField
+                fullWidth
+                multiline
+                rows={6}
+                placeholder='Tulis balasan Anda...'
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                inputProps={{ maxLength: 10000 }}
+                sx={{ mb: 2 }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
                 <Button
                   variant='outlined'
                   component='label'
@@ -388,8 +357,7 @@ export default function TicketDetailPage() {
                   />
                 </Button>
                 {replyAttachment && (
-                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <i className='tabler-file' />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant='body2'>{replyAttachment.name}</Typography>
                     <Button
                       size='small'
@@ -402,17 +370,138 @@ export default function TicketDetailPage() {
                 )}
               </Box>
 
-              <Button
-                variant='contained'
-                onClick={handleSendReply}
-                disabled={sendingReply || !replyMessage.trim()}
-              >
-                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant='contained'
+                  color='success'
+                  onClick={handleSendReply}
+                  disabled={sendingReply || !replyMessage.trim()}
+                  startIcon={<i className='tabler-check' />}
+                >
+                  {sendingReply ? 'Mengirim...' : 'Reply'}
+                </Button>
+                <Button
+                  variant='outlined'
+                  color='error'
+                  onClick={() => router.push('/apps/helpdesk')}
+                  startIcon={<i className='tabler-x' />}
+                >
+                  Closed
+                </Button>
+              </Box>
+            </Paper>
+          )}
+
+          {/* Reopen button if closed */}
+          {ticket.status === 'closed' && (
+            <Paper sx={{ p: 3, mt: 3, borderRadius: 2 }}>
+              <Alert severity='info' sx={{ mb: 2 }}>
+                Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
+              </Alert>
+              <Button variant='contained' onClick={handleReopenTicket}>
+                Buka Kembali Tiket
               </Button>
-            </Box>
-          </CardContent>
-        </Card>
-      )}
+            </Paper>
+          )}
+        </Grid>
+
+        {/* Sidebar */}
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardHeader
+              title='Ticket Information'
+              sx={{
+                '& .MuiCardHeader-title': {
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }
+              }}
+            />
+            <Divider />
+            <CardContent>
+              {/* Requestor */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                  Requestor
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant='body2' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                    {ticket.user.name}
+                  </Typography>
+                  <Chip label='Owner' color='success' size='small' />
+                </Box>
+              </Box>
+
+              {/* Department */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                  Department
+                </Typography>
+                <Typography variant='body2'>{ticket.department}</Typography>
+              </Box>
+
+              {/* Submitted */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                  Submitted
+                </Typography>
+                <Typography variant='body2'>{formatDate(ticket.created_at)}</Typography>
+              </Box>
+
+              {/* Last Updated */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                  Last Updated
+                </Typography>
+                <Typography variant='body2'>
+                  {ticket.details.length > 0
+                    ? formatDate(ticket.details[ticket.details.length - 1].created_at)
+                    : formatDate(ticket.created_at)}
+                </Typography>
+              </Box>
+
+              {/* Status/Priority */}
+              <Box>
+                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                  Status/Priority
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Chip
+                    label={ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace('_', ' ')}
+                    color={getStatusColor(ticket.status)}
+                    size='small'
+                    sx={{ width: 'fit-content' }}
+                  />
+                  <Chip
+                    label={ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                    color={ticket.priority === 'high' ? 'error' : ticket.priority === 'medium' ? 'warning' : 'default'}
+                    size='small'
+                    sx={{ width: 'fit-content' }}
+                  />
+                </Box>
+              </Box>
+            </CardContent>
+
+            <Divider />
+
+            {/* CC Recipients */}
+            <CardContent>
+              <Typography variant='subtitle2' sx={{ fontWeight: 'bold', mb: 1 }}>
+                CC Recipients
+              </Typography>
+              <TextField
+                fullWidth
+                size='small'
+                placeholder='Enter Email Address'
+                sx={{ mb: 1 }}
+              />
+              <Button variant='outlined' size='small' fullWidth>
+                Add
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     </Box>
   )
 }

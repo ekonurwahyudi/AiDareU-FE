@@ -149,7 +149,7 @@ export default function MyTicketPage() {
                     <TableRow
                       key={ticket.uuid}
                       hover
-                      onClick={() => router.push(`/apps/helpdesk/${encodeURIComponent(ticket.ticket_number)}`)}
+                      onClick={() => router.push(`/apps/helpdesk/${ticket.uuid}`)}
                       sx={{ cursor: 'pointer' }}
                     >
                       <TableCell sx={{ fontWeight: 'bold' }}>{ticket.ticket_number}</TableCell>
@@ -164,7 +164,7 @@ export default function MyTicketPage() {
                           size='small'
                           onClick={(e) => {
                             e.stopPropagation()
-                            router.push(`/apps/helpdesk/${encodeURIComponent(ticket.ticket_number)}`)
+                            router.push(`/apps/helpdesk/${ticket.uuid}`)
                           }}
                         >
                           Lihat
