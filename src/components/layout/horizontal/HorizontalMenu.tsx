@@ -243,10 +243,10 @@ const HorizontalMenu = () => {
             </svg>
           }
         >
-            <MenuItem href="/apps/helpdesk" activeUrl='/apps/helpdesk' exactMatch={false}  icon={<i className='tabler-blocks' />}>
+            <MenuItem href="/apps/helpdesk" activeUrl='/apps/helpdesk' exactMatch={false}  icon={<i className='tabler-archive' />}>
               My Ticket
             </MenuItem>
-            <MenuItem href="#" activeUrl='#' exactMatch={false}  icon={<i className='tabler-archive' />}>
+            <MenuItem href="#" activeUrl='#' exactMatch={false}  icon={<i className='tabler-blocks' />}>
               Tutorial
             </MenuItem>
           </SubMenu>
