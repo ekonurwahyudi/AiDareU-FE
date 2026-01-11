@@ -48,9 +48,21 @@ import {
 import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
+// MUI Grid Import
+import Grid from '@mui/material/Grid2'
+import Box from '@mui/material/Box'
+
 // Type Imports
 import type { ThemeColor } from '@core/types'
 import type { Product, Category } from '@/types/product'
+
+// Product Stats Interface
+interface ProductStats {
+  active: number
+  inactive: number
+  draft: number
+  total: number
+}
 
 // Context Imports
 import { useRBAC } from '@/contexts/rbacContext'
@@ -216,6 +228,14 @@ const ProductListTable = () => {
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
 
+  // Stats state
+  const [stats, setStats] = useState<ProductStats>({
+    active: 0,
+    inactive: 0,
+    draft: 0,
+    total: 0
+  })
+
   // Reduced debouncing for faster response
   const debouncedSearch = useDebounce(globalFilter, 200) // Reduced from 500ms
   const debouncedStatusFilter = useDebounce(statusFilter, 100) // Reduced from 300ms  
@@ -321,6 +341,23 @@ const ProductListTable = () => {
         setProducts(productsData)
         setTotalRows(total)
         setLastFetchTime(now) // Track successful fetch time
+
+        // Calculate stats from all data (needs to fetch without pagination for accurate stats)
+        // For now, we'll calculate from current page data - ideally should be from backend
+        const productStats = productsData.reduce((acc: ProductStats, product: Product) => {
+          if (product.status_produk === 'active') {
+            acc.active++
+          } else if (product.status_produk === 'inactive') {
+            acc.inactive++
+          } else if (product.status_produk === 'draft') {
+            acc.draft++
+          }
+          return acc
+        }, { active: 0, inactive: 0, draft: 0, total: 0 })
+
+        // Use total from server for accurate total count
+        productStats.total = total
+        setStats(productStats)
       } else {
         throw new Error(result.message || 'Failed to fetch products')
       }
@@ -804,7 +841,96 @@ const ProductListTable = () => {
   }
 
   return (
-    <Card>
+    <>
+      {/* Stats Cards */}
+      <Grid container spacing={6} className="mb-6">
+        {/* Produk Aktif */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='success' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-check' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'success.main' }}>
+                    {stats.active}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Produk Aktif
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Produk Tidak Aktif */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='error' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-x' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'error.main' }}>
+                    {stats.inactive}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Produk Tidak Aktif
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Draft Produk */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='warning' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-file-pencil' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'warning.main' }}>
+                    {stats.draft}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Draft Produk
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Total Produk */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='primary' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-shopping-bag' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'primary.main' }}>
+                    {stats.total}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Total Produk
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Product Table Card */}
+      <Card>
       {/* Header: title kiri, tombol kanan */}
       <div className="flex flex-wrap items-start justify-between gap-4 p-5 sm:p-6">
         <div className="flex items-center gap-2">
@@ -1030,6 +1156,7 @@ const ProductListTable = () => {
         </DialogActions>
       </Dialog>
     </Card>
+    </>
   )
 }
 

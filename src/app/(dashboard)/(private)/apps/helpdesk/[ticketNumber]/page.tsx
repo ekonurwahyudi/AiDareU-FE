@@ -130,20 +130,28 @@ export default function TicketDetailPage() {
     }, 100)
   }
 
-  // Auto update status to in_progress when superadmin views ticket
-  const autoUpdateStatus = async () => {
-    if (isSuperadmin && ticket && ticket.status === 'open') {
+  // Auto update status to in_progress when superadmin views ticket with status 'open'
+  const autoUpdateStatus = async (currentTicket: TicketDetail) => {
+    if (isSuperadmin && currentTicket.status === 'open') {
       try {
+        // Update locally first (optimistic)
+        setTicket(prev => prev ? { ...prev, status: 'in_progress' } : null)
+        
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/status`, {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'in_progress' })
         })
-        if (response.ok) {
-          setTicket(prev => prev ? { ...prev, status: 'in_progress' } : null)
+        
+        if (!response.ok) {
+          // Rollback if failed
+          setTicket(prev => prev ? { ...prev, status: 'open' } : null)
+          console.error('Failed to auto-update status')
         }
       } catch (err) {
+        // Rollback if error
+        setTicket(prev => prev ? { ...prev, status: 'open' } : null)
         console.error('Error auto-updating status:', err)
       }
     }
@@ -153,13 +161,6 @@ export default function TicketDetailPage() {
     fetchTicketDetail()
   }, [ticketId])
 
-  // Auto update status after ticket is loaded
-  useEffect(() => {
-    if (ticket && isSuperadmin && ticket.status === 'open') {
-      autoUpdateStatus()
-    }
-  }, [ticket?.uuid, isSuperadmin])
-
   // Scroll to bottom when ticket loads or details change
   useEffect(() => {
     if (ticket && !loading) {
@@ -167,7 +168,7 @@ export default function TicketDetailPage() {
     }
   }, [ticket?.details?.length, loading])
 
-  const fetchTicketDetail = async () => {
+  const fetchTicketDetail = async (shouldAutoUpdate = true) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}?_t=${Date.now()}`, {
         credentials: 'include',
@@ -178,6 +179,10 @@ export default function TicketDetailPage() {
         const result = await response.json()
         if (result.success) {
           setTicket(result.data)
+          // Auto update status when superadmin opens ticket
+          if (shouldAutoUpdate && isSuperadmin && result.data.status === 'open') {
+            autoUpdateStatus(result.data)
+          }
         }
       } else {
         setError('Tiket tidak ditemukan')
@@ -268,8 +273,8 @@ export default function TicketDetailPage() {
       if (response.ok && result.success) {
         setReplyAttachment(null)
         setError('')
-        // Refresh to get actual data from server
-        fetchTicketDetail()
+        // Refresh to get actual data from server (don't auto-update status again)
+        fetchTicketDetail(false)
       } else {
         // Rollback optimistic update on error
         setTicket(prev => prev ? {
