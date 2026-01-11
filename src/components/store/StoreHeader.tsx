@@ -99,7 +99,7 @@ interface Product {
   uuid: string
   name: string
   price: number
-  salePrice?: number
+  salePrice?: number | null
   image: string
   jenis_produk?: string
 }

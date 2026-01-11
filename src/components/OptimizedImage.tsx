@@ -94,6 +94,11 @@ const OptimizedImage = ({
     return (
       <Box
         sx={{
+          position: fill ? 'absolute' : 'relative',
+          top: fill ? 0 : undefined,
+          left: fill ? 0 : undefined,
+          right: fill ? 0 : undefined,
+          bottom: fill ? 0 : undefined,
           width: fill ? '100%' : width,
           height: fill ? '100%' : height,
           display: 'flex',
@@ -110,30 +115,66 @@ const OptimizedImage = ({
     )
   }
 
+  // When fill is true, render Image directly without wrapper Box
+  // This allows the parent container to control sizing properly
+  if (fill) {
+    return (
+      <>
+        {isLoading && (
+          <Skeleton
+            variant="rectangular"
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: '100%',
+              height: '100%'
+            }}
+          />
+        )}
+        <Image
+          src={optimizedSrc}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes={sizes || '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+          className={className}
+          quality={quality}
+          placeholder={placeholder}
+          unoptimized={!shouldOptimize}
+          onLoad={handleLoad}
+          onError={handleError}
+          style={{
+            objectFit,
+            opacity: isLoading ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+            ...style
+          }}
+          loading={priority ? undefined : 'lazy'}
+        />
+      </>
+    )
+  }
+
+  // For non-fill mode, use wrapper Box
   return (
-    <Box sx={{ position: 'relative', width: fill ? '100%' : width, height: fill ? '100%' : height, ...style }}>
+    <Box sx={{ position: 'relative', width, height, ...style }}>
       {isLoading && (
         <Skeleton
           variant="rectangular"
-          width={fill ? '100%' : width}
-          height={fill ? '100%' : height}
-          sx={{
-            position: fill ? 'absolute' : 'static',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }}
+          width={width}
+          height={height}
         />
       )}
       <Image
         src={optimizedSrc}
         alt={alt}
-        width={!fill ? width : undefined}
-        height={!fill ? height : undefined}
-        fill={fill}
+        width={width}
+        height={height}
         priority={priority}
-        sizes={sizes || (fill ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw' : undefined)}
+        sizes={sizes}
         className={className}
         quality={quality}
         placeholder={placeholder}

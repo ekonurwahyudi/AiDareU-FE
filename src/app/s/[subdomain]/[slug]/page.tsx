@@ -438,6 +438,7 @@ function ProductDetailPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const slug = params.slug as string
+  const subdomain = params.subdomain as string
   const productUuid = searchParams.get('uuid') // Get UUID from query parameter
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -1105,7 +1106,7 @@ ${currentUrl}`
         <StoreHeader
           cartItemCount={getTotalItems()}
           onCartClick={handleCartClick}
-          products={products}
+          products={products.map(p => ({ id: p.id, uuid: p.uuid, name: p.name, price: p.price, salePrice: p.salePrice, image: p.image, jenis_produk: p.jenis_produk }))}
           onProductClick={(clickedProduct) => {
             const productSlug = `${clickedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${clickedProduct.uuid}`
             router.push(`/s/${subdomain}/${productSlug}?uuid=${clickedProduct.uuid}`)
@@ -1186,7 +1187,7 @@ ${currentUrl}`
         cartItems={cartItems}
         onRemoveItem={removeFromCart}
         onUpdateQuantity={updateCartQuantity}
-        products={products}
+        products={products.map(p => ({ id: p.id, uuid: p.uuid, name: p.name, price: p.price, salePrice: p.salePrice, image: p.image, jenis_produk: p.jenis_produk }))}
         onProductClick={(clickedProduct) => {
           // Navigate to product detail page
           const productSlug = `${clickedProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${clickedProduct.uuid}`
@@ -1532,9 +1533,9 @@ ${currentUrl}`
                   }
 
                   // No variant selected, show price range
-                  const allPrices = product.variants.flatMap(v => v.options.map(o => o.harga))
-                  const minPrice = Math.min(...allPrices)
-                  const maxPrice = Math.max(...allPrices)
+                  const allPrices = product.variants?.flatMap(v => v.options.map(o => o.harga)) || []
+                  const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : product.price
+                  const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : product.price
                   const priceRange = minPrice !== maxPrice ? `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}` : formatRupiah(minPrice)
 
                   // Show original price range if there's a discount
@@ -1764,9 +1765,9 @@ ${currentUrl}`
                       }
 
                       // No variant selected, show price range
-                      const allPrices = product.variants.flatMap(v => v.options.map(o => o.harga))
-                      const minPrice = Math.min(...allPrices)
-                      const maxPrice = Math.max(...allPrices)
+                      const allPrices = product.variants?.flatMap(v => v.options.map(o => o.harga)) || []
+                      const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : product.price
+                      const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : product.price
                       return minPrice !== maxPrice ? `${formatRupiah(minPrice)} - ${formatRupiah(maxPrice)}` : formatRupiah(minPrice)
                     }
 
