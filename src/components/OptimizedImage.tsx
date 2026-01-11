@@ -20,6 +20,35 @@ interface OptimizedImageProps {
   onLoad?: () => void
 }
 
+// Helper to check if URL is from our backend storage
+const isBackendStorageUrl = (url: string): boolean => {
+  if (!url) return false
+  
+  // Check for backend storage URLs
+  const backendPatterns = [
+    'api.aidareu.com/storage',
+    'aidareu.com/storage',
+    'localhost:8000/storage',
+    'localhost:8080/storage',
+    '/storage/'
+  ]
+  
+  return backendPatterns.some(pattern => url.includes(pattern))
+}
+
+// Helper to transform URL for optimization
+const getOptimizedUrl = (src: string): string => {
+  if (!src) return src
+  
+  // If it's a relative storage path, convert to full URL
+  if (src.startsWith('/storage/')) {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
+    return `${backendUrl}${src}`
+  }
+  
+  return src
+}
+
 const OptimizedImage = ({
   src,
   alt,
@@ -38,11 +67,18 @@ const OptimizedImage = ({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  // Check if image is from external source
-  const isExternal = src?.startsWith('http') || src?.startsWith('//')
-
-  // For external images or images from storage, use unoptimized
-  const shouldOptimize = !isExternal && !src?.includes('/storage/')
+  // Transform URL if needed
+  const optimizedSrc = getOptimizedUrl(src)
+  
+  // Check if image is from external source (not our backend)
+  const isExternal = optimizedSrc?.startsWith('http') || optimizedSrc?.startsWith('//')
+  const isFromBackend = isBackendStorageUrl(optimizedSrc)
+  
+  // Enable optimization for:
+  // 1. Local images (not starting with http)
+  // 2. Images from our backend storage (api.aidareu.com, etc.)
+  // Disable optimization for other external sources
+  const shouldOptimize = !isExternal || isFromBackend
 
   const handleLoad = () => {
     setIsLoading(false)
@@ -91,13 +127,13 @@ const OptimizedImage = ({
         />
       )}
       <Image
-        src={src}
+        src={optimizedSrc}
         alt={alt}
         width={!fill ? width : undefined}
         height={!fill ? height : undefined}
         fill={fill}
         priority={priority}
-        sizes={sizes}
+        sizes={sizes || (fill ? '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw' : undefined)}
         className={className}
         quality={quality}
         placeholder={placeholder}

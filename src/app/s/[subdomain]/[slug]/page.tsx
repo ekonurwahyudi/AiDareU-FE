@@ -44,6 +44,7 @@ import StraightenIcon from '@mui/icons-material/Straighten'
 import StoreHeader from '@/components/store/StoreHeader'
 import StoreFooter from '@/components/store/StoreFooter'
 import CartDrawer from '@/components/store/CartDrawer'
+import OptimizedImage from '@/components/OptimizedImage'
 
 // Custom Hook
 import { useStoreMetadata } from '../useStoreMetadata'
@@ -1233,10 +1234,13 @@ ${currentUrl}`
                 {displayImages.map((img, idx) => (
                   <CarouselItem key={idx} onClick={() => setSelectedImageIndex(idx)}>
                     {img && img !== '/placeholder.jpg' ? (
-                      <img
+                      <OptimizedImage
                         src={img}
                         alt={`${product.name} ${idx + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        fill
+                        sizes="100vw"
+                        objectFit="cover"
+                        quality={80}
                       />
                     ) : (
                       <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem' }}>
@@ -1252,10 +1256,14 @@ ${currentUrl}`
                 {/* Main (kiri) */}
                 <MainImageContainer sx={{ gridArea: 'main', height: '100%', position: 'relative' }}>
                   {mainImage && mainImage !== '/placeholder.jpg' ? (
-                    <img
+                    <OptimizedImage
                       src={mainImage}
                       alt={`${product.name} main`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      objectFit="cover"
+                      quality={85}
+                      priority
                     />
                   ) : (
                     <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '6rem' }}>
@@ -1279,7 +1287,7 @@ ${currentUrl}`
                   }}
                   onClick={() => setSelectedImageIndex(1)}
                 >
-                  <img src={displayImages[1]} alt={`${product.name} 2`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <OptimizedImage src={displayImages[1]} alt={`${product.name} 2`} fill sizes="25vw" objectFit="cover" quality={75} />
                 </ProductImageContainer>
 
                 {/* Right top */}
@@ -1291,7 +1299,7 @@ ${currentUrl}`
                   }}
                   onClick={() => setSelectedImageIndex(2)}
                 >
-                  <img src={displayImages[2]} alt={`${product.name} 3`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <OptimizedImage src={displayImages[2]} alt={`${product.name} 3`} fill sizes="25vw" objectFit="cover" quality={75} />
                 </ProductImageContainer>
 
                 {/* Right bottom */}
@@ -1303,7 +1311,7 @@ ${currentUrl}`
                   }}
                   onClick={() => setSelectedImageIndex(3)}
                 >
-                  <img src={displayImages[3]} alt={`${product.name} 4`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <OptimizedImage src={displayImages[3]} alt={`${product.name} 4`} fill sizes="25vw" objectFit="cover" quality={75} />
                 </ProductImageContainer>
               </ImageGrid>
             )}
@@ -1330,6 +1338,7 @@ ${currentUrl}`
                       backgroundColor: '#F5F5F5',
                       height: 200,
                       cursor: img && img !== '/placeholder.jpg' ? 'pointer' : 'default',
+                      position: 'relative',
                       '&:hover': img && img !== '/placeholder.jpg' ? {
                         transform: 'scale(1.02)',
                         transition: 'transform 0.2s ease-in-out',
@@ -1338,10 +1347,13 @@ ${currentUrl}`
                     }}
                   >
                     {img && img !== '/placeholder.jpg' ? (
-                      <img
+                      <OptimizedImage
                         src={img}
                         alt={`${product.name} ${idx + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                        objectFit="cover"
+                        quality={75}
                       />
                     ) : (
                       <Box sx={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
@@ -1383,14 +1395,16 @@ ${currentUrl}`
               <CloseIcon />
             </IconButton>
             {zoomedImage && (
-              <img
+              <OptimizedImage
                 src={zoomedImage}
                 alt="Zoomed product"
+                width={1200}
+                height={800}
+                objectFit="contain"
+                quality={90}
                 style={{
                   maxWidth: '90vw',
                   maxHeight: '90vh',
-                  objectFit: 'contain',
-                  display: 'block',
                   borderRadius: '8px'
                 }}
               />
@@ -1409,15 +1423,20 @@ ${currentUrl}`
           <DialogContent dividers>
             {product?.sizeGuideImage ? (
               <Box sx={{ textAlign: 'center' }}>
-                <img
+                <OptimizedImage
                   src={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${product.sizeGuideImage}`}
                   alt="Size Guide"
+                  width={800}
+                  height={600}
+                  objectFit="contain"
+                  quality={85}
                   style={{
                     maxWidth: '100%',
                     height: 'auto',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    cursor: 'pointer'
                   }}
-                  onClick={() => openZoomImage(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${product.sizeGuideImage}`)}
+                  onLoad={() => {}}
                 />
                 <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.secondary' }}>
                   Klik gambar untuk memperbesar
