@@ -112,20 +112,56 @@ const OptimizedImage = ({
   // For backend storage images, use native <img> tag with lazy loading
   // This avoids Next.js Image Optimization issues with custom domains
   if (isFromBackend) {
+    // For fill mode, we need the parent to have position:relative and defined dimensions
+    if (fill) {
+      return (
+        <>
+          {isLoading && (
+            <Skeleton
+              variant="rectangular"
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                width: '100%',
+                height: '100%'
+              }}
+            />
+          )}
+          <img
+            src={optimizedSrc}
+            alt={alt}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            onLoad={handleLoad}
+            onError={handleError}
+            className={className}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit,
+              opacity: isLoading ? 0 : 1,
+              transition: 'opacity 0.3s ease-in-out',
+              ...style
+            }}
+          />
+        </>
+      )
+    }
+    
+    // For non-fill mode with explicit dimensions
     return (
-      <>
+      <Box sx={{ position: 'relative', width, height, display: 'inline-block' }}>
         {isLoading && (
           <Skeleton
             variant="rectangular"
-            sx={{
-              position: fill ? 'absolute' : 'relative',
-              top: 0,
-              left: 0,
-              right: fill ? 0 : undefined,
-              bottom: fill ? 0 : undefined,
-              width: fill ? '100%' : width,
-              height: fill ? '100%' : height
-            }}
+            width={width}
+            height={height}
           />
         )}
         <img
@@ -137,18 +173,15 @@ const OptimizedImage = ({
           onError={handleError}
           className={className}
           style={{
-            position: fill ? 'absolute' : 'relative',
-            top: fill ? 0 : undefined,
-            left: fill ? 0 : undefined,
-            width: fill ? '100%' : width,
-            height: fill ? '100%' : height,
+            width: width,
+            height: height,
             objectFit,
             opacity: isLoading ? 0 : 1,
             transition: 'opacity 0.3s ease-in-out',
             ...style
           }}
         />
-      </>
+      </Box>
     )
   }
 

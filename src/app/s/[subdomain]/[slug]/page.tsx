@@ -163,6 +163,7 @@ const CarouselItem = styled(Box)(({ theme }) => ({
   border: '1px solid #E0E0E0',
   backgroundColor: '#F5F5F5',
   height: 420,
+  position: 'relative',
   [theme.breakpoints.down('sm')]: { height: 360 }
 }))
 
