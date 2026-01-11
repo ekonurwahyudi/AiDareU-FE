@@ -10,7 +10,9 @@ import {
   Typography,
   CircularProgress,
   Box,
-  Divider
+  Divider,
+  MenuItem,
+  Pagination
 } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { useRouter } from 'next/navigation'
@@ -19,6 +21,7 @@ import { id } from 'date-fns/locale'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
+import CustomTextField from '@core/components/mui/TextField'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -52,6 +55,10 @@ export default function MyTicketPage() {
     closed: 0,
     total: 0
   })
+  
+  // Pagination states
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
 
   useEffect(() => {
     fetchTickets()
@@ -123,6 +130,10 @@ export default function MyTicketPage() {
       return dateString
     }
   }
+
+  // Paginated tickets
+  const paginatedTickets = tickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const totalPages = Math.ceil(tickets.length / rowsPerPage)
 
   return (
     <Grid container spacing={6}>
@@ -235,6 +246,25 @@ export default function MyTicketPage() {
           />
           <Divider />
           <CardContent>
+            {/* Show dropdown */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <CustomTextField
+                select
+                value={rowsPerPage}
+                onChange={e => {
+                  setRowsPerPage(Number(e.target.value))
+                  setPage(0)
+                }}
+                sx={{ minWidth: 120 }}
+                size='small'
+              >
+                <MenuItem value={10}>Show 10</MenuItem>
+                <MenuItem value={25}>Show 25</MenuItem>
+                <MenuItem value={50}>Show 50</MenuItem>
+                <MenuItem value={100}>Show 100</MenuItem>
+              </CustomTextField>
+            </Box>
+
             {loading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
                 <CircularProgress />
@@ -249,49 +279,66 @@ export default function MyTicketPage() {
                 </Button>
               </Box>
             ) : (
-              <div className='overflow-x-auto'>
-                <table className={tableStyles.table}>
-                  <thead>
-                    <tr>
-                      <th>NO. TIKET</th>
-                      <th>DEPARTMENT</th>
-                      <th>JUDUL</th>
-                      <th>STATUS</th>
-                      <th>PRIORITY</th>
-                      <th>UPDATE TERAKHIR</th>
-                      <th className='text-center'>AKSI</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {tickets.map((ticket) => (
-                      <tr
-                        key={ticket.uuid}
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => router.push(`/apps/helpdesk/${ticket.uuid}`)}
-                      >
-                        <td style={{ fontWeight: 'bold' }}>{ticket.ticket_number}</td>
-                        <td>{ticket.department}</td>
-                        <td style={{ maxWidth: 400 }}>{ticket.title}</td>
-                        <td>{getStatusChip(ticket.status)}</td>
-                        <td>{getPriorityChip(ticket.priority)}</td>
-                        <td>{formatDate(ticket.latest_update)}</td>
-                        <td className='text-center'>
-                          <Button
-                            variant='text'
-                            size='small'
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              router.push(`/apps/helpdesk/${ticket.uuid}`)
-                            }}
-                          >
-                            Lihat
-                          </Button>
-                        </td>
+              <>
+                <div className='overflow-x-auto'>
+                  <table className={tableStyles.table}>
+                    <thead>
+                      <tr>
+                        <th>NO. TIKET</th>
+                        <th>DEPARTMENT</th>
+                        <th>JUDUL</th>
+                        <th>STATUS</th>
+                        <th>PRIORITY</th>
+                        <th>UPDATE TERAKHIR</th>
+                        <th className='text-center'>AKSI</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {paginatedTickets.map((ticket) => (
+                        <tr key={ticket.uuid}>
+                          <td style={{ fontWeight: 'bold' }}>{ticket.ticket_number}</td>
+                          <td>{ticket.department}</td>
+                          <td style={{ maxWidth: 400 }}>{ticket.title}</td>
+                          <td>{getStatusChip(ticket.status)}</td>
+                          <td>{getPriorityChip(ticket.priority)}</td>
+                          <td>{formatDate(ticket.latest_update)}</td>
+                          <td className='text-center'>
+                            <Button
+                              variant='tonal'
+                              color='primary'
+                              size='small'
+                              onClick={() => router.push(`/apps/helpdesk/${ticket.uuid}`)}
+                              startIcon={<i className='tabler-eye' style={{ fontSize: 16 }} />}
+                            >
+                              Lihat
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mt: 4, gap: 2 }}>
+                  <Typography color='text.disabled' sx={{ fontSize: '0.8125rem' }}>
+                    {`Showing ${tickets.length === 0 ? 0 : page * rowsPerPage + 1} to ${Math.min(
+                      (page + 1) * rowsPerPage,
+                      tickets.length
+                    )} of ${tickets.length} entries`}
+                  </Typography>
+                  <Pagination
+                    shape='rounded'
+                    color='primary'
+                    variant='tonal'
+                    count={totalPages}
+                    page={page + 1}
+                    onChange={(_, newPage) => setPage(newPage - 1)}
+                    showFirstButton
+                    showLastButton
+                  />
+                </Box>
+              </>
             )}
           </CardContent>
         </Card>

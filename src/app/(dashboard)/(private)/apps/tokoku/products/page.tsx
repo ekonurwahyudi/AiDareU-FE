@@ -6,6 +6,7 @@ import { Suspense } from 'react'
 // MUI Imports
 import Grid from '@mui/material/Grid2'
 import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 
 // Context Imports
 import { RBACProvider } from '@/contexts/rbacContext'
@@ -18,6 +19,16 @@ const eCommerceProductsList = () => {
   return (
     <RBACProvider>
       <Grid container spacing={6}>
+        {/* Header */}
+        <Grid size={{ xs: 12 }}>
+          <Typography variant='h4' sx={{ fontWeight: 600 }}>
+            My Products
+          </Typography>
+          <Typography variant='body2' color='text.secondary'>
+            Kelola semua produk toko Anda
+          </Typography>
+        </Grid>
+
         {/* <Grid size={{ xs: 12 }}>
           <ProductCard />
         </Grid> */}

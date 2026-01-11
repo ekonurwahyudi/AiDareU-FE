@@ -212,8 +212,8 @@ const OrderListTable = () => {
   const debouncedSearch = useDebounce(globalFilter, 200)
   const debouncedStatusFilter = useDebounce(statusFilter, 100)
 
-  // Fetch orders from API
-  const fetchOrders = useCallback(async (forceRefresh = false) => {
+  // Fetch orders from API (simplified pattern like helpdesk)
+  const fetchOrders = useCallback(async () => {
     const storeUuid = currentStore?.uuid || currentStore?.id
     if (!storeUuid) {
 //       console.warn('No current store UUID available for fetching orders')
@@ -257,14 +257,14 @@ const OrderListTable = () => {
         }
       }
 
-      const cacheBuster = forceRefresh ? `&_t=${Date.now()}` : ''
-      const cacheControl = forceRefresh ? 'no-cache' : 'default'
+      // Add cache buster like helpdesk pattern
+      queryParams.append('_t', Date.now().toString())
 
       const response = await fetch(
-        `${apiUrl}/stores/${storeUuid}/orders?${queryParams.toString()}${cacheBuster}`,
+        `${apiUrl}/stores/${storeUuid}/orders?${queryParams.toString()}`,
         {
           credentials: 'include',
-          cache: cacheControl as RequestCache,
+          cache: 'no-store',
           headers
         }
       )
@@ -291,15 +291,20 @@ const OrderListTable = () => {
         const orderStats = ordersData.reduce((acc: OrderStats, order: Order) => {
           acc.totalOrders++
 
+          // Parse total_harga to number (could be string from API)
+          const totalHarga = typeof order.total_harga === 'string'
+            ? parseFloat(order.total_harga)
+            : (order.total_harga || 0)
+
           // Total Revenue: hanya dari status completed
           if (order.status === 'completed') {
-            acc.totalRevenue += order.total_harga
+            acc.totalRevenue += totalHarga
             acc.orderSuccess++
           }
 
           // Revenue Billing: dari status selain completed dan cancelled
           if (order.status !== 'completed' && order.status !== 'cancelled') {
-            acc.revenueBilling += order.total_harga
+            acc.revenueBilling += totalHarga
           }
 
           return acc
@@ -319,52 +324,21 @@ const OrderListTable = () => {
     }
   }, [currentStore?.uuid, currentStore?.id, debouncedSearch, debouncedStatusFilter, pagination])
 
-  // Fetch orders when dependencies change
+  // Fetch orders when dependencies change (simple pattern like helpdesk)
   useEffect(() => {
     if (currentStore && !rbacLoading) {
-      // Check if we need to force refresh after status update
-      const shouldRefresh = sessionStorage.getItem('orderStatusUpdated')
-      if (shouldRefresh === 'true') {
-//         console.log('Status was updated, force refreshing orders...')
-        sessionStorage.removeItem('orderStatusUpdated')
-        fetchOrders(true) // Force refresh with cache buster
-      } else {
-        fetchOrders()
-      }
+      fetchOrders()
     }
   }, [fetchOrders, currentStore, rbacLoading])
 
-  // Auto-refresh when page becomes visible (user returns from detail page)
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && currentStore && !rbacLoading) {
-//         console.log('Page became visible, refreshing orders...')
-        fetchOrders(true)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [currentStore, rbacLoading, fetchOrders])
-
-  // Auto-refresh polling every 30 seconds for real-time updates
-  useEffect(() => {
-    if (!currentStore || rbacLoading) return
-
-    const intervalId = setInterval(() => {
-//       console.log('Auto-refreshing orders (30s interval)...')
-      fetchOrders(true)
-    }, 30000) // 30 seconds
-
-    return () => clearInterval(intervalId)
-  }, [currentStore, rbacLoading, fetchOrders])
+  // REMOVED: Auto-refresh mechanisms for better performance
+  // - No visibility change refresh
+  // - No 30-second polling
+  // Users can manually refresh if needed
 
   // Handle manual refresh
   const handleManualRefresh = useCallback(() => {
-    fetchOrders(true)
+    fetchOrders()
   }, [fetchOrders])
 
   // Handle status update
@@ -388,7 +362,7 @@ const OrderListTable = () => {
       const result = await response.json()
 
       if (result.success) {
-        fetchOrders(true)
+        fetchOrders()
       } else {
         throw new Error(result.message || 'Failed to update order status')
       }
