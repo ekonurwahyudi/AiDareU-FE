@@ -70,6 +70,7 @@ export default function TicketDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [openPreview, setOpenPreview] = useState(false)
+  const [showReplyForm, setShowReplyForm] = useState(false)
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
 
@@ -198,6 +199,8 @@ export default function TicketDetailPage() {
       if (response.ok && result.success) {
         setReplyMessage('')
         setReplyAttachment(null)
+        setShowReplyForm(false)
+        setError('')
         fetchTicketDetail()
       } else {
         setError(result.message || 'Gagal mengirim balasan')
@@ -314,13 +317,25 @@ export default function TicketDetailPage() {
               {ticket.title}
             </Typography>
           </Box>
-          <Button 
-            variant='text' 
-            onClick={() => router.push('/apps/helpdesk')} 
-            startIcon={<i className='tabler-arrow-left' />}
-          >
-            Kembali
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {ticket.status !== 'closed' && (
+              <Button 
+                variant='contained' 
+                color='primary'
+                onClick={() => setShowReplyForm(!showReplyForm)} 
+                startIcon={<i className={showReplyForm ? 'tabler-x' : 'tabler-message-plus'} />}
+              >
+                {showReplyForm ? 'Tutup' : 'Balas Tiket'}
+              </Button>
+            )}
+            <Button 
+              variant='text' 
+              onClick={() => router.push('/apps/helpdesk')} 
+              startIcon={<i className='tabler-arrow-left' />}
+            >
+              Kembali
+            </Button>
+          </Box>
         </Box>
       </Grid>
 
@@ -331,6 +346,75 @@ export default function TicketDetailPage() {
           <Alert severity='warning' sx={{ mb: 3 }}>
             Tiket ini sudah ditutup. Anda dapat membalas tiket ini untuk membuka kembali.
           </Alert>
+        )}
+
+        {/* Reply Section - Show when button clicked */}
+        {showReplyForm && ticket.status !== 'closed' && (
+          <Card sx={{ mb: 3 }}>
+            <CardHeader 
+              title='Tambahkan Balasan' 
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+              action={
+                <IconButton onClick={() => setShowReplyForm(false)} size='small'>
+                  <i className='tabler-x' style={{ fontSize: 18 }} />
+                </IconButton>
+              }
+            />
+            <Divider />
+            <CardContent>
+              {error && <Alert severity='error' sx={{ mb: 3 }}>{error}</Alert>}
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                placeholder='Tulis balasan Anda...'
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                slotProps={{ htmlInput: { maxLength: 10000 } }}
+                sx={{ mb: 2 }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  size='small'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Upload Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
+                {replyAttachment && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant='body2'>{replyAttachment.name}</Typography>
+                    <Button
+                      size='small'
+                      color='error'
+                      onClick={() => setReplyAttachment(null)}
+                    >
+                      Hapus
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+
+              <Button
+                variant='contained'
+                color='success'
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+                startIcon={<i className='tabler-send' />}
+              >
+                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
+              </Button>
+            </CardContent>
+          </Card>
         )}
 
         {/* Messages */}
@@ -422,72 +506,6 @@ export default function TicketDetailPage() {
           })}
         </Box>
 
-        {/* Reply Section */}
-        {ticket.status !== 'closed' && (
-          <Card sx={{ mt: 3 }}>
-            <CardHeader 
-              title='Tambahkan Balasan' 
-              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-            />
-            <Divider />
-            <CardContent>
-              {error && <Alert severity='error' sx={{ mb: 3 }}>{error}</Alert>}
-
-              <TextField
-                fullWidth
-                multiline
-                rows={5}
-                placeholder='Tulis balasan Anda...'
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                slotProps={{ htmlInput: { maxLength: 10000 } }}
-                sx={{ mb: 3 }}
-              />
-
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
-                <Button
-                  variant='outlined'
-                  component='label'
-                  size='small'
-                  startIcon={<i className='tabler-paperclip' />}
-                >
-                  Upload Lampiran
-                  <input
-                    type='file'
-                    hidden
-                    onChange={handleFileChange}
-                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                  />
-                </Button>
-                {replyAttachment && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant='body2'>{replyAttachment.name}</Typography>
-                    <Button
-                      size='small'
-                      color='error'
-                      onClick={() => setReplyAttachment(null)}
-                    >
-                      Hapus
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button
-                  variant='contained'
-                  color='success'
-                  onClick={handleSendReply}
-                  disabled={sendingReply || !replyMessage.trim()}
-                  startIcon={<i className='tabler-send' />}
-                >
-                  {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Reopen button if closed */}
         {ticket.status === 'closed' && (
           <Card sx={{ mt: 3 }}>
@@ -575,6 +593,8 @@ export default function TicketDetailPage() {
                   >
                     <MenuItem value='open'>Open</MenuItem>
                     <MenuItem value='in_progress'>In Progress</MenuItem>
+                    <MenuItem value='waiting_reply'>Waiting Reply</MenuItem>
+                    <MenuItem value='replied'>Replied</MenuItem>
                     <MenuItem value='closed'>Closed</MenuItem>
                   </Select>
                 </FormControl>
