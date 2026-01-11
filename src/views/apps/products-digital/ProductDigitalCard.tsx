@@ -167,7 +167,6 @@ const ProductDigitalCard = (props: Props) => {
         alert('Error deleting product')
       }
     } catch (error) {
-      console.error('Error deleting product:', error)
       alert('Error deleting product')
     }
   }

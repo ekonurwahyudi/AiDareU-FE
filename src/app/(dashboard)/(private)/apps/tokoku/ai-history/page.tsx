@@ -167,6 +167,18 @@ const AIHistoryPage = () => {
     return keterangan.toLowerCase().includes('logo')
   }
 
+  const isLandingPageGenerated = (keterangan: string): boolean => {
+    const lowerKet = keterangan.toLowerCase()
+    return lowerKet.includes('landing') ||
+           lowerKet.includes('landing-page') ||
+           lowerKet.includes('landingpage') ||
+           lowerKet.includes('home page') ||
+           lowerKet.includes('homepage')
+  }
+
+  // Filter out landing-page generations
+  const filteredHistories = histories.filter(history => !isLandingPageGenerated(history.keterangan))
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -262,7 +274,7 @@ const AIHistoryPage = () => {
               </Box>
             ) : (
               <Grid container spacing={3}>
-                {histories.map(history => {
+                {filteredHistories.map(history => {
                   const isLogo = isLogoType(history.keterangan)
                   return (
                     <Grid item xs={12} sm={6} md={4} lg={3} key={history.id}>

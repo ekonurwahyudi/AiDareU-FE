@@ -144,7 +144,6 @@ const AddEditProductDialog = ({ open, onClose, onSuccess, product, categories }:
         alert('Error: ' + (result.message || 'Something went wrong'))
       }
     } catch (error) {
-      console.error('Error submitting product:', error)
       alert('Error submitting product')
     } finally {
       setLoading(false)
