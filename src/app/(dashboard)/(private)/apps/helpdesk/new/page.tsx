@@ -269,7 +269,7 @@ export default function NewTicketPage() {
                 />
                 <Divider />
                 <CardContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <TextField
                       fullWidth
                       label='Nama'
@@ -297,7 +297,7 @@ export default function NewTicketPage() {
                 />
                 <Divider />
                 <CardContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <FormControl fullWidth required size='small'>
                       <InputLabel>Department</InputLabel>
                       <Select

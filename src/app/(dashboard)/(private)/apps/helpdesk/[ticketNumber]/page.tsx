@@ -11,13 +11,14 @@ import {
   Alert,
   Typography,
   Box,
-  Paper,
   Divider,
   CircularProgress,
   FormControl,
-  InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Dialog,
+  DialogContent,
+  IconButton
 } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { useRouter, useParams } from 'next/navigation'
@@ -67,6 +68,56 @@ export default function TicketDetailPage() {
   const [sendingReply, setSendingReply] = useState(false)
   const [error, setError] = useState('')
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [openPreview, setOpenPreview] = useState(false)
+
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.aidareu.com'
+
+  // Helper to check if file is an image
+  const isImageFile = (fileName: string | null): boolean => {
+    if (!fileName) return false
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    return imageExtensions.includes(ext || '')
+  }
+
+  // Handle image preview
+  const handlePreview = (imageUrl: string) => {
+    setPreviewImage(imageUrl)
+    setOpenPreview(true)
+  }
+
+  // Handle file download
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    try {
+      const response = await fetch(fileUrl, {
+        mode: 'cors',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch file')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }, 100)
+    } catch (error) {
+      console.error('Error downloading file:', error)
+      // Fallback: open in new tab
+      window.open(fileUrl, '_blank')
+    }
+  }
 
   useEffect(() => {
     fetchTicketDetail()
@@ -314,22 +365,55 @@ export default function TicketDetailPage() {
                     }}
                   />
 
-                  {detail.file_name && (
+                  {detail.file_name && detail.file_path && (
                     <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
                       <Typography variant='caption' sx={{ mb: 1, fontWeight: 600, display: 'block' }}>
                         Attachments
                       </Typography>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        component='a'
-                        href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${detail.file_path}`}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        startIcon={<i className='tabler-file' />}
-                      >
-                        {detail.file_name}
-                      </Button>
+                      {isImageFile(detail.file_name) ? (
+                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                          <Box
+                            component='img'
+                            src={`${backendUrl}/storage/${detail.file_path}`}
+                            alt={detail.file_name}
+                            sx={{
+                              maxWidth: 200,
+                              maxHeight: 150,
+                              borderRadius: 1,
+                              cursor: 'pointer',
+                              objectFit: 'cover',
+                              border: '1px solid',
+                              borderColor: 'divider'
+                            }}
+                            onClick={() => handlePreview(`${backendUrl}/storage/${detail.file_path}`)}
+                          />
+                          <Box sx={{ display: 'flex', gap: 0.5, mt: 1 }}>
+                            <IconButton
+                              size='small'
+                              onClick={() => handlePreview(`${backendUrl}/storage/${detail.file_path}`)}
+                              sx={{ bgcolor: 'action.hover' }}
+                            >
+                              <i className='tabler-eye' style={{ fontSize: 16 }} />
+                            </IconButton>
+                            <IconButton
+                              size='small'
+                              onClick={() => handleDownload(`${backendUrl}/storage/${detail.file_path}`, detail.file_name || 'download')}
+                              sx={{ bgcolor: 'action.hover' }}
+                            >
+                              <i className='tabler-download' style={{ fontSize: 16 }} />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          onClick={() => handleDownload(`${backendUrl}/storage/${detail.file_path}`, detail.file_name || 'download')}
+                          startIcon={<i className='tabler-file' />}
+                        >
+                          {detail.file_name}
+                        </Button>
+                      )}
                     </Box>
                   )}
                 </CardContent>
@@ -356,7 +440,7 @@ export default function TicketDetailPage() {
                 placeholder='Tulis balasan Anda...'
                 value={replyMessage}
                 onChange={(e) => setReplyMessage(e.target.value)}
-                inputProps={{ maxLength: 10000 }}
+                slotProps={{ htmlInput: { maxLength: 10000 } }}
                 sx={{ mb: 3 }}
               />
 
@@ -519,6 +603,42 @@ export default function TicketDetailPage() {
           </CardContent>
         </Card>
       </Grid>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth='lg' fullWidth>
+        <DialogContent sx={{ p: 0, position: 'relative', bgcolor: 'white' }}>
+          <IconButton
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              color: 'white',
+              zIndex: 1,
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.7)'
+              }
+            }}
+            onClick={() => setOpenPreview(false)}
+          >
+            <i className='tabler-x' style={{ fontSize: 20 }} />
+          </IconButton>
+          {previewImage && (
+            <Box
+              component='img'
+              src={previewImage}
+              alt='Preview'
+              sx={{
+                width: '100%',
+                height: 'auto',
+                maxHeight: '90vh',
+                objectFit: 'contain',
+                display: 'block'
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Grid>
   )
 }
