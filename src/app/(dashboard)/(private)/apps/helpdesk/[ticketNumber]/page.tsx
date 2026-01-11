@@ -7,7 +7,6 @@ import {
   CardHeader,
   Button,
   Chip,
-  TextField,
   Alert,
   Typography,
   Box,
@@ -25,6 +24,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { useRBAC } from '@/contexts/rbacContext'
+import TiptapEditor from '@/components/editor/TiptapEditor'
 
 interface TicketDetailItem {
   uuid: string
@@ -221,7 +221,9 @@ export default function TicketDetailPage() {
   }
 
   const handleSendReply = async () => {
-    if (!replyMessage.trim() || !ticket) {
+    // Check if message is empty (including empty HTML like <p></p>)
+    const plainText = replyMessage.replace(/<[^>]*>/g, '').trim()
+    if (!plainText || !ticket) {
       setError('Pesan tidak boleh kosong')
       return
     }
@@ -567,17 +569,16 @@ export default function TicketDetailPage() {
             <CardContent>
               {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
 
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                placeholder='Tulis balasan Anda...'
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                slotProps={{ htmlInput: { maxLength: 10000 } }}
-                sx={{ mb: 2 }}
-              />
-
+              <Box sx={{ mb: 2, '& .ProseMirror': { minHeight: '120px !important' } }}>
+                <TiptapEditor
+                  content={replyMessage}
+                  onChange={(content) => setReplyMessage(content)}
+                  placeholder='Tulis balasan Anda di sini...'
+                />
+              </Box>
+              <Typography variant='caption' color='text.secondary' sx={{ mb: 2, display: 'block' }}>
+                {replyMessage.replace(/<[^>]*>/g, '').length} / 10000 karakter
+              </Typography>
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
                 <Button
                   variant='outlined'
@@ -608,7 +609,7 @@ export default function TicketDetailPage() {
                 variant='contained'
                 color='success'
                 onClick={handleSendReply}
-                disabled={sendingReply || !replyMessage.trim()}
+                disabled={sendingReply || !replyMessage.replace(/<[^>]*>/g, '').trim()}
                 startIcon={<i className='tabler-send' />}
               >
                 {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}

@@ -42,8 +42,20 @@ import {
 import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
+// MUI Grid Import
+import Grid from '@mui/material/Grid2'
+import Box from '@mui/material/Box'
+
 // Type Imports
 import type { ThemeColor } from '@core/types'
+
+// Order Stats Interface
+interface OrderStats {
+  totalOrders: number
+  totalRevenue: number
+  revenueBilling: number
+  orderSuccess: number
+}
 
 // Context Imports
 import { useRBAC } from '@/contexts/rbacContext'
@@ -188,6 +200,14 @@ const OrderListTable = () => {
   // Filter states
   const [statusFilter, setStatusFilter] = useState('all')
 
+  // Stats state
+  const [stats, setStats] = useState<OrderStats>({
+    totalOrders: 0,
+    totalRevenue: 0,
+    revenueBilling: 0,
+    orderSuccess: 0
+  })
+
   // Reduced debouncing for faster response
   const debouncedSearch = useDebounce(globalFilter, 200)
   const debouncedStatusFilter = useDebounce(statusFilter, 100)
@@ -266,6 +286,28 @@ const OrderListTable = () => {
         })
         setOrders(ordersData)
         setTotalRows(result.data.total || 0)
+
+        // Calculate stats from orders data
+        const orderStats = ordersData.reduce((acc: OrderStats, order: Order) => {
+          acc.totalOrders++
+
+          // Total Revenue: hanya dari status completed
+          if (order.status === 'completed') {
+            acc.totalRevenue += order.total_harga
+            acc.orderSuccess++
+          }
+
+          // Revenue Billing: dari status selain completed dan cancelled
+          if (order.status !== 'completed' && order.status !== 'cancelled') {
+            acc.revenueBilling += order.total_harga
+          }
+
+          return acc
+        }, { totalOrders: 0, totalRevenue: 0, revenueBilling: 0, orderSuccess: 0 })
+
+        // Use total from server for accurate total count
+        orderStats.totalOrders = result.data.total || 0
+        setStats(orderStats)
       } else {
         throw new Error(result.message || 'Failed to fetch orders')
       }
@@ -580,7 +622,96 @@ const OrderListTable = () => {
   }
 
   return (
-    <Card>
+    <>
+      {/* Stats Cards */}
+      <Grid container spacing={6} className="mb-6">
+        {/* Total Order */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='primary' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-shopping-cart' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'primary.main' }}>
+                    {stats.totalOrders}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Total Order
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Total Revenue (Completed) */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='success' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-currency-dollar' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'success.main' }}>
+                    Rp {new Intl.NumberFormat('id-ID').format(stats.totalRevenue)}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Total Revenue
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Revenue Billing (Pending/Processing) */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='warning' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-clock' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'warning.main' }}>
+                    Rp {new Intl.NumberFormat('id-ID').format(stats.revenueBilling)}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Revenue Billing
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Order Success (Completed) */}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CustomAvatar skin='light' variant='rounded' color='info' sx={{ width: 56, height: 56 }}>
+                  <i className='tabler-check-circle' style={{ fontSize: 28 }} />
+                </CustomAvatar>
+                <Box>
+                  <Typography variant='h4' sx={{ fontWeight: 600, color: 'info.main' }}>
+                    {stats.orderSuccess}
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    Order Sukses
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Order Table Card */}
+      <Card>
       {/* Header */}
       <CardHeader
         title={
@@ -731,6 +862,7 @@ const OrderListTable = () => {
         }}
       />
     </Card>
+    </>
   )
 }
 
