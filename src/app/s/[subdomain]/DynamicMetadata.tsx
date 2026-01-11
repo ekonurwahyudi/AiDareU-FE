@@ -99,7 +99,7 @@ export default function DynamicMetadata({ subdomain }: DynamicMetadataProps) {
           updateMetaTag('viewport', 'width=device-width, initial-scale=1.0', 'name')
         }
       } catch (error) {
-        console.error('Error fetching store data for metadata:', error)
+        // Error fetching store data for metadata - silently fail
       }
     }
 

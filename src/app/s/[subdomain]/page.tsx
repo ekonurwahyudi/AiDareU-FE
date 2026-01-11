@@ -303,13 +303,11 @@ const DynamicStorePage = () => {
     event.stopPropagation()
     const product = products.find(p => p.id === productId)
     if (!product) {
-      console.error('Product not found:', productId)
       return
     }
 
     // Validate product has UUID
     if (!product.uuid) {
-      console.error('Product missing UUID:', product)
       alert('Error: Produk tidak memiliki UUID. Silakan refresh halaman dan coba lagi.')
       return
     }
@@ -357,17 +355,12 @@ const DynamicStorePage = () => {
 //         console.log('[CLIENT] Store API content-type:', response.headers.get('content-type'))
 
         if (!response.ok) {
-          const errorText = await response.text()
-          console.error('[CLIENT] ❌ Store API error response:', errorText)
-          console.error('[CLIENT] ❌ Response status:', response.status)
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
         // Check if response is JSON
         const contentType = response.headers.get('content-type')
         if (!contentType || !contentType.includes('application/json')) {
-          const textResponse = await response.text()
-          console.error('Non-JSON response from store API:', textResponse.substring(0, 500))
           throw new Error('Store API returned non-JSON response')
         }
 
@@ -448,13 +441,10 @@ const DynamicStorePage = () => {
           }
         } else {
           // Store not found or inactive
-          console.error('[CLIENT] ❌ Store not found or data.success is false:', subdomain)
-          console.error('[CLIENT] ❌ Response data:', data)
           setStoreNotFound(true)
           setStoreLoading(false)
         }
       } catch (error) {
-        console.error('[CLIENT] ❌ Error fetching store data:', error)
         setStoreNotFound(true)
         setStoreLoading(false)
       } finally {

@@ -114,7 +114,7 @@ const StepPayment = ({ handleNext }: { handleNext: () => void }) => {
           }
         }
       } catch (error) {
-        console.error('Error fetching bank accounts:', error)
+        // Error fetching bank accounts - silently fail
       } finally {
         setLoadingBanks(false)
       }

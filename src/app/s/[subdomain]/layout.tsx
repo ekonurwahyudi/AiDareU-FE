@@ -33,7 +33,7 @@ async function fetchStoreData(subdomain: string) {
 //     console.log('[generateMetadata] Data received:', data ? 'Yes' : 'No')
     return data.success ? data.data : null
   } catch (error) {
-    console.error('[generateMetadata] Error fetching store data:', error)
+    // Error fetching store data - return null
     return null
   }
 }

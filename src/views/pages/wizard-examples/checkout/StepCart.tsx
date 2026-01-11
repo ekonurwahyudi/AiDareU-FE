@@ -146,7 +146,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       const data = await response.json()
       setProvinces(data)
     } catch (error) {
-      console.error('Error loading provinces:', error)
+      // Error loading provinces - silently fail
       setProvinces([]) // Set empty array on error
     } finally {
       setLoadingProvinces(false)
@@ -171,7 +171,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       const data = await response.json()
       setCities(data)
     } catch (error) {
-      console.error('Error loading cities:', error)
+      // Error loading cities - silently fail
       setCities([]) // Set empty array on error
     } finally {
       setLoadingCities(false)
@@ -196,7 +196,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       const data = await response.json()
       setDistricts(data)
     } catch (error) {
-      console.error('Error loading districts:', error)
+      // Error loading districts - silently fail
       setDistricts([]) // Set empty array on error
     } finally {
       setLoadingDistricts(false)
@@ -227,7 +227,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         setRecommendedProducts(filteredProducts)
       }
     } catch (error) {
-      console.error('Error loading recommended products:', error)
+      // Error loading recommended products - silently fail
     } finally {
       setLoadingProducts(false)
     }
@@ -300,30 +300,44 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     return district ? district.name : ''
   }
 
+  // Helper function to validate email format
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  // Helper function to validate phone number (Indonesian format)
+  const isValidPhone = (phone: string): boolean => {
+    // Remove spaces and dashes
+    const cleanPhone = phone.replace(/[\s-]/g, '')
+    // Indonesian phone: starts with 0 or +62 or 62, followed by 8-13 digits
+    const phoneRegex = /^(\+62|62|0)[0-9]{8,13}$/
+    return phoneRegex.test(cleanPhone)
+  }
+
   // Validation function
   const isFormValid = () => {
     const isDigital = isAllDigitalProducts()
 
+    // Basic validation for all products
+    const basicValid = 
+      customerInfo.name.trim().length >= 2 &&
+      isValidPhone(customerInfo.phone) &&
+      isValidEmail(customerInfo.email) &&
+      cartItems.length > 0
+
     if (isDigital) {
       // For digital products, only require basic info
-      return (
-        customerInfo.name.trim() !== '' &&
-        customerInfo.phone.trim() !== '' &&
-        customerInfo.email.trim() !== '' &&
-        cartItems.length > 0
-      )
+      return basicValid
     } else {
       // For physical products, require all info including address and shipping
       return (
-        customerInfo.name.trim() !== '' &&
-        customerInfo.phone.trim() !== '' &&
-        customerInfo.email.trim() !== '' &&
-        customerInfo.address.trim() !== '' &&
+        basicValid &&
+        customerInfo.address.trim().length >= 5 &&
         customerInfo.province !== '' &&
         customerInfo.city !== '' &&
         customerInfo.district !== '' &&
-        selectedShipping !== null &&
-        cartItems.length > 0
+        selectedShipping !== null
       )
     }
   }
@@ -347,8 +361,35 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
 
   // Handle checkout - save to database
   const handleCheckout = async () => {
-    if (!isFormValid() || !selectedPayment) {
-      alert('Silakan lengkapi semua data dan pilih metode pembayaran')
+    // Validate form with specific error messages
+    if (customerInfo.name.trim().length < 2) {
+      alert('Nama harus minimal 2 karakter')
+      return
+    }
+    if (!isValidPhone(customerInfo.phone)) {
+      alert('Format nomor HP tidak valid. Gunakan format Indonesia (contoh: 08123456789)')
+      return
+    }
+    if (!isValidEmail(customerInfo.email)) {
+      alert('Format email tidak valid')
+      return
+    }
+    if (!isAllDigitalProducts()) {
+      if (customerInfo.address.trim().length < 5) {
+        alert('Alamat harus minimal 5 karakter')
+        return
+      }
+      if (!customerInfo.province || !customerInfo.city || !customerInfo.district) {
+        alert('Silakan lengkapi provinsi, kota, dan kecamatan')
+        return
+      }
+      if (!selectedShipping) {
+        alert('Silakan pilih metode pengiriman')
+        return
+      }
+    }
+    if (!selectedPayment) {
+      alert('Silakan pilih metode pembayaran')
       return
     }
 
@@ -356,7 +397,6 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     const itemsWithoutUuid = cartItems.filter(item => !item.uuid || item.uuid === '')
     if (itemsWithoutUuid.length > 0) {
       alert('Error: Beberapa produk di cart tidak memiliki UUID. Silakan hapus dan tambahkan kembali produk ke cart.')
-      console.error('Items without UUID:', itemsWithoutUuid)
       return
     }
 
@@ -396,19 +436,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         variant_option: item.selectedVariant?.selectedOption?.option_name || null
       }))
 
-      // Debug: Log data being sent
-      console.log('Selected Shipping:', selectedShipping)
-      console.log('Estimasi Tiba:', estimasi)
-      console.log('Cart Items:', cartItems)
-      console.log('Prepared Items:', items)
-      console.log('Customer Data:', customerData)
-      console.log('Order Data:', orderData)
-
       // Send to API - use backend URL directly
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const apiUrl = `${backendUrl}/api/checkout`
-
-      console.log('[Checkout] Sending to:', apiUrl)
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -423,18 +453,13 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         })
       })
 
-      console.log('[Checkout] Response status:', response.status)
-
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text()
-        console.error('[Checkout] Non-JSON response:', textResponse)
         throw new Error('API returned non-JSON response')
       }
 
       const result = await response.json()
-      console.log('[Checkout] Response data:', result)
 
       if (result.success) {
         // Clear cart after successful checkout
@@ -451,7 +476,6 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         handleNext(undefined, result.data.order.uuid)
       } else {
         // Show detailed error message
-        console.error('Checkout Error:', result)
         let errorMessage = 'Gagal membuat order: ' + result.message
 
         if (result.errors) {
@@ -464,7 +488,6 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
         alert(errorMessage)
       }
     } catch (error) {
-      console.error('Error during checkout:', error)
       alert('Terjadi kesalahan saat checkout. Silakan coba lagi.')
     } finally {
       setIsProcessing(false)

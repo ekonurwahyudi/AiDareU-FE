@@ -228,6 +228,45 @@ const formatRupiah = (amount: number): string => {
   return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
 }
 
+// Helper function to sanitize HTML content to prevent XSS attacks
+const sanitizeHtml = (html: string): string => {
+  if (!html || typeof html !== 'string') return ''
+  
+  // Remove dangerous tags and attributes
+  let sanitized = html
+  
+  // Remove script tags and their content
+  sanitized = sanitized.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+  
+  // Remove event handlers (onclick, onerror, onload, etc.)
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
+  sanitized = sanitized.replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '')
+  
+  // Remove javascript: URLs
+  sanitized = sanitized.replace(/javascript\s*:/gi, '')
+  
+  // Remove data: URLs (can be used for XSS)
+  sanitized = sanitized.replace(/data\s*:\s*text\/html/gi, '')
+  
+  // Remove vbscript: URLs
+  sanitized = sanitized.replace(/vbscript\s*:/gi, '')
+  
+  // Remove iframe, object, embed tags
+  sanitized = sanitized.replace(/<(iframe|object|embed|form|input|button)[^>]*>.*?<\/\1>/gi, '')
+  sanitized = sanitized.replace(/<(iframe|object|embed|form|input|button)[^>]*\/?>/gi, '')
+  
+  // Remove style tags (can contain expressions)
+  sanitized = sanitized.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+  
+  // Remove expression() in inline styles
+  sanitized = sanitized.replace(/expression\s*\([^)]*\)/gi, '')
+  
+  // Remove base tags
+  sanitized = sanitized.replace(/<base[^>]*>/gi, '')
+  
+  return sanitized
+}
+
 // Helper function to render HTML content from TipTap editor
 const renderHtmlDescription = (htmlString: string, descriptionRef: React.RefObject<HTMLDivElement>) => {
   if (!htmlString || typeof htmlString !== 'string') {
@@ -251,8 +290,8 @@ const renderHtmlDescription = (htmlString: string, descriptionRef: React.RefObje
     )
   }
 
-  // Pre-process HTML to fix links before rendering
-  let processedHtml = htmlString
+  // Sanitize HTML first to prevent XSS attacks
+  let processedHtml = sanitizeHtml(htmlString)
 
   // Fix all href attributes in the HTML string before rendering - multiple patterns
   processedHtml = processedHtml.replace(/href=['"]([^'"]*)['"]/g, (match, href) => {
@@ -636,16 +675,12 @@ function ProductDetailPage() {
 //         console.log('[Product Detail] Store API content-type:', response.headers.get('content-type'))
 
         if (!response.ok) {
-          const errorText = await response.text()
-          console.error('[Product Detail] Store API error response:', errorText)
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
         // Check if response is JSON
         const contentType = response.headers.get('content-type')
         if (!contentType || !contentType.includes('application/json')) {
-          const textResponse = await response.text()
-          console.error('[Product Detail] Non-JSON response from store API:', textResponse.substring(0, 500))
           throw new Error('Store API returned non-JSON response')
         }
 
@@ -656,11 +691,9 @@ function ProductDetailPage() {
           setStoreData(data.data)
 //           console.log('[Product Detail] Store UUID:', data.data.uuid_store || data.data.uuid)
 //           console.log('[Product Detail] Store object:', data.data.store)
-        } else {
-          console.error('[Product Detail] Invalid store data format:', data)
         }
       } catch (error) {
-        console.error('[Product Detail] Error fetching store data:', error)
+        // Error fetching store data - silently fail
       } finally {
         setStoreLoading(false)
       }
@@ -747,16 +780,12 @@ function ProductDetailPage() {
 //         console.log('Response headers:', response.headers.get('content-type'))
 
         if (!response.ok) {
-          const errorText = await response.text()
-          console.error('API response error:', errorText)
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
         // Check if response is JSON
         const contentType = response.headers.get('content-type')
         if (!contentType || !contentType.includes('application/json')) {
-          const textResponse = await response.text()
-          console.error('Non-JSON response received:', textResponse.substring(0, 500))
           throw new Error('API returned non-JSON response')
         }
 
@@ -831,17 +860,12 @@ function ProductDetailPage() {
 //             console.log('Found product:', foundProduct.name)
             setProduct(foundProduct)
           } else {
-            console.error('Product not found! Available products:', transformedProducts.length)
-            console.error('Looking for slug:', slug)
-            console.error('Available slugs:', transformedProducts.map(p => p.slug).join(', '))
             setError('Produk tidak ditemukan')
           }
         } else {
-          console.error('Invalid API response format:', data)
           setError('Produk tidak ditemukan')
         }
       } catch (error) {
-        console.error('Error fetching product:', error)
         setError(error instanceof Error ? error.message : 'Gagal memuat produk')
       } finally {
         setLoading(false)
@@ -915,7 +939,7 @@ function ProductDetailPage() {
 //           console.log('[Search] Loaded products for search:', transformedProducts.length)
         }
       } catch (error) {
-        console.error('[Search] Error fetching all products:', error)
+        // Error fetching products for search - silently fail
       }
     }
 
@@ -933,7 +957,6 @@ function ProductDetailPage() {
 
     // Validate product has UUID before adding to cart
     if (!product.uuid) {
-      console.error('Product missing UUID:', product)
       alert('Error: Produk tidak memiliki UUID. Silakan refresh halaman dan coba lagi.')
       return
     }

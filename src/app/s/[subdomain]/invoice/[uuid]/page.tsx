@@ -47,7 +47,7 @@ export default function InvoicePage() {
           setStoreData(data.data)
         }
       } catch (error) {
-        console.error('Error fetching store data:', error)
+        // Error fetching store data - silently fail
       }
     }
 
@@ -74,7 +74,6 @@ export default function InvoicePage() {
         setError(result.message)
       }
     } catch (err) {
-      console.error('Error fetching invoice:', err)
       setError('Gagal mengambil data invoice')
     } finally {
       setLoading(false)

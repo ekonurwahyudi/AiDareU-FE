@@ -33,6 +33,17 @@ import { useCart } from '@/contexts/CartContext'
 // Custom Hook
 import { useStoreMetadata } from '../../useStoreMetadata'
 
+// Helper function to escape HTML to prevent XSS in print template
+const escapeHtml = (str: string | null | undefined): string => {
+  if (!str) return ''
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
 // Helper function to format currency in Rupiah
 const formatRupiah = (amount: number): string => {
   return `Rp. ${Math.round(amount).toLocaleString('id-ID')}`
@@ -96,7 +107,7 @@ export default function OrderConfirmationPage() {
           }
         }
       } catch (error) {
-        console.error('Error fetching store data:', error)
+        // Error fetching store data - silently fail
       } finally {
         setStoreLoading(false)
       }
@@ -158,8 +169,6 @@ export default function OrderConfirmationPage() {
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text()
-        console.error('[Order Details] Non-JSON response:', textResponse)
         throw new Error('API returned non-JSON response')
       }
 
@@ -191,16 +200,10 @@ export default function OrderConfirmationPage() {
 //         console.log('[Order Details] Detail orders count:', transformedData.detailOrders?.length || 0)
         setOrderData(transformedData)
       } else {
-        console.error('[Order Details] API returned success:false', result)
         setError(result.message || 'Gagal mengambil data order')
       }
     } catch (err) {
-      console.error('[Order Details] Exception:', err)
-      console.error('[Order Details] Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined
-      })
-      setError(`Gagal mengambil data order: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      setError('Gagal mengambil data order. Silakan coba lagi.')
     } finally {
       setLoading(false)
     }
@@ -925,21 +928,21 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                       <div class="invoice-section">
                         <div class="invoice-section-title">INFORMASI PENERIMA</div>
                         <div>
-                          <strong>Nama:</strong> ${customer?.nama || '-'}<br />
-                          <strong>No. HP:</strong> ${customer?.no_hp || '-'}<br />
-                          ${customer?.email ? `<strong>Email:</strong> ${customer.email}<br />` : ''}
+                          <strong>Nama:</strong> ${escapeHtml(customer?.nama) || '-'}<br />
+                          <strong>No. HP:</strong> ${escapeHtml(customer?.no_hp) || '-'}<br />
+                          ${customer?.email ? `<strong>Email:</strong> ${escapeHtml(customer.email)}<br />` : ''}
                           <strong>Alamat:</strong><br />
-                          ${customer?.alamat || ''}<br />
-                          ${customer?.kecamatan || ''}, ${customer?.kota || ''}<br />
-                          ${customer?.provinsi || ''}
+                          ${escapeHtml(customer?.alamat) || ''}<br />
+                          ${escapeHtml(customer?.kecamatan) || ''}, ${escapeHtml(customer?.kota) || ''}<br />
+                          ${escapeHtml(customer?.provinsi) || ''}
                         </div>
                       </div>
 
                       <div class="invoice-section">
                         <div class="invoice-section-title">INFORMASI PENGIRIMAN</div>
                         <div>
-                          <strong>Ekspedisi:</strong> ${ekspedisi}<br />
-                          <strong>Estimasi Tiba:</strong> ${estimasiTiba}<br />
+                          <strong>Ekspedisi:</strong> ${escapeHtml(ekspedisi)}<br />
+                          <strong>Estimasi Tiba:</strong> ${escapeHtml(estimasiTiba)}<br />
                           <strong>Status:</strong> <span style="background-color: #fff3cd; padding: 2px 8px; border: 1px solid #000; font-weight: bold;">Menunggu Pembayaran</span>
                         </div>
                       </div>
@@ -967,12 +970,12 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                             const subtotal = quantity * price
                             const variantName = item.variant_name || item.variantName || ''
                             const variantOption = item.variant_option || item.variantOption || ''
-                            const variantInfo = variantName && variantOption ? `<br /><small style="color: #6B7280; font-size: 9pt;">${variantName}: ${variantOption}</small>` : ''
+                            const variantInfo = variantName && variantOption ? `<br /><small style="color: #6B7280; font-size: 9pt;">${escapeHtml(variantName)}: ${escapeHtml(variantOption)}</small>` : ''
 
                             return `
                               <tr>
                                 <td class="text-center">${index + 1}</td>
-                                <td>${productName}${variantInfo}</td>
+                                <td>${escapeHtml(productName)}${variantInfo}</td>
                                 <td class="text-center">${quantity}</td>
                                 <td class="text-right">${formatRupiah(price)}</td>
                                 <td class="text-right"><strong>${formatRupiah(subtotal)}</strong></td>
@@ -1009,15 +1012,15 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         <table style="width: 100%; font-size: 10pt;">
                           <tr>
                             <td style="width: 120px;"><strong>Bank</strong></td>
-                            <td>: ${bankAccount.bank_name || bankAccount.bankName || bankAccount.nama_bank}</td>
+                            <td>: ${escapeHtml(bankAccount.bank_name || bankAccount.bankName || bankAccount.nama_bank)}</td>
                           </tr>
                           <tr>
                             <td><strong>No. Rekening</strong></td>
-                            <td>: <strong style="font-size: 12pt;">${bankAccount.account_number || bankAccount.accountNumber || bankAccount.nomor_rekening}</strong></td>
+                            <td>: <strong style="font-size: 12pt;">${escapeHtml(bankAccount.account_number || bankAccount.accountNumber || bankAccount.nomor_rekening)}</strong></td>
                           </tr>
                           <tr>
                             <td><strong>Atas Nama</strong></td>
-                            <td>: ${bankAccount.account_holder_name || bankAccount.accountHolderName || bankAccount.nama_pemilik}</td>
+                            <td>: ${escapeHtml(bankAccount.account_holder_name || bankAccount.accountHolderName || bankAccount.nama_pemilik)}</td>
                           </tr>
                           <tr>
                             <td><strong>Jumlah Transfer</strong></td>
@@ -1034,7 +1037,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                     <!-- Footer -->
                     <div class="invoice-footer">
                       <div style="text-align: center; margin-bottom: 10px;">
-                        Terima kasih atas kepercayaan Anda berbelanja di ${storeData?.store?.name || 'toko kami'}
+                        Terima kasih atas kepercayaan Anda berbelanja di ${escapeHtml(storeData?.store?.name) || 'toko kami'}
                       </div>
                       <div style="text-align: center; font-size: 8pt; color: #666;">
                         Invoice ini digenerate secara otomatis pada ${new Date().toLocaleString('id-ID')}

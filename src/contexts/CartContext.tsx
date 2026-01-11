@@ -80,11 +80,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           const parsedCart = JSON.parse(savedCart)
           if (Array.isArray(parsedCart)) {
             setCartItems(parsedCart)
-            console.log('Cart loaded from localStorage:', parsedCart)
           }
         }
       } catch (error) {
-        console.error('Error loading cart from localStorage:', error)
         // Clear corrupted data
         localStorage.removeItem('store_cart_items')
       }
@@ -97,9 +95,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   useEffect(() => {
     try {
       localStorage.setItem('store_cart_items', JSON.stringify(cartItems))
-      console.log('Cart saved to localStorage:', cartItems)
     } catch (error) {
-      console.error('Error saving cart to localStorage:', error)
+      // Error saving cart - silently fail
     }
   }, [cartItems])
 

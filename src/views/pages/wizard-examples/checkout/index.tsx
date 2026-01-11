@@ -203,7 +203,6 @@ const CheckoutWizard = ({ primaryColor = '#E91E63' }: CheckoutWizardProps) => {
     }
     if (uuid) {
       // Redirect to confirmation page with UUID in URL
-      console.log('[Checkout Wizard] Redirecting to:', `/checkout/${uuid}`)
       router.push(`/checkout/${uuid}`)
       return
     }

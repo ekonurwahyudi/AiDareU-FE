@@ -55,7 +55,7 @@ const CheckoutPage = () => {
           }
         }
       } catch (error) {
-        console.error('Error fetching store data:', error)
+        // Error fetching store data - silently fail
       } finally {
         setStoreLoading(false)
       }

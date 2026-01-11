@@ -27,7 +27,7 @@ async function fetchStoreData(subdomain: string) {
     // Backend returns { status: "success" } or { success: true }
     return (data.status === 'success' || data.success) ? data.data : null
   } catch (error) {
-    console.error('[Product generateMetadata] Error fetching store:', error)
+    // Error fetching store - return null
     return null
   }
 }
@@ -84,7 +84,7 @@ async function fetchProductByUuid(uuid: string) {
 //     console.log('[Product Metadata] ❌ Product not found in both endpoints')
     return null
   } catch (error) {
-    console.error('[Product Metadata] Error:', error)
+    // Error fetching product - return null
     return null
   }
 }
@@ -103,7 +103,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 //       console.log('[Product Metadata] UUID from searchParams:', productUuid)
     }
   } catch (error) {
-    console.error('[Product Metadata] Error getting searchParams:', error)
+    // Error getting searchParams - continue without UUID
   }
 
   // Second try: Check if slug contains UUID pattern (if searchParams failed)
@@ -157,7 +157,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       productData = await fetchProductByUuid(productUuid)
 //       console.log('[Product Metadata] Product data loaded:', !!productData)
     } catch (error) {
-      console.error('[Product Metadata] Error fetching product:', error)
+      // Error fetching product - continue without product data
       productData = null
     }
   }
@@ -195,7 +195,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
           productImage = `${backendUrl}/storage/${firstImage}`
         }
       } catch (e) {
-        console.error('[Product Metadata] Error parsing product images:', e)
+        // Error parsing product images - continue without image
       }
     }
 

@@ -63,27 +63,19 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
       const apiUrl = `${backendUrl}/api/order/${orderUuid}`
 
-      console.log('[Order Details] Fetching from:', apiUrl)
-
       const response = await fetch(apiUrl, {
         headers: {
           'Accept': 'application/json'
         }
       })
 
-      console.log('[Order Details] Response status:', response.status)
-
       // Check if response is JSON
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text()
-        console.error('[Order Details] Non-JSON response:', textResponse)
         throw new Error('API returned non-JSON response')
       }
 
       const result = await response.json()
-      console.log('[Order Details] Full response:', result)
-      console.log('[Order Details] Result data:', result.data)
 
       if (result.success && result.data) {
         // Transform data to match frontend expectations (camelCase)
@@ -105,20 +97,12 @@ const StepConfirmation = ({ checkoutData, orderUuid, primaryColor = '#E91E63' }:
           updatedAt: result.data.updated_at || result.data.updatedAt
         }
 
-        console.log('[Order Details] Transformed data:', transformedData)
-        console.log('[Order Details] Detail orders count:', transformedData.detailOrders?.length || 0)
         setOrderData(transformedData)
       } else {
-        console.error('[Order Details] API returned success:false', result)
         setError(result.message || 'Gagal mengambil data order')
       }
     } catch (err) {
-      console.error('[Order Details] Exception:', err)
-      console.error('[Order Details] Error details:', {
-        message: err instanceof Error ? err.message : 'Unknown error',
-        stack: err instanceof Error ? err.stack : undefined
-      })
-      setError(`Gagal mengambil data order: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      setError('Gagal mengambil data order. Silakan coba lagi.')
     } finally {
       setLoading(false)
     }
