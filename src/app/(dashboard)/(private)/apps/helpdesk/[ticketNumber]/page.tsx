@@ -11,7 +11,6 @@ import {
   Alert,
   Typography,
   Box,
-  Avatar,
   Paper,
   Divider,
   CircularProgress,
@@ -216,7 +215,7 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <Box className='container mx-auto p-6' sx={{ textAlign: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
         <CircularProgress />
       </Box>
     )
@@ -224,9 +223,9 @@ export default function TicketDetailPage() {
 
   if (!ticket) {
     return (
-      <Box className='container mx-auto p-6'>
+      <Box sx={{ p: 3 }}>
         <Alert severity='error'>{error || 'Tiket tidak ditemukan'}</Alert>
-        <Button className='mt-4' variant='contained' onClick={() => router.push('/apps/helpdesk')}>
+        <Button sx={{ mt: 2 }} variant='contained' onClick={() => router.push('/apps/helpdesk')}>
           Kembali ke Daftar Tiket
         </Button>
       </Box>
@@ -234,274 +233,248 @@ export default function TicketDetailPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Grid container spacing={6}>
       {/* Header */}
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box>
-          <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 0.5 }}>
-            Ticket {ticket.ticket_number}
-          </Typography>
-          <Typography variant='h6'>{ticket.title}</Typography>
-        </Box>
-        <Button
-          variant='contained'
-          color='success'
-          startIcon={<i className='tabler-shopping-bag' />}
-        >
-          Buy Now
-        </Button>
-      </Box>
-
-      {/* Breadcrumb */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant='body2' color='text.secondary'>
-          Dashboard / MyDomaiNesia / Support Tickets / View Ticket
-        </Typography>
-      </Box>
-
-      <Grid container spacing={3}>
-        {/* Main Content */}
-        <Grid item xs={12} md={9}>
-          {/* Alert jika closed */}
-          {ticket.status === 'closed' && (
-            <Alert severity='warning' sx={{ mb: 3 }}>
-              This ticket is closed. You may reply to this ticket to reopen it.
-            </Alert>
-          )}
-
-          {/* Messages */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {ticket.details.map((detail, index) => {
-              const isOwner = detail.type === 'question'
-              const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'default')
-              const roleLabel = isOwner ? 'Owner' : (detail.pic ? 'Operator' : 'Admin')
-
-              return (
-                <Paper key={detail.uuid} sx={{ p: 3, borderRadius: 2 }}>
-                  <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                    <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
-                      Posted by{' '}
-                      <Typography component='span' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                        {isOwner ? ticket.user.name : detail.pic || 'Admin'}
-                      </Typography>{' '}
-                      on {formatDate(detail.created_at)}
-                    </Typography>
-                    <Chip label={roleLabel} color={roleColor} size='small' />
-                  </Box>
-
-                  <Box
-                    dangerouslySetInnerHTML={{ __html: detail.message }}
-                    sx={{
-                      '& p': { mb: 1 },
-                      '& ul, & ol': { pl: 3, mb: 1 },
-                      color: 'text.primary',
-                      lineHeight: 1.6
-                    }}
-                  />
-
-                  {detail.file_name && (
-                    <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-                      <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 'bold' }}>
-                        Attachments
-                      </Typography>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        component='a'
-                        href={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.file_path}`}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        startIcon={<i className='tabler-file' />}
-                      >
-                        {detail.file_name}
-                      </Button>
-                    </Box>
-                  )}
-                </Paper>
-              )
-            })}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant='h4' sx={{ fontWeight: 600, mb: 0.5 }}>
+              Ticket {ticket.ticket_number}
+            </Typography>
+            <Typography variant='h6' color='text.secondary'>
+              {ticket.title}
+            </Typography>
           </Box>
+          <Button variant='text' onClick={() => router.push('/apps/helpdesk')} startIcon={<i className='tabler-arrow-left' />}>
+            Kembali
+          </Button>
+        </Box>
+      </Grid>
 
-          {/* Reply Section */}
-          {ticket.status !== 'closed' && (
-            <Paper sx={{ p: 3, mt: 3, borderRadius: 2 }}>
-              <Typography variant='h6' sx={{ mb: 2, fontWeight: 'bold' }}>
-                Tambahkan Balasan
-              </Typography>
+      <Grid item xs={12} md={9}>
+        {/* Alert jika closed */}
+        {ticket.status === 'closed' && (
+          <Alert severity='warning' sx={{ mb: 3 }}>
+            Tiket ini sudah ditutup. Anda dapat membalas tiket ini untuk membuka kembali.
+          </Alert>
+        )}
 
-              {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
+        {/* Messages */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {ticket.details.map((detail, index) => {
+            const isOwner = detail.type === 'question'
+            const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'default')
+            const roleLabel = isOwner ? 'Owner' : (detail.pic ? 'Operator' : 'Admin')
 
-              <TextField
-                fullWidth
-                multiline
-                rows={6}
-                placeholder='Tulis balasan Anda...'
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                inputProps={{ maxLength: 10000 }}
-                sx={{ mb: 2 }}
-              />
+            return (
+              <Paper key={detail.uuid} sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                  <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                    Posted by{' '}
+                    <Typography component='span' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                      {isOwner ? ticket.user.name : detail.pic || 'Admin'}
+                    </Typography>{' '}
+                    on {formatDate(detail.created_at)}
+                  </Typography>
+                  <Chip label={roleLabel} color={roleColor} size='small' variant='tonal' />
+                </Box>
 
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-                <Button
-                  variant='outlined'
-                  component='label'
-                  startIcon={<i className='tabler-paperclip' />}
-                >
-                  Upload Lampiran
-                  <input
-                    type='file'
-                    hidden
-                    onChange={handleFileChange}
-                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                  />
-                </Button>
-                {replyAttachment && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant='body2'>{replyAttachment.name}</Typography>
+                <Box
+                  dangerouslySetInnerHTML={{ __html: detail.message }}
+                  sx={{
+                    '& p': { mb: 1 },
+                    '& ul, & ol': { pl: 3, mb: 1 },
+                    color: 'text.primary',
+                    lineHeight: 1.6
+                  }}
+                />
+
+                {detail.file_name && (
+                  <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                    <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 'bold' }}>
+                      Attachments
+                    </Typography>
                     <Button
+                      variant='outlined'
                       size='small'
-                      onClick={() => setReplyAttachment(null)}
-                      startIcon={<i className='tabler-x' />}
+                      component='a'
+                      href={`${process.env.NEXT_PUBLIC_API_URL.replace('/api', '')}/storage/${detail.file_path}`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      startIcon={<i className='tabler-file' />}
                     >
-                      Hapus
+                      {detail.file_name}
                     </Button>
                   </Box>
                 )}
-              </Box>
+              </Paper>
+            )
+          })}
+        </Box>
 
-              <Box sx={{ display: 'flex', gap: 2 }}>
-                <Button
-                  variant='contained'
-                  color='success'
-                  onClick={handleSendReply}
-                  disabled={sendingReply || !replyMessage.trim()}
-                  startIcon={<i className='tabler-check' />}
-                >
-                  {sendingReply ? 'Mengirim...' : 'Reply'}
-                </Button>
-                <Button
-                  variant='outlined'
-                  color='error'
-                  onClick={() => router.push('/apps/helpdesk')}
-                  startIcon={<i className='tabler-x' />}
-                >
-                  Closed
-                </Button>
-              </Box>
-            </Paper>
-          )}
+        {/* Reply Section */}
+        {ticket.status !== 'closed' && (
+          <Paper sx={{ p: 3, mt: 3 }}>
+            <Typography variant='h6' sx={{ mb: 2, fontWeight: 'bold' }}>
+              Tambahkan Balasan
+            </Typography>
 
-          {/* Reopen button if closed */}
-          {ticket.status === 'closed' && (
-            <Paper sx={{ p: 3, mt: 3, borderRadius: 2 }}>
-              <Alert severity='info' sx={{ mb: 2 }}>
-                Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
-              </Alert>
-              <Button variant='contained' onClick={handleReopenTicket}>
-                Buka Kembali Tiket
-              </Button>
-            </Paper>
-          )}
-        </Grid>
+            {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
 
-        {/* Sidebar */}
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardHeader
-              title='Ticket Information'
-              sx={{
-                '& .MuiCardHeader-title': {
-                  fontSize: '1rem',
-                  fontWeight: 'bold'
-                }
-              }}
+            <TextField
+              fullWidth
+              multiline
+              rows={6}
+              placeholder='Tulis balasan Anda...'
+              value={replyMessage}
+              onChange={(e) => setReplyMessage(e.target.value)}
+              inputProps={{ maxLength: 10000 }}
+              sx={{ mb: 2 }}
             />
-            <Divider />
-            <CardContent>
-              {/* Requestor */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                  Requestor
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant='body2' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                    {ticket.user.name}
-                  </Typography>
-                  <Chip label='Owner' color='success' size='small' />
-                </Box>
-              </Box>
 
-              {/* Department */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                  Department
-                </Typography>
-                <Typography variant='body2'>{ticket.department}</Typography>
-              </Box>
-
-              {/* Submitted */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                  Submitted
-                </Typography>
-                <Typography variant='body2'>{formatDate(ticket.created_at)}</Typography>
-              </Box>
-
-              {/* Last Updated */}
-              <Box sx={{ mb: 2 }}>
-                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                  Last Updated
-                </Typography>
-                <Typography variant='body2'>
-                  {ticket.details.length > 0
-                    ? formatDate(ticket.details[ticket.details.length - 1].created_at)
-                    : formatDate(ticket.created_at)}
-                </Typography>
-              </Box>
-
-              {/* Status/Priority */}
-              <Box>
-                <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                  Status/Priority
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  <Chip
-                    label={ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace('_', ' ')}
-                    color={getStatusColor(ticket.status)}
-                    size='small'
-                    sx={{ width: 'fit-content' }}
-                  />
-                  <Chip
-                    label={ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
-                    color={ticket.priority === 'high' ? 'error' : ticket.priority === 'medium' ? 'warning' : 'default'}
-                    size='small'
-                    sx={{ width: 'fit-content' }}
-                  />
-                </Box>
-              </Box>
-            </CardContent>
-
-            <Divider />
-
-            {/* CC Recipients */}
-            <CardContent>
-              <Typography variant='subtitle2' sx={{ fontWeight: 'bold', mb: 1 }}>
-                CC Recipients
-              </Typography>
-              <TextField
-                fullWidth
-                size='small'
-                placeholder='Enter Email Address'
-                sx={{ mb: 1 }}
-              />
-              <Button variant='outlined' size='small' fullWidth>
-                Add
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+              <Button
+                variant='outlined'
+                component='label'
+                startIcon={<i className='tabler-paperclip' />}
+              >
+                Upload Lampiran
+                <input
+                  type='file'
+                  hidden
+                  onChange={handleFileChange}
+                  accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                />
               </Button>
-            </CardContent>
-          </Card>
-        </Grid>
+              {replyAttachment && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant='body2'>{replyAttachment.name}</Typography>
+                  <Button
+                    size='small'
+                    onClick={() => setReplyAttachment(null)}
+                    startIcon={<i className='tabler-x' />}
+                  >
+                    Hapus
+                  </Button>
+                </Box>
+              )}
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant='contained'
+                color='success'
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+                startIcon={<i className='tabler-check' />}
+              >
+                {sendingReply ? 'Mengirim...' : 'Reply'}
+              </Button>
+              <Button
+                variant='outlined'
+                color='error'
+                onClick={() => router.push('/apps/helpdesk')}
+                startIcon={<i className='tabler-x' />}
+              >
+                Closed
+              </Button>
+            </Box>
+          </Paper>
+        )}
+
+        {/* Reopen button if closed */}
+        {ticket.status === 'closed' && (
+          <Paper sx={{ p: 3, mt: 3 }}>
+            <Alert severity='info' sx={{ mb: 2 }}>
+              Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
+            </Alert>
+            <Button variant='contained' onClick={handleReopenTicket}>
+              Buka Kembali Tiket
+            </Button>
+          </Paper>
+        )}
       </Grid>
-    </Box>
+
+      {/* Sidebar */}
+      <Grid item xs={12} md={3}>
+        <Card>
+          <CardHeader
+            title='Ticket Information'
+            sx={{
+              '& .MuiCardHeader-title': {
+                fontSize: '1rem',
+                fontWeight: 'bold'
+              }
+            }}
+          />
+          <Divider />
+          <CardContent>
+            {/* Requestor */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                Requestor
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant='body2' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                  {ticket.user.name}
+                </Typography>
+                <Chip label='Owner' color='success' size='small' variant='tonal' />
+              </Box>
+            </Box>
+
+            {/* Department */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                Department
+              </Typography>
+              <Typography variant='body2'>{ticket.department}</Typography>
+            </Box>
+
+            {/* Submitted */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                Submitted
+              </Typography>
+              <Typography variant='body2'>{formatDate(ticket.created_at)}</Typography>
+            </Box>
+
+            {/* Last Updated */}
+            <Box sx={{ mb: 2 }}>
+              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                Last Updated
+              </Typography>
+              <Typography variant='body2'>
+                {ticket.details.length > 0
+                  ? formatDate(ticket.details[ticket.details.length - 1].created_at)
+                  : formatDate(ticket.created_at)}
+              </Typography>
+            </Box>
+
+            {/* Status/Priority */}
+            <Box>
+              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+                Status/Priority
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Chip
+                  label={ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace('_', ' ')}
+                  color={getStatusColor(ticket.status)}
+                  size='small'
+                  variant='tonal'
+                  sx={{ width: 'fit-content' }}
+                />
+                <Chip
+                  label={ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                  color={ticket.priority === 'high' ? 'error' : ticket.priority === 'medium' ? 'warning' : 'default'}
+                  size='small'
+                  variant='tonal'
+                  sx={{ width: 'fit-content' }}
+                />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
   )
 }
