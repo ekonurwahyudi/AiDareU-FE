@@ -24,6 +24,7 @@ import Popover from '@mui/material/Popover'
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
+import TopUpModal from '@/components/TopUpModal'
 
 // Icon Imports
 import { Icon } from '@iconify/react'
@@ -75,6 +76,7 @@ const CoinAiDareU = () => {
     per_page: 10,
     total: 0
   })
+  const [openTopUpModal, setOpenTopUpModal] = useState(false)
 
   // Get backend URL
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
@@ -94,7 +96,6 @@ const CoinAiDareU = () => {
       const authToken = localStorage.getItem('auth_token')
 
       if (!authToken) {
-        console.error('No auth token found')
         return
       }
 
@@ -125,7 +126,7 @@ const CoinAiDareU = () => {
         setSummary(result.data)
       }
     } catch (err) {
-      console.error('Error fetching summary:', err)
+      // Error fetching summary - silently fail
     }
   }
 
@@ -274,7 +275,6 @@ const CoinAiDareU = () => {
         alert('Failed to export data')
       }
     } catch (err) {
-      console.error('Error exporting:', err)
       alert('Error exporting data')
     }
   }
@@ -387,9 +387,19 @@ const CoinAiDareU = () => {
           <CardHeader
             title='Riwayat Transaksi Coin'
             action={
-              <Button variant='outlined' onClick={handleExport} startIcon={<Icon icon='mdi:download' />}>
-                Export Report
-              </Button>
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant='contained'
+                  color='warning'
+                  onClick={() => setOpenTopUpModal(true)}
+                  startIcon={<Icon icon='mdi:coin' />}
+                >
+                  Top Up Coin
+                </Button>
+                <Button variant='outlined' onClick={handleExport} startIcon={<Icon icon='mdi:download' />}>
+                  Export Report
+                </Button>
+              </Box>
             }
             sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
           />
@@ -667,6 +677,14 @@ const CoinAiDareU = () => {
           </CardContent>
         </Card>
       </Grid>
+
+      {/* Top Up Modal */}
+      <TopUpModal
+        open={openTopUpModal}
+        onClose={() => setOpenTopUpModal(false)}
+        currentCoin={summary.coin_saat_ini}
+        requiredCoin={0}
+      />
     </Grid>
   )
 }

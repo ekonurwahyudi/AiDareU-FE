@@ -124,7 +124,7 @@ const General = () => {
 //         console.log('No settings found or request failed')
       }
     } catch (error) {
-      console.error('Error fetching settings:', error)
+      // Error fetching settings - silently fail
     }
   }
 
@@ -181,7 +181,6 @@ const General = () => {
         toast.error(data.message || 'Failed to delete logo')
       }
     } catch (error) {
-      console.error('Error deleting logo:', error)
       toast.error('An error occurred while deleting logo')
     }
   }
@@ -251,7 +250,6 @@ const General = () => {
         toast.error(data.message || 'Failed to update settings')
       }
     } catch (error) {
-      console.error('Error updating settings:', error)
       toast.error('An error occurred while updating settings')
     } finally {
       setLoading(false)

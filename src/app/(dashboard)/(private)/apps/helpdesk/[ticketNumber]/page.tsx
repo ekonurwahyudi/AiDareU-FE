@@ -118,7 +118,7 @@ export default function TicketDetailPage() {
         document.body.removeChild(a)
       }, 100)
     } catch (error) {
-      console.error('Error downloading file:', error)
+      // Fallback: open in new tab
       window.open(fileUrl, '_blank')
     }
   }
@@ -147,12 +147,10 @@ export default function TicketDetailPage() {
         if (!response.ok) {
           // Rollback if failed
           setTicket(prev => prev ? { ...prev, status: 'open' } : null)
-          console.error('Failed to auto-update status')
         }
       } catch (err) {
         // Rollback if error
         setTicket(prev => prev ? { ...prev, status: 'open' } : null)
-        console.error('Error auto-updating status:', err)
       }
     }
   }
@@ -189,7 +187,6 @@ export default function TicketDetailPage() {
       }
     } catch (err) {
       setError('Gagal memuat detail tiket')
-      console.error('Error fetching ticket detail:', err)
     } finally {
       setLoading(false)
     }
@@ -294,7 +291,6 @@ export default function TicketDetailPage() {
       } : null)
       setReplyMessage(savedMessage)
       setError('Terjadi kesalahan saat mengirim balasan')
-      console.error('Error sending reply:', err)
     } finally {
       setSendingReply(false)
     }
@@ -329,7 +325,6 @@ export default function TicketDetailPage() {
       // Rollback on error
       setTicket(prev => prev ? { ...prev, status: oldStatus } : null)
       setStatusError('Terjadi kesalahan saat mengubah status')
-      console.error('Error updating status:', err)
     } finally {
       setUpdatingStatus(false)
     }
@@ -351,7 +346,6 @@ export default function TicketDetailPage() {
       }
     } catch (err) {
       setError('Terjadi kesalahan')
-      console.error('Error reopening ticket:', err)
     }
   }
 

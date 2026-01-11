@@ -93,7 +93,7 @@ export default function MyTicketPage() {
         }
       }
     } catch (error) {
-      console.error('Error fetching tickets:', error)
+      // Silent error - already handled by setLoading
     } finally {
       setLoading(false)
     }

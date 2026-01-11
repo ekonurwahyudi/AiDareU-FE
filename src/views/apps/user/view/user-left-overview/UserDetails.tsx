@@ -76,7 +76,7 @@ const UserDetails = () => {
             headers['X-User-UUID'] = userData.uuid
           }
         } catch (e) {
-          console.error('Failed to parse stored user data:', e)
+          // Failed to parse stored user data
         }
       }
 
@@ -94,8 +94,6 @@ const UserDetails = () => {
       
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text()
-        console.error('Non-JSON response:', textResponse)
         throw new Error('Server tidak memberikan respons JSON yang valid')
       }
       
@@ -108,11 +106,8 @@ const UserDetails = () => {
         throw new Error(result.message || 'Gagal mengambil data pengguna')
       }
     } catch (err) {
-      console.error('Error fetching user data:', err)
-      
       // Retry mechanism for network errors
       if (retryCount < 2 && (err instanceof TypeError || (err instanceof Error && err.message.includes('fetch')))) {
-//         console.log(`Retrying request (attempt ${retryCount + 1}/3)...`)
         setTimeout(() => fetchUserData(retryCount + 1), 1000)
         return
       }

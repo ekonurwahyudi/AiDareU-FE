@@ -135,7 +135,6 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
       const authToken = localStorage.getItem('auth_token')
 
       if (!storedUserData) {
-        console.error('No user data found')
         setLoading(false)
         return
       }
@@ -196,7 +195,6 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
         }
       }
     } catch (error) {
-      console.error('Error fetching pixel stores:', error)
       toast.error('Gagal memuat data pixel')
     } finally {
       setLoading(false)
@@ -347,7 +345,6 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
         toast.error(result.message || 'Gagal menyimpan pixel')
       }
     } catch (error) {
-      console.error('Error saving pixel:', error)
       toast.error('Terjadi kesalahan saat menyimpan')
     } finally {
       setSaving(false)
@@ -414,7 +411,6 @@ function RecentKeterangan({ storeUuid }: { storeUuid?: string | null }) {
         toast.error(result.message || 'Gagal menghapus pixel')
       }
     } catch (error) {
-      console.error('Error deleting pixel:', error)
       toast.error('Terjadi kesalahan saat menghapus')
     } finally {
       setDeleting(false)

@@ -61,7 +61,6 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
       const authToken = localStorage.getItem('auth_token')
 
       if (!storedUserData) {
-        console.error('No user data found')
         setLoading(false)
         return
       }
@@ -141,7 +140,6 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         }
       }
     } catch (err) {
-      console.error('Failed to fetch stores:', err)
       toast.error('Gagal memuat data toko')
     } finally {
       setLoading(false)
@@ -218,7 +216,6 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         toast.error(data.message || 'Gagal memperbarui domain')
       }
     } catch (error) {
-      console.error('Error updating domain:', error)
       toast.error('Terjadi kesalahan saat memperbarui domain')
     } finally {
       setSaving(false)
@@ -294,7 +291,6 @@ function DomainToko({ storeUuid }: { storeUuid?: string | null }) {
         toast.error(data.message || 'Gagal menghapus domain')
       }
     } catch (error) {
-      console.error('Error deleting domain:', error)
       toast.error('Terjadi kesalahan saat menghapus domain')
     } finally {
       setDeleting(false)

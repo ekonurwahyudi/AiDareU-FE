@@ -112,7 +112,7 @@ const Slide = () => {
 //         console.log('No slides found')
       }
     } catch (error) {
-      console.error('Error fetching slides:', error)
+      // Error fetching slides - silently fail
     }
   }
 
@@ -174,7 +174,6 @@ const Slide = () => {
         toast.error(data.message || 'Failed to update slides')
       }
     } catch (error) {
-      console.error('Error updating slides:', error)
       toast.error('An error occurred while updating slides')
     } finally {
       setLoading(false)

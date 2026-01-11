@@ -53,7 +53,7 @@ export default function NewTicketPage() {
           }
         }
       } catch (err) {
-        console.error('Error fetching user data:', err)
+        // Silent error
       }
     }
 
@@ -135,7 +135,6 @@ export default function NewTicketPage() {
       }
     } catch (err) {
       setError('Terjadi kesalahan saat membuat tiket')
-      console.error('Error creating ticket:', err)
     } finally {
       setLoading(false)
     }

@@ -81,7 +81,7 @@ const Faq = () => {
         setFaqs([])
       }
     } catch (error) {
-      console.error('Error fetching FAQs:', error)
+      // Error fetching FAQs - silently fail
     }
   }
 
@@ -169,7 +169,6 @@ const Faq = () => {
         toast.error(data.message || 'Failed to save FAQ')
       }
     } catch (error) {
-      console.error('Error saving FAQ:', error)
       toast.error('An error occurred while saving FAQ')
     } finally {
       setLoading(false)
@@ -210,7 +209,6 @@ const Faq = () => {
         toast.error(data.message || 'Failed to delete FAQ')
       }
     } catch (error) {
-      console.error('Error deleting FAQ:', error)
       toast.error('An error occurred while deleting FAQ')
     } finally {
       setLoading(false)

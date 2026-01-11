@@ -87,7 +87,7 @@ const Testimoni = () => {
         setTestimonials([])
       }
     } catch (error) {
-      console.error('Error fetching testimonials:', error)
+      // Error fetching testimonials - silently fail
     }
   }
 
@@ -186,7 +186,6 @@ const Testimoni = () => {
         toast.error(data.message || 'Failed to save testimonial')
       }
     } catch (error) {
-      console.error('Error saving testimonial:', error)
       toast.error('An error occurred while saving testimonial')
     } finally {
       setLoading(false)
@@ -227,7 +226,6 @@ const Testimoni = () => {
         toast.error(data.message || 'Failed to delete testimonial')
       }
     } catch (error) {
-      console.error('Error deleting testimonial:', error)
       toast.error('An error occurred while deleting testimonial')
     } finally {
       setLoading(false)

@@ -103,7 +103,7 @@ const Seo = () => {
 //         console.log('No SEO settings found')
       }
     } catch (error) {
-      console.error('Error fetching SEO settings:', error)
+      // Error fetching SEO settings - silently fail
     }
   }
 
@@ -191,7 +191,6 @@ const Seo = () => {
         toast.error(data.message || 'Failed to update SEO settings')
       }
     } catch (error) {
-      console.error('Error updating SEO settings:', error)
       toast.error('An error occurred while updating SEO settings')
     } finally {
       setLoading(false)

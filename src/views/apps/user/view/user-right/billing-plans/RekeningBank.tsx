@@ -78,7 +78,6 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
       const authToken = localStorage.getItem('auth_token')
 
       if (!storedUserData) {
-        console.error('No user data found')
         setLoading(false)
         return
       }
@@ -114,7 +113,6 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
             setBankAccounts([])
           }
         } else {
-          console.error('Failed to fetch bank accounts')
           setBankAccounts([])
         }
       } else {
@@ -143,7 +141,6 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
               setBankAccounts([])
             }
           } else {
-            console.error('Failed to fetch bank accounts')
             setBankAccounts([])
           }
         } else {
@@ -151,7 +148,6 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         }
       }
     } catch (error) {
-      console.error('Error fetching bank accounts:', error)
       toast.error('Gagal memuat data rekening bank')
     } finally {
       setLoading(false)
@@ -201,7 +197,6 @@ function RekeningBank({ storeUuid }: { storeUuid?: string | null }) {
         toast.error('Gagal menghapus rekening')
       }
     } catch (error) {
-      console.error('Error deleting bank account:', error)
       toast.error('Terjadi kesalahan saat menghapus rekening')
     }
   }

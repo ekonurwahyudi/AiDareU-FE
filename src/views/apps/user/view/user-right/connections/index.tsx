@@ -91,7 +91,6 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
       const authToken = localStorage.getItem('auth_token')
 
       if (!storedUserData) {
-        console.error('No user data found')
         setLoading(false)
         return
       }
@@ -152,8 +151,6 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
             })
             setUrls(initialUrls)
           }
-        } else {
-          console.error('Failed to fetch social media accounts')
         }
       } else {
         // Fallback to fetching via /api/users/me
@@ -206,8 +203,6 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
               })
               setUrls(initialUrls)
             }
-          } else {
-            console.error('Failed to fetch social media accounts')
           }
         } else {
           setHasStore(false)
@@ -215,7 +210,6 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
         }
       }
     } catch (error) {
-      console.error('Error fetching social media accounts:', error)
       toast.error('Gagal memuat data akun sosial media')
     } finally {
       setLoading(false)
@@ -337,7 +331,6 @@ const ConnectionsTab = ({ storeUuid }: { storeUuid?: string | null }) => {
         toast.error(result.message || 'Terjadi kesalahan')
       }
     } catch (error) {
-      console.error('Error saving social media account:', error)
       toast.error('Terjadi kesalahan saat menyimpan')
     } finally {
       setUpdating({ ...updating, [platform]: false })

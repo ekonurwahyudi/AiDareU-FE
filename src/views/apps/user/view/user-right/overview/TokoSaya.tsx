@@ -207,7 +207,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       const data = await response.json()
       setProvinces(data)
     } catch (error) {
-      console.error('Error loading provinces:', error)
       // Set empty array to prevent further errors
       setProvinces([])
     } finally {
@@ -228,7 +227,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       const data = await response.json()
       setCities(data)
     } catch (error) {
-      console.error('Error loading cities:', error)
       setCities([])
     } finally {
       setLoadingCities(false)
@@ -248,7 +246,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       const data = await response.json()
       setDistricts(data)
     } catch (error) {
-      console.error('Error loading districts:', error)
       setDistricts([])
     } finally {
       setLoadingDistricts(false)
@@ -299,7 +296,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
           }
         }
       } catch (error) {
-        console.error('Error loading address data:', error)
+        // Error loading address data - silently fail
       }
     }
   }
@@ -316,7 +313,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       }
       return await response.json()
     } catch (error) {
-      console.error('Error getting cities:', error)
       return []
     }
   }
@@ -335,7 +331,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
         const authToken = localStorage.getItem('auth_token')
 
         if (!storedUserData) {
-          console.error('No user data found')
           setLoadingStore(false)
           return
         }
@@ -422,7 +417,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
           const json = await res.json()
 
           if (!res.ok || json.status === 'error') {
-            console.error('Failed to fetch user data:', json.message)
             setLoadingStore(false)
             return
           }
@@ -474,7 +468,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
           }
         }
       } catch (err) {
-        console.error('Failed to fetch stores:', err)
+        // Failed to fetch stores - silently fail
       } finally {
         setLoadingStore(false)
       }
@@ -503,7 +497,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       const data = await res.json()
       setSubdomainAvailable(res.ok ? data.available : null)
     } catch (err) {
-      console.error(err)
       setSubdomainAvailable(null)
     }
     setSubdomainChecking(false)
@@ -586,7 +579,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             headers['X-User-UUID'] = userData.uuid
           }
         } catch (e) {
-          console.error('Failed to parse user data:', e)
+          // Failed to parse user data
         }
       }
 
@@ -608,7 +601,6 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
         setIsEditing(false) // Disable edit mode after successful update
       }
     } catch (e) {
-      console.error(e)
       toast.error('Terjadi kesalahan server')
     } finally {
       setIsSaving(false)
