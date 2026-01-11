@@ -132,7 +132,6 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch order details')
-        console.error('Error fetching order details:', err)
       } finally {
         setLoading(false)
       }
@@ -182,7 +181,6 @@ const OrderDetails = ({ orderId }: { orderId: string }) => {
         throw new Error(result.message || 'Failed to update order status')
       }
     } catch (err) {
-      console.error('Error updating order status:', err)
       setError(err instanceof Error ? err.message : 'Failed to update order status')
       throw err // Re-throw to let CustomerDetailsCard handle it
     }

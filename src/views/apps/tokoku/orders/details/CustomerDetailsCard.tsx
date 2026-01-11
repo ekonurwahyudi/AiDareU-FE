@@ -73,7 +73,6 @@ const CustomerDetailsCard = ({ order, onStatusUpdate }: { order: Order; onStatus
     try {
       await onStatusUpdate(selectedStatus)
     } catch (error) {
-      console.error('Failed to update status:', error)
       // Reset to original status on error
       setSelectedStatus(order.status)
     } finally {

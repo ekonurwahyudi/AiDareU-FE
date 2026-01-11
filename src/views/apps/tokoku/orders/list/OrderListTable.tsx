@@ -318,7 +318,6 @@ const OrderListTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch orders')
-      console.error('Error fetching orders for store UUID:', storeUuid, err)
     } finally {
       setLoading(false)
     }
@@ -367,7 +366,6 @@ const OrderListTable = () => {
         throw new Error(result.message || 'Failed to update order status')
       }
     } catch (err) {
-      console.error('Error updating order status:', err)
       setError(err instanceof Error ? err.message : 'Failed to update order status')
     }
   }

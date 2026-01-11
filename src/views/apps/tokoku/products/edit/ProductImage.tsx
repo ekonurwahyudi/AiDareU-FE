@@ -80,7 +80,7 @@ const ProductImage = () => {
     onDropRejected: (fileRejections) => {
       fileRejections.forEach(({ errors }) => {
         errors.forEach(error => {
-          console.error('File rejected:', error.message)
+          // File rejected - silently fail
         })
       })
     }

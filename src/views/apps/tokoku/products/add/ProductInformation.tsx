@@ -345,7 +345,7 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
           throw new Error('Failed to upload image')
         }
       } catch (error) {
-        console.error('Image upload failed:', error)
+        // Image upload failed - fallback to base64
         const reader = new FileReader()
         reader.onload = (e) => {
           const src = e.target?.result as string

@@ -363,7 +363,6 @@ const ProductListTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch products')
-      console.error('Error fetching products for store UUID:', storeUuid, err)
     } finally {
       setLoading(false)
     }
@@ -393,7 +392,7 @@ const ProductListTable = () => {
         throw new Error('Failed to fetch categories')
       }
     } catch (err) {
-      console.error('Error fetching categories:', err)
+      // Error fetching categories - silently fail
     }
   }, [categories.length])
 
@@ -471,7 +470,7 @@ const ProductListTable = () => {
       // Force refresh since user made a change
       fetchProducts(true)
     } catch (err) {
-      console.error('Error updating product status:', err)
+      // Error updating product status - silently fail
     }
   }
 
@@ -508,7 +507,6 @@ const ProductListTable = () => {
         throw new Error(result.message || 'Failed to delete product')
       }
     } catch (err) {
-      console.error('Error deleting product:', err)
       setError(err instanceof Error ? err.message : 'Failed to delete product')
     } finally {
       setDeleting(false)
@@ -579,7 +577,6 @@ const ProductListTable = () => {
       // Save file
       XLSX.writeFile(wb, filename)
     } catch (err) {
-      console.error('Error exporting to Excel:', err)
       setError('Failed to export data to Excel')
     }
   }

@@ -54,7 +54,6 @@ export default function InvoicePage({ params }: { params: Promise<{ uuid: string
         setError(result.message)
       }
     } catch (err) {
-      console.error('Error fetching invoice:', err)
       setError('Gagal mengambil data invoice')
     } finally {
       setLoading(false)

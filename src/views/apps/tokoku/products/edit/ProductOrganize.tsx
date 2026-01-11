@@ -40,11 +40,9 @@ const ProductOrganize = () => {
         if (response.ok) {
           const result = await response.json()
           setCategories(result.data || [])
-        } else {
-          console.error('Failed to fetch categories')
         }
       } catch (error) {
-        console.error('Error fetching categories:', error)
+        // Error fetching categories - silently fail
       } finally {
         setLoadingCategories(false)
       }
