@@ -70,6 +70,7 @@ export default function TicketDetailPage() {
   const [replyAttachment, setReplyAttachment] = useState<File | null>(null)
   const [sendingReply, setSendingReply] = useState(false)
   const [error, setError] = useState('')
+  const [statusError, setStatusError] = useState('')
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [openPreview, setOpenPreview] = useState(false)
@@ -297,7 +298,7 @@ export default function TicketDetailPage() {
     
     const oldStatus = ticket.status
     setUpdatingStatus(true)
-    setError('')
+    setStatusError('')
     
     // Optimistic update
     setTicket({ ...ticket, status: newStatus })
@@ -315,12 +316,12 @@ export default function TicketDetailPage() {
       if (!response.ok || !result.success) {
         // Rollback on error
         setTicket(prev => prev ? { ...prev, status: oldStatus } : null)
-        setError(result.message || 'Gagal mengubah status')
+        setStatusError(result.message || 'Gagal mengubah status')
       }
     } catch (err) {
       // Rollback on error
       setTicket(prev => prev ? { ...prev, status: oldStatus } : null)
-      setError('Terjadi kesalahan saat mengubah status')
+      setStatusError('Terjadi kesalahan saat mengubah status')
       console.error('Error updating status:', err)
     } finally {
       setUpdatingStatus(false)
@@ -531,6 +532,86 @@ export default function TicketDetailPage() {
           </Card>
         )}
 
+        {/* Reply Button - Below messages */}
+        {ticket.status !== 'closed' && !showReplyForm && (
+          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={() => setShowReplyForm(true)}
+              startIcon={<i className='tabler-message-plus' />}
+            >
+              Balas Tiket
+            </Button>
+          </Box>
+        )}
+
+        {/* Reply Form - Below messages */}
+        {showReplyForm && ticket.status !== 'closed' && (
+          <Card sx={{ mt: 3 }}>
+            <CardHeader 
+              title='Tambahkan Balasan' 
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+              action={
+                <IconButton onClick={() => setShowReplyForm(false)} size='small'>
+                  <i className='tabler-x' style={{ fontSize: 18 }} />
+                </IconButton>
+              }
+            />
+            <Divider />
+            <CardContent>
+              {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                placeholder='Tulis balasan Anda...'
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                slotProps={{ htmlInput: { maxLength: 10000 } }}
+                sx={{ mb: 2 }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  size='small'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
+                {replyAttachment && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant='caption'>{replyAttachment.name}</Typography>
+                    <IconButton size='small' color='error' onClick={() => setReplyAttachment(null)}>
+                      <i className='tabler-x' style={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+
+              <Button
+                fullWidth
+                variant='contained'
+                color='success'
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+                startIcon={<i className='tabler-send' />}
+              >
+                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Scroll anchor */}
         <div ref={bottomRef} />
       </Grid>
@@ -598,6 +679,7 @@ export default function TicketDetailPage() {
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 1, color: 'text.secondary' }}>
                 Status
               </Typography>
+              {statusError && <Alert severity='error' sx={{ mb: 1, py: 0 }}>{statusError}</Alert>}
               {isSuperadmin ? (
                 <FormControl fullWidth size='small'>
                   <Select
@@ -621,7 +703,7 @@ export default function TicketDetailPage() {
             </Box>
 
             {/* Priority */}
-            <Box sx={{ mb: 3 }}>
+            <Box>
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 1, color: 'text.secondary' }}>
                 Priority
               </Typography>
@@ -632,85 +714,8 @@ export default function TicketDetailPage() {
                 variant='tonal'
               />
             </Box>
-
-            {/* Reply Button */}
-            {ticket.status !== 'closed' && (
-              <Button
-                fullWidth
-                variant='contained'
-                color='primary'
-                onClick={() => {
-                  setShowReplyForm(!showReplyForm)
-                  if (!showReplyForm) scrollToBottom()
-                }}
-                startIcon={<i className={showReplyForm ? 'tabler-x' : 'tabler-message-plus'} />}
-              >
-                {showReplyForm ? 'Tutup Form' : 'Balas Tiket'}
-              </Button>
-            )}
           </CardContent>
         </Card>
-
-        {/* Reply Form Card - Below Ticket Information */}
-        {showReplyForm && ticket.status !== 'closed' && (
-          <Card sx={{ mt: 3 }}>
-            <CardHeader 
-              title='Tambahkan Balasan' 
-              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-            />
-            <Divider />
-            <CardContent>
-              {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
-
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                placeholder='Tulis balasan Anda...'
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                slotProps={{ htmlInput: { maxLength: 10000 } }}
-                sx={{ mb: 2 }}
-              />
-
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant='outlined'
-                  component='label'
-                  size='small'
-                  startIcon={<i className='tabler-paperclip' />}
-                >
-                  Lampiran
-                  <input
-                    type='file'
-                    hidden
-                    onChange={handleFileChange}
-                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                  />
-                </Button>
-                {replyAttachment && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant='caption'>{replyAttachment.name}</Typography>
-                    <IconButton size='small' color='error' onClick={() => setReplyAttachment(null)}>
-                      <i className='tabler-x' style={{ fontSize: 14 }} />
-                    </IconButton>
-                  </Box>
-                )}
-              </Box>
-
-              <Button
-                fullWidth
-                variant='contained'
-                color='success'
-                onClick={handleSendReply}
-                disabled={sendingReply || !replyMessage.trim()}
-                startIcon={<i className='tabler-send' />}
-              >
-                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
       </Grid>
 
       {/* Image Preview Dialog */}
