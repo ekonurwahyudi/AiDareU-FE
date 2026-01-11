@@ -70,15 +70,8 @@ const OptimizedImage = ({
   // Transform URL if needed
   const optimizedSrc = getOptimizedUrl(src)
   
-  // Check if image is from external source (not our backend)
-  const isExternal = optimizedSrc?.startsWith('http') || optimizedSrc?.startsWith('//')
+  // Check if image is from backend storage
   const isFromBackend = isBackendStorageUrl(optimizedSrc)
-  
-  // Enable optimization for:
-  // 1. Local images (not starting with http)
-  // 2. Images from our backend storage (api.aidareu.com, etc.)
-  // Disable optimization for other external sources
-  const shouldOptimize = !isExternal || isFromBackend
 
   const handleLoad = () => {
     setIsLoading(false)
@@ -90,6 +83,7 @@ const OptimizedImage = ({
     setIsLoading(false)
   }
 
+  // Error state
   if (error) {
     return (
       <Box
@@ -115,8 +109,50 @@ const OptimizedImage = ({
     )
   }
 
-  // When fill is true, render Image directly without wrapper Box
-  // This allows the parent container to control sizing properly
+  // For backend storage images, use native <img> tag with lazy loading
+  // This avoids Next.js Image Optimization issues with custom domains
+  if (isFromBackend) {
+    return (
+      <>
+        {isLoading && (
+          <Skeleton
+            variant="rectangular"
+            sx={{
+              position: fill ? 'absolute' : 'relative',
+              top: 0,
+              left: 0,
+              right: fill ? 0 : undefined,
+              bottom: fill ? 0 : undefined,
+              width: fill ? '100%' : width,
+              height: fill ? '100%' : height
+            }}
+          />
+        )}
+        <img
+          src={optimizedSrc}
+          alt={alt}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          onLoad={handleLoad}
+          onError={handleError}
+          className={className}
+          style={{
+            position: fill ? 'absolute' : 'relative',
+            top: fill ? 0 : undefined,
+            left: fill ? 0 : undefined,
+            width: fill ? '100%' : width,
+            height: fill ? '100%' : height,
+            objectFit,
+            opacity: isLoading ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+            ...style
+          }}
+        />
+      </>
+    )
+  }
+
+  // For local/static images, use Next.js Image component
   if (fill) {
     return (
       <>
@@ -143,7 +179,6 @@ const OptimizedImage = ({
           className={className}
           quality={quality}
           placeholder={placeholder}
-          unoptimized={!shouldOptimize}
           onLoad={handleLoad}
           onError={handleError}
           style={{
@@ -158,7 +193,7 @@ const OptimizedImage = ({
     )
   }
 
-  // For non-fill mode, use wrapper Box
+  // For non-fill mode with local images
   return (
     <Box sx={{ position: 'relative', width, height, ...style }}>
       {isLoading && (
@@ -178,7 +213,6 @@ const OptimizedImage = ({
         className={className}
         quality={quality}
         placeholder={placeholder}
-        unoptimized={!shouldOptimize}
         onLoad={handleLoad}
         onError={handleError}
         style={{

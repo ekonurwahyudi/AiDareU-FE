@@ -381,18 +381,60 @@ const DynamicStorePage = () => {
           setStoreLoading(false) // Mark store data as loaded
           setStoreNotFound(false)
 
-          // Set products
+          // Set products - transform image URLs to use frontend backendUrl
+          // This ensures consistent URL format like product detail page
           if (data.data.products) {
             const productsWithoutUuid = data.data.products.filter((p: any) => !p.uuid)
             if (productsWithoutUuid.length > 0) {
 //               console.warn('Products without UUID:', productsWithoutUuid)
             }
-            setProducts(data.data.products)
+            
+            // Transform products to use consistent image URL format
+            const transformedProducts = data.data.products.map((product: any) => {
+              // Extract image path from full URL or use as-is if it's a path
+              let imagePath = product.image
+              
+              // If image is a full URL, extract the path after /storage/
+              if (imagePath && imagePath.includes('/storage/')) {
+                const storageIndex = imagePath.indexOf('/storage/')
+                imagePath = imagePath.substring(storageIndex) // Gets /storage/...
+              }
+              
+              // Build image URL using frontend's backendUrl (same as product detail)
+              const imageUrl = imagePath && imagePath !== '/placeholder.jpg'
+                ? (imagePath.startsWith('http') ? imagePath : `${backendUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`)
+                : '/placeholder.jpg'
+              
+              return {
+                ...product,
+                image: imageUrl
+              }
+            })
+            
+            setProducts(transformedProducts)
           }
 
-          // Set slides
+          // Set slides - transform image URLs to use frontend backendUrl
           if (data.data.slides && data.data.slides.length > 0) {
-            setDynamicSlides(data.data.slides)
+            const transformedSlides = data.data.slides.map((slide: any) => {
+              // Helper function to transform slide image URL
+              const transformSlideUrl = (url: string) => {
+                if (!url) return url
+                if (url.includes('/storage/')) {
+                  const storageIndex = url.indexOf('/storage/')
+                  const path = url.substring(storageIndex)
+                  return `${backendUrl}${path}`
+                }
+                return url
+              }
+              
+              return {
+                ...slide,
+                gambar_slide: transformSlideUrl(slide.gambar_slide),
+                image: transformSlideUrl(slide.image)
+              }
+            })
+            setDynamicSlides(transformedSlides)
           }
 
           // Set testimonials
