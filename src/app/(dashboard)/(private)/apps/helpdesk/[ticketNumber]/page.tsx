@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Card,
   CardContent,
@@ -26,6 +26,20 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { useRBAC } from '@/contexts/rbacContext'
 
+interface TicketDetailItem {
+  uuid: string
+  message: string
+  type: 'question' | 'answer'
+  pic: string | null
+  file_path: string | null
+  file_name: string | null
+  created_at: string
+  user: {
+    name: string
+    email: string
+  } | null
+}
+
 interface TicketDetail {
   uuid: string
   ticket_number: string
@@ -39,27 +53,16 @@ interface TicketDetail {
     name: string
     email: string
   }
-  details: Array<{
-    uuid: string
-    message: string
-    type: 'question' | 'answer'
-    pic: string | null
-    file_path: string | null
-    file_name: string | null
-    created_at: string
-    user: {
-      name: string
-      email: string
-    } | null
-  }>
+  details: TicketDetailItem[]
 }
 
 export default function TicketDetailPage() {
   const router = useRouter()
   const params = useParams()
   const ticketId = params.ticketNumber as string
-  const { hasRole } = useRBAC()
+  const { hasRole, user } = useRBAC()
   const isSuperadmin = hasRole('superadmin')
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -115,8 +118,33 @@ export default function TicketDetailPage() {
       }, 100)
     } catch (error) {
       console.error('Error downloading file:', error)
-      // Fallback: open in new tab
       window.open(fileUrl, '_blank')
+    }
+  }
+
+  // Scroll to bottom
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, 100)
+  }
+
+  // Auto update status to in_progress when superadmin views ticket
+  const autoUpdateStatus = async () => {
+    if (isSuperadmin && ticket && ticket.status === 'open') {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/status`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'in_progress' })
+        })
+        if (response.ok) {
+          setTicket(prev => prev ? { ...prev, status: 'in_progress' } : null)
+        }
+      } catch (err) {
+        console.error('Error auto-updating status:', err)
+      }
     }
   }
 
@@ -124,10 +152,25 @@ export default function TicketDetailPage() {
     fetchTicketDetail()
   }, [ticketId])
 
+  // Auto update status after ticket is loaded
+  useEffect(() => {
+    if (ticket && isSuperadmin && ticket.status === 'open') {
+      autoUpdateStatus()
+    }
+  }, [ticket?.uuid, isSuperadmin])
+
+  // Scroll to bottom when ticket loads or details change
+  useEffect(() => {
+    if (ticket && !loading) {
+      scrollToBottom()
+    }
+  }, [ticket?.details?.length, loading])
+
   const fetchTicketDetail = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}`, {
-        credentials: 'include'
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}?_t=${Date.now()}`, {
+        credentials: 'include',
+        cache: 'no-store'
       })
 
       if (response.ok) {
@@ -172,7 +215,7 @@ export default function TicketDetailPage() {
   }
 
   const handleSendReply = async () => {
-    if (!replyMessage.trim()) {
+    if (!replyMessage.trim() || !ticket) {
       setError('Pesan tidak boleh kosong')
       return
     }
@@ -180,9 +223,34 @@ export default function TicketDetailPage() {
     setSendingReply(true)
     setError('')
 
+    // Optimistic update - add reply immediately
+    const tempUuid = `temp-${Date.now()}`
+    const userName = (user as any)?.name || 'User'
+    const userEmail = (user as any)?.email || ''
+    const optimisticReply: TicketDetailItem = {
+      uuid: tempUuid,
+      message: replyMessage.trim(),
+      type: isSuperadmin ? 'answer' : 'question',
+      pic: isSuperadmin ? userName : null,
+      file_path: null,
+      file_name: replyAttachment?.name || null,
+      created_at: new Date().toISOString(),
+      user: { name: userName, email: userEmail }
+    }
+
+    setTicket(prev => prev ? {
+      ...prev,
+      details: [...prev.details, optimisticReply]
+    } : null)
+
+    const savedMessage = replyMessage
+    setReplyMessage('')
+    setShowReplyForm(false)
+    scrollToBottom()
+
     try {
       const formData = new FormData()
-      formData.append('message', replyMessage.trim())
+      formData.append('message', savedMessage.trim())
 
       if (replyAttachment) {
         formData.append('attachment', replyAttachment)
@@ -197,15 +265,26 @@ export default function TicketDetailPage() {
       const result = await response.json()
 
       if (response.ok && result.success) {
-        setReplyMessage('')
         setReplyAttachment(null)
-        setShowReplyForm(false)
         setError('')
+        // Refresh to get actual data from server
         fetchTicketDetail()
       } else {
+        // Rollback optimistic update on error
+        setTicket(prev => prev ? {
+          ...prev,
+          details: prev.details.filter(d => d.uuid !== tempUuid)
+        } : null)
+        setReplyMessage(savedMessage)
         setError(result.message || 'Gagal mengirim balasan')
       }
     } catch (err) {
+      // Rollback optimistic update on error
+      setTicket(prev => prev ? {
+        ...prev,
+        details: prev.details.filter(d => d.uuid !== tempUuid)
+      } : null)
+      setReplyMessage(savedMessage)
       setError('Terjadi kesalahan saat mengirim balasan')
       console.error('Error sending reply:', err)
     } finally {
@@ -216,27 +295,31 @@ export default function TicketDetailPage() {
   const handleStatusChange = async (newStatus: string) => {
     if (!ticket) return
     
+    const oldStatus = ticket.status
     setUpdatingStatus(true)
     setError('')
+    
+    // Optimistic update
+    setTicket({ ...ticket, status: newStatus })
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/status`, {
         method: 'PUT',
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       })
 
       const result = await response.json()
 
-      if (response.ok && result.success) {
-        setTicket({ ...ticket, status: newStatus })
-      } else {
+      if (!response.ok || !result.success) {
+        // Rollback on error
+        setTicket(prev => prev ? { ...prev, status: oldStatus } : null)
         setError(result.message || 'Gagal mengubah status')
       }
     } catch (err) {
+      // Rollback on error
+      setTicket(prev => prev ? { ...prev, status: oldStatus } : null)
       setError('Terjadi kesalahan saat mengubah status')
       console.error('Error updating status:', err)
     } finally {
@@ -267,12 +350,19 @@ export default function TicketDetailPage() {
   const getStatusColor = (status: string) => {
     const colors: Record<string, 'default' | 'warning' | 'success' | 'error' | 'info'> = {
       open: 'warning',
-      waiting_reply: 'warning',
       in_progress: 'info',
-      replied: 'success',
       closed: 'error'
     }
     return colors[status] || 'default'
+  }
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      open: 'Open',
+      in_progress: 'In Progress',
+      closed: 'Closed'
+    }
+    return labels[status] || status
   }
 
   const formatDate = (dateString: string) => {
@@ -317,25 +407,13 @@ export default function TicketDetailPage() {
               {ticket.title}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            {ticket.status !== 'closed' && (
-              <Button 
-                variant='contained' 
-                color='primary'
-                onClick={() => setShowReplyForm(!showReplyForm)} 
-                startIcon={<i className={showReplyForm ? 'tabler-x' : 'tabler-message-plus'} />}
-              >
-                {showReplyForm ? 'Tutup' : 'Balas Tiket'}
-              </Button>
-            )}
-            <Button 
-              variant='text' 
-              onClick={() => router.push('/apps/helpdesk')} 
-              startIcon={<i className='tabler-arrow-left' />}
-            >
-              Kembali
-            </Button>
-          </Box>
+          <Button 
+            variant='text' 
+            onClick={() => router.push('/apps/helpdesk')} 
+            startIcon={<i className='tabler-arrow-left' />}
+          >
+            Kembali
+          </Button>
         </Box>
       </Grid>
 
@@ -348,84 +426,16 @@ export default function TicketDetailPage() {
           </Alert>
         )}
 
-        {/* Reply Section - Show when button clicked */}
-        {showReplyForm && ticket.status !== 'closed' && (
-          <Card sx={{ mb: 3 }}>
-            <CardHeader 
-              title='Tambahkan Balasan' 
-              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
-              action={
-                <IconButton onClick={() => setShowReplyForm(false)} size='small'>
-                  <i className='tabler-x' style={{ fontSize: 18 }} />
-                </IconButton>
-              }
-            />
-            <Divider />
-            <CardContent>
-              {error && <Alert severity='error' sx={{ mb: 3 }}>{error}</Alert>}
-
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                placeholder='Tulis balasan Anda...'
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                slotProps={{ htmlInput: { maxLength: 10000 } }}
-                sx={{ mb: 2 }}
-              />
-
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
-                <Button
-                  variant='outlined'
-                  component='label'
-                  size='small'
-                  startIcon={<i className='tabler-paperclip' />}
-                >
-                  Upload Lampiran
-                  <input
-                    type='file'
-                    hidden
-                    onChange={handleFileChange}
-                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                  />
-                </Button>
-                {replyAttachment && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant='body2'>{replyAttachment.name}</Typography>
-                    <Button
-                      size='small'
-                      color='error'
-                      onClick={() => setReplyAttachment(null)}
-                    >
-                      Hapus
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-
-              <Button
-                variant='contained'
-                color='success'
-                onClick={handleSendReply}
-                disabled={sendingReply || !replyMessage.trim()}
-                startIcon={<i className='tabler-send' />}
-              >
-                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Messages */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {ticket.details.map((detail) => {
             const isOwner = detail.type === 'question'
-            const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'primary')
-            const roleLabel = isOwner ? 'Owner' : (detail.pic ? 'Operator' : 'Admin')
+            const roleColor = isOwner ? 'success' : 'info'
+            const roleLabel = isOwner ? 'Owner' : 'Admin'
+            const isTemp = detail.uuid.startsWith('temp-')
 
             return (
-              <Card key={detail.uuid}>
+              <Card key={detail.uuid} sx={{ opacity: isTemp ? 0.7 : 1 }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
                     <Typography variant='body2'>
@@ -436,6 +446,7 @@ export default function TicketDetailPage() {
                       on {formatDate(detail.created_at)}
                     </Typography>
                     <Chip label={roleLabel} color={roleColor} size='small' variant='tonal' />
+                    {isTemp && <Chip label='Mengirim...' size='small' color='warning' />}
                   </Box>
 
                   <Box
@@ -519,6 +530,9 @@ export default function TicketDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Scroll anchor */}
+        <div ref={bottomRef} />
       </Grid>
 
       {/* Sidebar */}
@@ -593,14 +607,12 @@ export default function TicketDetailPage() {
                   >
                     <MenuItem value='open'>Open</MenuItem>
                     <MenuItem value='in_progress'>In Progress</MenuItem>
-                    <MenuItem value='waiting_reply'>Waiting Reply</MenuItem>
-                    <MenuItem value='replied'>Replied</MenuItem>
                     <MenuItem value='closed'>Closed</MenuItem>
                   </Select>
                 </FormControl>
               ) : (
                 <Chip
-                  label={ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace('_', ' ')}
+                  label={getStatusLabel(ticket.status)}
                   color={getStatusColor(ticket.status)}
                   size='small'
                   variant='tonal'
@@ -609,7 +621,7 @@ export default function TicketDetailPage() {
             </Box>
 
             {/* Priority */}
-            <Box>
+            <Box sx={{ mb: 3 }}>
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 1, color: 'text.secondary' }}>
                 Priority
               </Typography>
@@ -620,8 +632,85 @@ export default function TicketDetailPage() {
                 variant='tonal'
               />
             </Box>
+
+            {/* Reply Button */}
+            {ticket.status !== 'closed' && (
+              <Button
+                fullWidth
+                variant='contained'
+                color='primary'
+                onClick={() => {
+                  setShowReplyForm(!showReplyForm)
+                  if (!showReplyForm) scrollToBottom()
+                }}
+                startIcon={<i className={showReplyForm ? 'tabler-x' : 'tabler-message-plus'} />}
+              >
+                {showReplyForm ? 'Tutup Form' : 'Balas Tiket'}
+              </Button>
+            )}
           </CardContent>
         </Card>
+
+        {/* Reply Form Card - Below Ticket Information */}
+        {showReplyForm && ticket.status !== 'closed' && (
+          <Card sx={{ mt: 3 }}>
+            <CardHeader 
+              title='Tambahkan Balasan' 
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+            />
+            <Divider />
+            <CardContent>
+              {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                placeholder='Tulis balasan Anda...'
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                slotProps={{ htmlInput: { maxLength: 10000 } }}
+                sx={{ mb: 2 }}
+              />
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  size='small'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
+                {replyAttachment && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant='caption'>{replyAttachment.name}</Typography>
+                    <IconButton size='small' color='error' onClick={() => setReplyAttachment(null)}>
+                      <i className='tabler-x' style={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Box>
+                )}
+              </Box>
+
+              <Button
+                fullWidth
+                variant='contained'
+                color='success'
+                onClick={handleSendReply}
+                disabled={sendingReply || !replyMessage.trim()}
+                startIcon={<i className='tabler-send' />}
+              >
+                {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </Grid>
 
       {/* Image Preview Dialog */}
@@ -635,9 +724,7 @@ export default function TicketDetailPage() {
               bgcolor: 'rgba(0, 0, 0, 0.5)',
               color: 'white',
               zIndex: 1,
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.7)'
-              }
+              '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.7)' }
             }}
             onClick={() => setOpenPreview(false)}
           >

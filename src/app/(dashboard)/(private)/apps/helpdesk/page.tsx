@@ -59,8 +59,9 @@ export default function MyTicketPage() {
 
   const fetchTickets = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk`, {
-        credentials: 'include'
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk?_t=${Date.now()}`, {
+        credentials: 'include',
+        cache: 'no-store'
       })
 
       if (response.ok) {
@@ -71,9 +72,9 @@ export default function MyTicketPage() {
           // Calculate stats from tickets
           const ticketStats = result.data.reduce((acc: TicketStats, ticket: Ticket) => {
             acc.total++
-            if (ticket.status === 'open' || ticket.status === 'waiting_reply') {
+            if (ticket.status === 'open') {
               acc.open++
-            } else if (ticket.status === 'replied' || ticket.status === 'in_progress') {
+            } else if (ticket.status === 'in_progress') {
               acc.in_progress++
             } else if (ticket.status === 'closed') {
               acc.closed++
@@ -94,9 +95,7 @@ export default function MyTicketPage() {
   const getStatusChip = (status: string) => {
     const statusConfig: Record<string, { label: string; color: 'default' | 'warning' | 'success' | 'error' | 'info' }> = {
       open: { label: 'Open', color: 'warning' },
-      waiting_reply: { label: 'Waiting Reply', color: 'warning' },
       in_progress: { label: 'In Progress', color: 'info' },
-      replied: { label: 'Replied', color: 'success' },
       closed: { label: 'Closed', color: 'error' }
     }
 
