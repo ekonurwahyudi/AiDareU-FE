@@ -14,8 +14,9 @@ import {
   Alert,
   Typography,
   Box,
-  Grid
+  Divider
 } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import { useRouter } from 'next/navigation'
 import TiptapEditor from '@/components/editor/TiptapEditor'
 
@@ -36,7 +37,6 @@ export default function NewTicketPage() {
 
   const [attachment, setAttachment] = useState<File | null>(null)
 
-  // Fetch user data from API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -70,15 +70,9 @@ export default function NewTicketPage() {
       }
 
       const allowedTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'application/zip',
-        'application/x-gzip',
-        'application/gzip',
-        'text/plain',
-        'application/pdf'
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+        'application/zip', 'application/x-gzip', 'application/gzip',
+        'text/plain', 'application/pdf'
       ]
 
       if (!allowedTypes.includes(file.type)) {
@@ -148,135 +142,163 @@ export default function NewTicketPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Button
-        variant='text'
-        sx={{ mb: 3 }}
-        onClick={() => router.back()}
-        startIcon={<i className='tabler-arrow-left' />}
-      >
-        Kembali
-      </Button>
+    <Grid container spacing={6}>
+      {/* Header */}
+      <Grid size={{ xs: 12 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant='h4' sx={{ fontWeight: 600, mb: 0.5 }}>
+              Buat Tiket Baru
+            </Typography>
+            <Typography variant='body2' color='text.secondary'>
+              Sampaikan masalah atau pertanyaan Anda
+            </Typography>
+          </Box>
+          <Button
+            variant='text'
+            onClick={() => router.back()}
+            startIcon={<i className='tabler-arrow-left' />}
+          >
+            Kembali
+          </Button>
+        </Box>
+      </Grid>
 
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={4}>
-          {/* Left Column - Title, Description, Attachment */}
-          <Grid item xs={12} md={8}>
-            {error && (
-              <Alert severity='error' sx={{ mb: 3 }}>
-                {error}
-              </Alert>
-            )}
+      <Grid size={{ xs: 12 }}>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={6}>
+            {/* Left Column - Title, Description, Attachment */}
+            <Grid size={{ xs: 12, md: 8 }}>
+              {error && (
+                <Alert severity='error' sx={{ mb: 3 }}>
+                  {error}
+                </Alert>
+              )}
 
-            {/* Title Card */}
-            <Card sx={{ mb: 3 }}>
-              <CardHeader title='Informasi Tiket' />
-              <CardContent>
-                <TextField
-                  fullWidth
-                  required
-                  label='Judul Tiket'
-                  placeholder='Jelaskan masalah Anda secara singkat'
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  inputProps={{ maxLength: 255 }}
+              {/* Title Card */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader 
+                  title='Informasi Tiket' 
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
                 />
-              </CardContent>
-            </Card>
-
-            {/* Description Card */}
-            <Card sx={{ mb: 3 }}>
-              <CardHeader
-                title='Deskripsi Masalah'
-                subheader='Jelaskan masalah Anda secara detail'
-              />
-              <CardContent>
-                <Box sx={{ '& .ProseMirror': { minHeight: '200px !important' } }}>
-                  <TiptapEditor
-                    content={formData.message}
-                    onChange={(content) => setFormData({ ...formData, message: content })}
-                    placeholder='Tulis deskripsi masalah Anda di sini...'
+                <Divider />
+                <CardContent>
+                  <TextField
+                    fullWidth
+                    required
+                    label='Judul Tiket'
+                    placeholder='Jelaskan masalah Anda secara singkat'
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    inputProps={{ maxLength: 255 }}
                   />
-                </Box>
-                <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
-                  {formData.message.replace(/<[^>]*>/g, '').length} / 10000 karakter
-                </Typography>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Attachment Card */}
-            <Card>
-              <CardHeader title='Lampiran' subheader='Upload file pendukung (opsional)' />
-              <CardContent>
-                <Button
-                  variant='outlined'
-                  component='label'
-                  startIcon={<i className='tabler-paperclip' />}
-                >
-                  Pilih File
-                  <input
-                    type='file'
-                    hidden
-                    onChange={handleFileChange}
-                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                  />
-                </Button>
-                <Typography variant='caption' display='block' color='text.secondary' sx={{ mt: 1 }}>
-                  Allowed: JPG, PNG, GIF, ZIP, GZ, TXT, PDF (Max 30MB)
-                </Typography>
-                {attachment && (
-                  <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <i className='tabler-file' />
-                    <Typography variant='body2' sx={{ flex: 1 }}>{attachment.name}</Typography>
-                    <Button
-                      size='small'
-                      color='error'
-                      onClick={() => setAttachment(null)}
-                      startIcon={<i className='tabler-x' />}
-                    >
-                      Hapus
-                    </Button>
+              {/* Description Card */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader
+                  title='Deskripsi Masalah'
+                  subheader='Jelaskan masalah Anda secara detail'
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                />
+                <Divider />
+                <CardContent>
+                  <Box sx={{ '& .ProseMirror': { minHeight: '200px !important' } }}>
+                    <TiptapEditor
+                      content={formData.message}
+                      onChange={(content) => setFormData({ ...formData, message: content })}
+                      placeholder='Tulis deskripsi masalah Anda di sini...'
+                    />
                   </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
+                  <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
+                    {formData.message.replace(/<[^>]*>/g, '').length} / 10000 karakter
+                  </Typography>
+                </CardContent>
+              </Card>
 
-          {/* Right Column - User Info, Department, Category, Priority */}
-          <Grid item xs={12} md={4}>
-            {/* User Info Card */}
-            <Card sx={{ mb: 3 }}>
-              <CardHeader title='Informasi Pengirim' />
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
+              {/* Attachment Card */}
+              <Card>
+                <CardHeader 
+                  title='Lampiran' 
+                  subheader='Upload file pendukung (opsional)' 
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                />
+                <Divider />
+                <CardContent>
+                  <Button
+                    variant='outlined'
+                    component='label'
+                    startIcon={<i className='tabler-paperclip' />}
+                  >
+                    Pilih File
+                    <input
+                      type='file'
+                      hidden
+                      onChange={handleFileChange}
+                      accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                    />
+                  </Button>
+                  <Typography variant='caption' display='block' color='text.secondary' sx={{ mt: 1 }}>
+                    Allowed: JPG, PNG, GIF, ZIP, GZ, TXT, PDF (Max 30MB)
+                  </Typography>
+                  {attachment && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <i className='tabler-file' />
+                      <Typography variant='body2' sx={{ flex: 1 }}>{attachment.name}</Typography>
+                      <Button
+                        size='small'
+                        color='error'
+                        onClick={() => setAttachment(null)}
+                      >
+                        Hapus
+                      </Button>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Right Column - User Info, Department, Category, Priority */}
+            <Grid size={{ xs: 12, md: 4 }}>
+              {/* User Info Card */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader 
+                  title='Informasi Pengirim' 
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                />
+                <Divider />
+                <CardContent>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
                       fullWidth
                       label='Nama'
                       value={userData?.name || ''}
                       disabled
+                      size='small'
                     />
-                  </Grid>
-                  <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label='Email'
                       type='email'
                       value={userData?.email || ''}
                       disabled
+                      size='small'
                     />
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+                  </Box>
+                </CardContent>
+              </Card>
 
-            {/* Category & Priority Card */}
-            <Card sx={{ mb: 3 }}>
-              <CardHeader title='Kategori Tiket' />
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <FormControl fullWidth required>
+              {/* Category & Priority Card */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader 
+                  title='Kategori Tiket' 
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                />
+                <Divider />
+                <CardContent>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <FormControl fullWidth required size='small'>
                       <InputLabel>Department</InputLabel>
                       <Select
                         value={formData.department}
@@ -288,10 +310,8 @@ export default function NewTicketPage() {
                         <MenuItem value='Abuse'>Abuse</MenuItem>
                       </Select>
                     </FormControl>
-                  </Grid>
 
-                  <Grid item xs={12}>
-                    <FormControl fullWidth required>
+                    <FormControl fullWidth required size='small'>
                       <InputLabel>Kategori</InputLabel>
                       <Select
                         value={formData.category}
@@ -304,24 +324,21 @@ export default function NewTicketPage() {
                         <MenuItem value='Lainnya'>Lainnya</MenuItem>
                       </Select>
                     </FormControl>
-                  </Grid>
 
-                  {formData.category === 'Lainnya' && (
-                    <Grid item xs={12}>
+                    {formData.category === 'Lainnya' && (
                       <TextField
                         fullWidth
                         required
+                        size='small'
                         label='Kategori Lainnya'
                         placeholder='Masukkan kategori'
                         value={formData.customCategory}
                         onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
                         inputProps={{ maxLength: 100 }}
                       />
-                    </Grid>
-                  )}
+                    )}
 
-                  <Grid item xs={12}>
-                    <FormControl fullWidth required>
+                    <FormControl fullWidth required size='small'>
                       <InputLabel>Priority</InputLabel>
                       <Select
                         value={formData.priority}
@@ -333,16 +350,14 @@ export default function NewTicketPage() {
                         <MenuItem value='high'>High</MenuItem>
                       </Select>
                     </FormControl>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+                  </Box>
+                </CardContent>
+              </Card>
 
-            {/* Action Buttons */}
-            <Card>
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
+              {/* Action Buttons */}
+              <Card>
+                <CardContent>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Button
                       type='submit'
                       variant='contained'
@@ -352,23 +367,20 @@ export default function NewTicketPage() {
                     >
                       {loading ? 'Mengirim...' : 'Kirim Tiket'}
                     </Button>
-                  </Grid>
-                  <Grid item xs={12}>
                     <Button
                       variant='outlined'
                       fullWidth
                       onClick={() => router.back()}
-                      startIcon={<i className='tabler-x' />}
                     >
                       Batal
                     </Button>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Box>
+        </form>
+      </Grid>
+    </Grid>
   )
 }

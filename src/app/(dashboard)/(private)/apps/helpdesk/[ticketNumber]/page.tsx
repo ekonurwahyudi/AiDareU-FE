@@ -14,11 +14,16 @@ import {
   Paper,
   Divider,
   CircularProgress,
-  Grid
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import { useRouter, useParams } from 'next/navigation'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { useRBAC } from '@/contexts/rbacContext'
 
 interface TicketDetail {
   uuid: string
@@ -51,7 +56,9 @@ interface TicketDetail {
 export default function TicketDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const ticketId = params.ticketNumber as string // UUID or ticket_number
+  const ticketId = params.ticketNumber as string
+  const { hasRole } = useRBAC()
+  const isSuperadmin = hasRole('superadmin')
 
   const [ticket, setTicket] = useState<TicketDetail | null>(null)
   const [loading, setLoading] = useState(true)
@@ -59,28 +66,11 @@ export default function TicketDetailPage() {
   const [replyAttachment, setReplyAttachment] = useState<File | null>(null)
   const [sendingReply, setSendingReply] = useState(false)
   const [error, setError] = useState('')
-  const [userData, setUserData] = useState<{ name: string } | null>(null)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   useEffect(() => {
     fetchTicketDetail()
-    fetchUserData()
   }, [ticketId])
-
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-        credentials: 'include'
-      })
-      if (response.ok) {
-        const result = await response.json()
-        if (result.user) {
-          setUserData({ name: result.user.name || '' })
-        }
-      }
-    } catch (err) {
-      console.error('Error fetching user data:', err)
-    }
-  }
 
   const fetchTicketDetail = async () => {
     try {
@@ -114,15 +104,9 @@ export default function TicketDetailPage() {
       }
 
       const allowedTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'application/zip',
-        'application/x-gzip',
-        'application/gzip',
-        'text/plain',
-        'application/pdf'
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+        'application/zip', 'application/x-gzip', 'application/gzip',
+        'text/plain', 'application/pdf'
       ]
 
       if (!allowedTypes.includes(file.type)) {
@@ -175,6 +159,37 @@ export default function TicketDetailPage() {
     }
   }
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!ticket) return
+    
+    setUpdatingStatus(true)
+    setError('')
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/status`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setTicket({ ...ticket, status: newStatus })
+      } else {
+        setError(result.message || 'Gagal mengubah status')
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan saat mengubah status')
+      console.error('Error updating status:', err)
+    } finally {
+      setUpdatingStatus(false)
+    }
+  }
+
   const handleReopenTicket = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/helpdesk/${ticketId}/reopen`, {
@@ -196,9 +211,10 @@ export default function TicketDetailPage() {
   }
 
   const getStatusColor = (status: string) => {
-    const colors: Record<string, 'default' | 'warning' | 'success' | 'error'> = {
+    const colors: Record<string, 'default' | 'warning' | 'success' | 'error' | 'info'> = {
       open: 'warning',
       waiting_reply: 'warning',
+      in_progress: 'info',
       replied: 'success',
       closed: 'error'
     }
@@ -223,35 +239,42 @@ export default function TicketDetailPage() {
 
   if (!ticket) {
     return (
-      <Box sx={{ p: 3 }}>
-        <Alert severity='error'>{error || 'Tiket tidak ditemukan'}</Alert>
-        <Button sx={{ mt: 2 }} variant='contained' onClick={() => router.push('/apps/helpdesk')}>
-          Kembali ke Daftar Tiket
-        </Button>
-      </Box>
+      <Grid container spacing={6}>
+        <Grid size={{ xs: 12 }}>
+          <Alert severity='error'>{error || 'Tiket tidak ditemukan'}</Alert>
+          <Button sx={{ mt: 2 }} variant='contained' onClick={() => router.push('/apps/helpdesk')}>
+            Kembali ke Daftar Tiket
+          </Button>
+        </Grid>
+      </Grid>
     )
   }
 
   return (
     <Grid container spacing={6}>
       {/* Header */}
-      <Grid item xs={12}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Grid size={{ xs: 12 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <Box>
             <Typography variant='h4' sx={{ fontWeight: 600, mb: 0.5 }}>
               Ticket {ticket.ticket_number}
             </Typography>
-            <Typography variant='h6' color='text.secondary'>
+            <Typography variant='body1' color='text.secondary'>
               {ticket.title}
             </Typography>
           </Box>
-          <Button variant='text' onClick={() => router.push('/apps/helpdesk')} startIcon={<i className='tabler-arrow-left' />}>
+          <Button 
+            variant='text' 
+            onClick={() => router.push('/apps/helpdesk')} 
+            startIcon={<i className='tabler-arrow-left' />}
+          >
             Kembali
           </Button>
         </Box>
       </Grid>
 
-      <Grid item xs={12} md={9}>
+      {/* Main Content */}
+      <Grid size={{ xs: 12, md: 8 }}>
         {/* Alert jika closed */}
         {ticket.status === 'closed' && (
           <Alert severity='warning' sx={{ mb: 3 }}>
@@ -261,161 +284,157 @@ export default function TicketDetailPage() {
 
         {/* Messages */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {ticket.details.map((detail, index) => {
+          {ticket.details.map((detail) => {
             const isOwner = detail.type === 'question'
-            const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'default')
+            const roleColor = isOwner ? 'success' : (detail.pic ? 'info' : 'primary')
             const roleLabel = isOwner ? 'Owner' : (detail.pic ? 'Operator' : 'Admin')
 
             return (
-              <Paper key={detail.uuid} sx={{ p: 3 }}>
-                <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
-                  <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
-                    Posted by{' '}
-                    <Typography component='span' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                      {isOwner ? ticket.user.name : detail.pic || 'Admin'}
-                    </Typography>{' '}
-                    on {formatDate(detail.created_at)}
-                  </Typography>
-                  <Chip label={roleLabel} color={roleColor} size='small' variant='tonal' />
-                </Box>
-
-                <Box
-                  dangerouslySetInnerHTML={{ __html: detail.message }}
-                  sx={{
-                    '& p': { mb: 1 },
-                    '& ul, & ol': { pl: 3, mb: 1 },
-                    color: 'text.primary',
-                    lineHeight: 1.6
-                  }}
-                />
-
-                {detail.file_name && (
-                  <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-                    <Typography variant='subtitle2' sx={{ mb: 1, fontWeight: 'bold' }}>
-                      Attachments
+              <Card key={detail.uuid}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Typography variant='body2'>
+                      Posted by{' '}
+                      <Typography component='span' sx={{ fontWeight: 600, color: 'primary.main' }}>
+                        {isOwner ? ticket.user.name : detail.pic || 'Admin'}
+                      </Typography>{' '}
+                      on {formatDate(detail.created_at)}
                     </Typography>
-                    <Button
-                      variant='outlined'
-                      size='small'
-                      component='a'
-                      href={`${process.env.NEXT_PUBLIC_API_URL.replace('/api', '')}/storage/${detail.file_path}`}
-                      target='_blank'
-                      rel='noopener noreferrer'
-                      startIcon={<i className='tabler-file' />}
-                    >
-                      {detail.file_name}
-                    </Button>
+                    <Chip label={roleLabel} color={roleColor} size='small' variant='tonal' />
                   </Box>
-                )}
-              </Paper>
+
+                  <Box
+                    dangerouslySetInnerHTML={{ __html: detail.message }}
+                    sx={{
+                      '& p': { mb: 1, mt: 0 },
+                      '& ul, & ol': { pl: 3, mb: 1 },
+                      color: 'text.primary',
+                      lineHeight: 1.7,
+                      fontSize: '0.875rem'
+                    }}
+                  />
+
+                  {detail.file_name && (
+                    <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Typography variant='caption' sx={{ mb: 1, fontWeight: 600, display: 'block' }}>
+                        Attachments
+                      </Typography>
+                      <Button
+                        variant='outlined'
+                        size='small'
+                        component='a'
+                        href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/storage/${detail.file_path}`}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        startIcon={<i className='tabler-file' />}
+                      >
+                        {detail.file_name}
+                      </Button>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
             )
           })}
         </Box>
 
         {/* Reply Section */}
         {ticket.status !== 'closed' && (
-          <Paper sx={{ p: 3, mt: 3 }}>
-            <Typography variant='h6' sx={{ mb: 2, fontWeight: 'bold' }}>
-              Tambahkan Balasan
-            </Typography>
-
-            {error && <Alert severity='error' sx={{ mb: 2 }}>{error}</Alert>}
-
-            <TextField
-              fullWidth
-              multiline
-              rows={6}
-              placeholder='Tulis balasan Anda...'
-              value={replyMessage}
-              onChange={(e) => setReplyMessage(e.target.value)}
-              inputProps={{ maxLength: 10000 }}
-              sx={{ mb: 2 }}
+          <Card sx={{ mt: 3 }}>
+            <CardHeader 
+              title='Tambahkan Balasan' 
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
             />
+            <Divider />
+            <CardContent>
+              {error && <Alert severity='error' sx={{ mb: 3 }}>{error}</Alert>}
 
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
-              <Button
-                variant='outlined'
-                component='label'
-                startIcon={<i className='tabler-paperclip' />}
-              >
-                Upload Lampiran
-                <input
-                  type='file'
-                  hidden
-                  onChange={handleFileChange}
-                  accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
-                />
-              </Button>
-              {replyAttachment && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant='body2'>{replyAttachment.name}</Typography>
-                  <Button
-                    size='small'
-                    onClick={() => setReplyAttachment(null)}
-                    startIcon={<i className='tabler-x' />}
-                  >
-                    Hapus
-                  </Button>
-                </Box>
-              )}
-            </Box>
+              <TextField
+                fullWidth
+                multiline
+                rows={5}
+                placeholder='Tulis balasan Anda...'
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                inputProps={{ maxLength: 10000 }}
+                sx={{ mb: 3 }}
+              />
 
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button
-                variant='contained'
-                color='success'
-                onClick={handleSendReply}
-                disabled={sendingReply || !replyMessage.trim()}
-                startIcon={<i className='tabler-check' />}
-              >
-                {sendingReply ? 'Mengirim...' : 'Reply'}
-              </Button>
-              <Button
-                variant='outlined'
-                color='error'
-                onClick={() => router.push('/apps/helpdesk')}
-                startIcon={<i className='tabler-x' />}
-              >
-                Closed
-              </Button>
-            </Box>
-          </Paper>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3, flexWrap: 'wrap' }}>
+                <Button
+                  variant='outlined'
+                  component='label'
+                  size='small'
+                  startIcon={<i className='tabler-paperclip' />}
+                >
+                  Upload Lampiran
+                  <input
+                    type='file'
+                    hidden
+                    onChange={handleFileChange}
+                    accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
+                  />
+                </Button>
+                {replyAttachment && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant='body2'>{replyAttachment.name}</Typography>
+                    <Button
+                      size='small'
+                      color='error'
+                      onClick={() => setReplyAttachment(null)}
+                    >
+                      Hapus
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Button
+                  variant='contained'
+                  color='success'
+                  onClick={handleSendReply}
+                  disabled={sendingReply || !replyMessage.trim()}
+                  startIcon={<i className='tabler-send' />}
+                >
+                  {sendingReply ? 'Mengirim...' : 'Kirim Balasan'}
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         )}
 
         {/* Reopen button if closed */}
         {ticket.status === 'closed' && (
-          <Paper sx={{ p: 3, mt: 3 }}>
-            <Alert severity='info' sx={{ mb: 2 }}>
-              Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
-            </Alert>
-            <Button variant='contained' onClick={handleReopenTicket}>
-              Buka Kembali Tiket
-            </Button>
-          </Paper>
+          <Card sx={{ mt: 3 }}>
+            <CardContent>
+              <Alert severity='info' sx={{ mb: 2 }}>
+                Tiket ini sudah ditutup. Anda dapat membuka kembali tiket ini untuk melanjutkan percakapan.
+              </Alert>
+              <Button variant='contained' onClick={handleReopenTicket}>
+                Buka Kembali Tiket
+              </Button>
+            </CardContent>
+          </Card>
         )}
       </Grid>
 
       {/* Sidebar */}
-      <Grid item xs={12} md={3}>
+      <Grid size={{ xs: 12, md: 4 }}>
         <Card>
           <CardHeader
             title='Ticket Information'
-            sx={{
-              '& .MuiCardHeader-title': {
-                fontSize: '1rem',
-                fontWeight: 'bold'
-              }
-            }}
+            titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
           />
           <Divider />
           <CardContent>
             {/* Requestor */}
-            <Box sx={{ mb: 2 }}>
-              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.5, color: 'text.secondary' }}>
                 Requestor
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant='body2' sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                <Typography variant='body2' sx={{ fontWeight: 600, color: 'primary.main' }}>
                   {ticket.user.name}
                 </Typography>
                 <Chip label='Owner' color='success' size='small' variant='tonal' />
@@ -423,24 +442,32 @@ export default function TicketDetailPage() {
             </Box>
 
             {/* Department */}
-            <Box sx={{ mb: 2 }}>
-              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.5, color: 'text.secondary' }}>
                 Department
               </Typography>
               <Typography variant='body2'>{ticket.department}</Typography>
             </Box>
 
+            {/* Category */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.5, color: 'text.secondary' }}>
+                Category
+              </Typography>
+              <Typography variant='body2'>{ticket.category}</Typography>
+            </Box>
+
             {/* Submitted */}
-            <Box sx={{ mb: 2 }}>
-              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.5, color: 'text.secondary' }}>
                 Submitted
               </Typography>
               <Typography variant='body2'>{formatDate(ticket.created_at)}</Typography>
             </Box>
 
             {/* Last Updated */}
-            <Box sx={{ mb: 2 }}>
-              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.5, color: 'text.secondary' }}>
                 Last Updated
               </Typography>
               <Typography variant='body2'>
@@ -450,27 +477,44 @@ export default function TicketDetailPage() {
               </Typography>
             </Box>
 
-            {/* Status/Priority */}
-            <Box>
-              <Typography variant='caption' sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>
-                Status/Priority
+            {/* Status - Dropdown for superadmin */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 1, color: 'text.secondary' }}>
+                Status
               </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {isSuperadmin ? (
+                <FormControl fullWidth size='small'>
+                  <Select
+                    value={ticket.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={updatingStatus}
+                  >
+                    <MenuItem value='open'>Open</MenuItem>
+                    <MenuItem value='in_progress'>In Progress</MenuItem>
+                    <MenuItem value='closed'>Closed</MenuItem>
+                  </Select>
+                </FormControl>
+              ) : (
                 <Chip
                   label={ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).replace('_', ' ')}
                   color={getStatusColor(ticket.status)}
                   size='small'
                   variant='tonal'
-                  sx={{ width: 'fit-content' }}
                 />
-                <Chip
-                  label={ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
-                  color={ticket.priority === 'high' ? 'error' : ticket.priority === 'medium' ? 'warning' : 'default'}
-                  size='small'
-                  variant='tonal'
-                  sx={{ width: 'fit-content' }}
-                />
-              </Box>
+              )}
+            </Box>
+
+            {/* Priority */}
+            <Box>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 1, color: 'text.secondary' }}>
+                Priority
+              </Typography>
+              <Chip
+                label={ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                color={ticket.priority === 'high' ? 'error' : ticket.priority === 'medium' ? 'warning' : 'success'}
+                size='small'
+                variant='tonal'
+              />
             </Box>
           </CardContent>
         </Card>
