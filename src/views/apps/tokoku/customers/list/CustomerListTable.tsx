@@ -129,7 +129,6 @@ const CustomerListTable = () => {
   const fetchCustomers = useCallback(async () => {
     const storeUuid = currentStore?.uuid || currentStore?.id
     if (!storeUuid) {
-      console.warn('No current store UUID available for fetching customers')
       return
     }
 
@@ -185,7 +184,6 @@ const CustomerListTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch customers')
-      console.error('Error fetching customers:', err)
     } finally {
       setLoading(false)
     }

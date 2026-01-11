@@ -14,8 +14,6 @@ import Grid from '@mui/material/Grid2'
 import Chip from '@mui/material/Chip'
 import CircularProgress from '@mui/material/CircularProgress'
 import IconButton from '@mui/material/IconButton'
-import Tooltip from '@mui/material/Tooltip'
-import Alert from '@mui/material/Alert'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 
@@ -148,7 +146,6 @@ const AILogoTab = () => {
         }
       }
     } catch (error) {
-      console.error('Generate logo error:', error)
       toast.error(error instanceof Error ? error.message : 'Gagal generate logo. Silakan coba lagi.')
     } finally {
       setIsGenerating(false)
@@ -194,8 +191,6 @@ const AILogoTab = () => {
 
       toast.success('Logo berhasil didownload')
     } catch (error) {
-      console.error('Download error:', error)
-      
       // Fallback: open in new tab for manual download
       window.open(logo.imageUrl, '_blank')
       toast.info('Silakan klik kanan dan pilih "Save Image As" untuk download')
@@ -366,7 +361,7 @@ const AILogoTab = () => {
               <ToggleButtonGroup
                 value={selectedStyle}
                 exclusive
-                onChange={(e, newStyle) => {
+                onChange={(_, newStyle) => {
                   if (newStyle !== null) {
                     setSelectedStyle(newStyle)
                   }

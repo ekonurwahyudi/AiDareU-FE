@@ -147,7 +147,6 @@ const AIMergePhotoTab = () => {
         throw new Error(data.message || 'Gagal generate instruksi')
       }
     } catch (error) {
-      console.error('Generate instruction error:', error)
       // Set default instruction on error
       setInstruction('Gabungkan semua elemen dari foto-foto ini menjadi satu komposisi yang harmonis dan menarik.')
       toast.info('Menggunakan instruksi default')
@@ -212,7 +211,6 @@ const AIMergePhotoTab = () => {
         }
       }
     } catch (error) {
-      console.error('Generate error:', error)
       toast.error(error instanceof Error ? error.message : 'Gagal generate foto')
     } finally {
       setIsGenerating(false)
@@ -253,7 +251,6 @@ const AIMergePhotoTab = () => {
 
       toast.success('Foto berhasil didownload')
     } catch (error) {
-      console.error('Download error:', error)
       window.open(photo.imageUrl, '_blank')
       toast.info('Silakan klik kanan dan pilih "Save Image As"')
     } finally {

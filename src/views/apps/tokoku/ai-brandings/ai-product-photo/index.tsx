@@ -163,11 +163,9 @@ const AIProductPhotoTab = () => {
 //       console.log('Response data:', data)
 
       if (data.success) {
-//         console.log('Product photo results:', data.data)
         setPhotoResults(data.data)
         toast.success(data.message || 'Foto produk berhasil di-generate!')
       } else {
-        console.error('API Error:', data.message)
         if (data.insufficient_coin) {
           setCoinInfo({
             current: data.current_coin || 0,
@@ -179,7 +177,6 @@ const AIProductPhotoTab = () => {
         }
       }
     } catch (error) {
-      console.error('Generate error:', error)
       toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan saat generate foto produk')
     } finally {
       setIsGenerating(false)
@@ -229,8 +226,6 @@ const AIProductPhotoTab = () => {
       
       toast.success('Foto berhasil didownload')
     } catch (error) {
-      console.error('Download error:', error)
-      
       // Fallback: open in new tab for manual download
       window.open(photo.imageUrl, '_blank')
       toast.info('Silakan klik kanan dan pilih "Save Image As" untuk download')

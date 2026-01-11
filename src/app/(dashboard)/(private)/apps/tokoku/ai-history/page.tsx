@@ -60,7 +60,6 @@ const AIHistoryPage = () => {
       const authToken = localStorage.getItem('auth_token')
 
       if (!authToken) {
-        console.error('No auth token found')
         return
       }
 
@@ -90,11 +89,9 @@ const AIHistoryPage = () => {
             total: result.data.total || 0
           })
         }
-      } else {
-        console.error('Failed to fetch histories')
       }
     } catch (error) {
-      console.error('Error fetching histories:', error)
+      // Silent fail
     } finally {
       setLoading(false)
     }
@@ -143,7 +140,6 @@ const AIHistoryPage = () => {
         document.body.removeChild(a)
       }, 100)
     } catch (error) {
-      console.error('Error downloading image:', error)
       // Fallback: open in new tab
       window.open(imageUrl, '_blank')
     }
