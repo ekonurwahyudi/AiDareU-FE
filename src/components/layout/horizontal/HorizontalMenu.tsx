@@ -178,7 +178,7 @@ const HorizontalMenu = () => {
             <MenuItem href="/apps/tokoku/customers" activeUrl='/apps/tokoku/customers' exactMatch={false}  icon={<i className='tabler-users' />}>
               List Customer
             </MenuItem>
-            <MenuItem href="/apps/tokoku/ai-brandings" activeUrl='/apps/tokoku/ai-brandings' exactMatch={false}  icon={<i className='tabler-sparkles-2' />}
+            <MenuItem href="/apps/tokoku/ai-brandings" activeUrl='/apps/tokoku/ai-brandings' exactMatch={false}  icon={<i className='tabler-wand' />}
               suffix={<CustomChip label="New" size="small" variant="tonal" color="error" round="true" />}
             >
               Ai Brandings
