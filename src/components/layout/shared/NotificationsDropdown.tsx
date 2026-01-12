@@ -18,7 +18,6 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import Tooltip from '@mui/material/Tooltip'
 import Divider from '@mui/material/Divider'
-import Avatar from '@mui/material/Avatar'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Button from '@mui/material/Button'
 import type { Theme } from '@mui/material/styles'
@@ -30,7 +29,6 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
 import type { ThemeColor } from '@core/types'
-import type { CustomAvatarProps } from '@core/components/mui/Avatar'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
@@ -145,9 +143,6 @@ const NotificationDropdown = () => {
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
   const isSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
   const { settings } = useSettings()
-
-  // Check if all notifications are read
-  const readAll = notifications.every(n => n.is_read)
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
@@ -326,15 +321,6 @@ const NotificationDropdown = () => {
     }
   }
 
-  // Toggle read status
-  const handleReadNotification = async (event: MouseEvent<HTMLElement>, notification: NotificationsType) => {
-    event.stopPropagation()
-
-    if (!notification.is_read) {
-      await markAsRead(notification.id)
-    }
-  }
-
   // Remove notification (soft delete)
   const handleRemoveNotification = async (event: MouseEvent<HTMLElement>, id: number) => {
     event.stopPropagation()
@@ -461,12 +447,26 @@ const NotificationDropdown = () => {
         anchorEl={anchorRef.current}
         {...(isSmallScreen
           ? {
-              className: 'is-full !mbs-3 z-[1] max-bs-[550px] bs-[550px]',
+              className: '!mbs-3 z-[1]',
+              sx: {
+                width: 'calc(100vw - 32px)',
+                maxWidth: '400px',
+                left: '16px !important',
+                right: '16px !important',
+                maxHeight: 'calc(100vh - 120px)',
+                height: 'auto'
+              },
               modifiers: [
                 {
                   name: 'preventOverflow',
                   options: {
-                    padding: themeConfig.layoutPadding
+                    padding: 16
+                  }
+                },
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 8]
                   }
                 }
               ]
@@ -475,11 +475,20 @@ const NotificationDropdown = () => {
       >
         {({ TransitionProps, placement }) => (
           <Fade {...TransitionProps} style={{ transformOrigin: placement === 'bottom-end' ? 'right top' : 'left top' }}>
-            <Paper className={classnames('bs-full', settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg')}>
+            <Paper 
+              className={classnames('bs-full', settings.skin === 'bordered' ? 'border shadow-none' : 'shadow-lg')}
+              sx={{
+                maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : '550px',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                borderRadius: isSmallScreen ? '12px' : undefined
+              }}
+            >
               <ClickAwayListener onClickAway={handleClose}>
                 <div className='bs-full flex flex-col'>
-                  <div className='flex items-center justify-between plb-3.5 pli-4 is-full gap-2'>
-                    <Typography variant='h6' className='flex-auto'>
+                  <div className='flex items-center justify-between plb-3 pli-4 is-full gap-2 flex-shrink-0'>
+                    <Typography variant='h6' className='flex-auto' sx={{ fontSize: isSmallScreen ? '1rem' : undefined }}>
                       Notifications
                     </Typography>
                     {unreadCount > 0 && (
@@ -498,6 +507,7 @@ const NotificationDropdown = () => {
                   </div>
                   <Divider />
                   <ScrollWrapper hidden={hidden}>
+                    <div style={{ maxHeight: isSmallScreen ? 'calc(100vh - 250px)' : '400px', overflowY: 'auto' }}>
                     {loading ? (
                       <div className='flex flex-col items-center justify-center p-8'>
                         <CircularProgress size={32} />
@@ -510,44 +520,63 @@ const NotificationDropdown = () => {
                         return (
                           <div
                             key={notification.id}
-                            className={classnames('flex flex-col plb-3 pli-4 gap-3 cursor-pointer hover:bg-actionHover group', {
+                            className={classnames('flex flex-col plb-3 pli-4 gap-2 cursor-pointer hover:bg-actionHover group', {
                               'border-be': true,
                               'bg-actionHover bg-opacity-10': !notification.is_read
                             })}
                             onClick={() => handleNotificationClick(notification)}
                           >
                             <div className='flex gap-3'>
-                              {getAvatar({
-                                icon: notification.icon,
-                                color: notification.color,
-                                title: notification.title
-                              })}
-                              <div className='flex flex-col flex-auto'>
-                                <Typography variant='body2' className='font-medium mbe-1' color='text.primary'>
-                                  {notification.title}
-                                </Typography>
+                              <div className='flex-shrink-0'>
+                                {getAvatar({
+                                  icon: notification.icon,
+                                  color: notification.color,
+                                  title: notification.title
+                                })}
+                              </div>
+                              <div className='flex flex-col flex-auto min-w-0'>
+                                <div className='flex items-start justify-between gap-2'>
+                                  <Typography 
+                                    variant='body2' 
+                                    className='font-medium mbe-0.5' 
+                                    color='text.primary'
+                                    sx={{ 
+                                      wordBreak: 'break-word',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden'
+                                    }}
+                                  >
+                                    {!notification.is_read && (
+                                      <span className='inline-block w-2 h-2 rounded-full bg-primary mr-1.5 align-middle' />
+                                    )}
+                                    {notification.title}
+                                  </Typography>
+                                  <i
+                                    className='tabler-x text-lg flex-shrink-0 opacity-0 group-hover:opacity-100 cursor-pointer text-textSecondary hover:text-error transition-opacity'
+                                    onClick={e => handleRemoveNotification(e, notification.id)}
+                                  />
+                                </div>
                                 {notification.description && (
-                                  <Typography variant='caption' color='text.secondary' className='mbe-2'>
+                                  <Typography 
+                                    variant='caption' 
+                                    color='text.secondary' 
+                                    className='mbe-1'
+                                    sx={{
+                                      wordBreak: 'break-word',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden'
+                                    }}
+                                  >
                                     {notification.description}
                                   </Typography>
                                 )}
-                                <Typography variant='caption' color='text.disabled'>
+                                <Typography variant='caption' color='text.disabled' sx={{ fontSize: '0.7rem' }}>
                                   {formatTimeAgo(notification.created_at)}
                                 </Typography>
-                              </div>
-                              <div className='flex flex-col items-end gap-2'>
-                                <Badge
-                                  variant='dot'
-                                  color={notification.is_read ? 'secondary' : 'primary'}
-                                  onClick={e => handleReadNotification(e, notification)}
-                                  className={classnames('mbs-1 mie-1', {
-                                    'invisible group-hover:visible': notification.is_read
-                                  })}
-                                />
-                                <i
-                                  className='tabler-x text-xl invisible group-hover:visible cursor-pointer'
-                                  onClick={e => handleRemoveNotification(e, notification.id)}
-                                />
                               </div>
                             </div>
                           </div>
@@ -555,15 +584,16 @@ const NotificationDropdown = () => {
                       })
                     ) : (
                       <div className='flex flex-col items-center justify-center p-8'>
-                        <i className='tabler-bell-off text-6xl text-textDisabled mb-2' />
+                        <i className='tabler-bell-off text-5xl text-textDisabled mb-2' />
                         <Typography variant='body2' color='text.secondary'>
                           No notifications
                         </Typography>
                       </div>
                     )}
+                    </div>
                   </ScrollWrapper>
                   <Divider />
-                  <div className='p-4'>
+                  <div className='p-3 flex-shrink-0'>
                     <Button fullWidth variant='contained' size='small' onClick={handleViewAllNotifications}>
                       View All Notifications
                     </Button>

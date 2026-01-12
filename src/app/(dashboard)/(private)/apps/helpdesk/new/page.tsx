@@ -179,9 +179,10 @@ export default function NewTicketPage() {
                 <CardHeader 
                   title='Informasi Tiket' 
                   titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ pb: 2 }}
                 />
                 <Divider />
-                <CardContent>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
                   <TextField
                     fullWidth
                     required
@@ -189,7 +190,7 @@ export default function NewTicketPage() {
                     placeholder='Jelaskan masalah Anda secara singkat'
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    inputProps={{ maxLength: 255 }}
+                    slotProps={{ htmlInput: { maxLength: 255 } }}
                   />
                 </CardContent>
               </Card>
@@ -200,9 +201,10 @@ export default function NewTicketPage() {
                   title='Deskripsi Masalah'
                   subheader='Jelaskan masalah Anda secara detail'
                   titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ pb: 2 }}
                 />
                 <Divider />
-                <CardContent>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
                   <Box sx={{ '& .ProseMirror': { minHeight: '200px !important' } }}>
                     <TiptapEditor
                       content={formData.message}
@@ -210,7 +212,7 @@ export default function NewTicketPage() {
                       placeholder='Tulis deskripsi masalah Anda di sini...'
                     />
                   </Box>
-                  <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
+                  <Typography variant='caption' color='text.secondary' sx={{ mt: 2, display: 'block' }}>
                     {formData.message.replace(/<[^>]*>/g, '').length} / 10000 karakter
                   </Typography>
                 </CardContent>
@@ -222,9 +224,10 @@ export default function NewTicketPage() {
                   title='Lampiran' 
                   subheader='Upload file pendukung (opsional)' 
                   titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ pb: 2 }}
                 />
                 <Divider />
-                <CardContent>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
                   <Button
                     variant='outlined'
                     component='label'
@@ -238,11 +241,11 @@ export default function NewTicketPage() {
                       accept='.jpg,.jpeg,.gif,.png,.zip,.gz,.txt,.pdf'
                     />
                   </Button>
-                  <Typography variant='caption' display='block' color='text.secondary' sx={{ mt: 1 }}>
+                  <Typography variant='caption' display='block' color='text.secondary' sx={{ mt: 2 }}>
                     Allowed: JPG, PNG, GIF, ZIP, GZ, TXT, PDF (Max 30MB)
                   </Typography>
                   {attachment && (
-                    <Box sx={{ mt: 2, p: 2, bgcolor: 'action.hover', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
                       <i className='tabler-file' />
                       <Typography variant='body2' sx={{ flex: 1 }}>{attachment.name}</Typography>
                       <Button
@@ -265,16 +268,16 @@ export default function NewTicketPage() {
                 <CardHeader 
                   title='Informasi Pengirim' 
                   titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ pb: 2 }}
                 />
                 <Divider />
-                <CardContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <TextField
                       fullWidth
                       label='Nama'
                       value={userData?.name || ''}
                       disabled
-                      size='small'
                     />
                     <TextField
                       fullWidth
@@ -282,7 +285,6 @@ export default function NewTicketPage() {
                       type='email'
                       value={userData?.email || ''}
                       disabled
-                      size='small'
                     />
                   </Box>
                 </CardContent>
@@ -293,11 +295,12 @@ export default function NewTicketPage() {
                 <CardHeader 
                   title='Kategori Tiket' 
                   titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ pb: 2 }}
                 />
                 <Divider />
-                <CardContent>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <FormControl fullWidth required size='small'>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <FormControl fullWidth required>
                       <InputLabel>Department</InputLabel>
                       <Select
                         value={formData.department}
@@ -310,7 +313,7 @@ export default function NewTicketPage() {
                       </Select>
                     </FormControl>
 
-                    <FormControl fullWidth required size='small'>
+                    <FormControl fullWidth required>
                       <InputLabel>Kategori</InputLabel>
                       <Select
                         value={formData.category}
@@ -328,16 +331,15 @@ export default function NewTicketPage() {
                       <TextField
                         fullWidth
                         required
-                        size='small'
                         label='Kategori Lainnya'
                         placeholder='Masukkan kategori'
                         value={formData.customCategory}
                         onChange={(e) => setFormData({ ...formData, customCategory: e.target.value })}
-                        inputProps={{ maxLength: 100 }}
+                        slotProps={{ htmlInput: { maxLength: 100 } }}
                       />
                     )}
 
-                    <FormControl fullWidth required size='small'>
+                    <FormControl fullWidth required>
                       <InputLabel>Priority</InputLabel>
                       <Select
                         value={formData.priority}
@@ -355,7 +357,7 @@ export default function NewTicketPage() {
 
               {/* Action Buttons */}
               <Card>
-                <CardContent>
+                <CardContent sx={{ pt: 4, pb: 4 }}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Button
                       type='submit'
