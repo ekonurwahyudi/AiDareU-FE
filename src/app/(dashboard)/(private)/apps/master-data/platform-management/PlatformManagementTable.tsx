@@ -45,6 +45,7 @@ import * as XLSX from 'xlsx'
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Context Imports
 import { useRBAC } from '@/contexts/rbacContext'
@@ -106,8 +107,8 @@ type PlatformFormData = {
   coin_user: number
   kuota_user: number
   domain: string
-  tgl_mulai: string
-  tgl_akhir: string
+  tgl_mulai: Date | null
+  tgl_akhir: Date | null
 }
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -184,10 +185,12 @@ const PlatformManagementTable = () => {
     coin_user: 0,
     kuota_user: 0,
     domain: '',
-    tgl_mulai: '',
-    tgl_akhir: ''
+    tgl_mulai: null,
+    tgl_akhir: null
   })
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [logoFooterPreview, setLogoFooterPreview] = useState<string | null>(null)
 
   const debouncedSearch = useDebounce(globalFilter, 300)
 
@@ -339,10 +342,12 @@ const PlatformManagementTable = () => {
       coin_user: 0,
       kuota_user: 0,
       domain: '',
-      tgl_mulai: '',
-      tgl_akhir: ''
+      tgl_mulai: null,
+      tgl_akhir: null
     })
     setFormErrors({})
+    setLogoPreview(null)
+    setLogoFooterPreview(null)
     setDialogOpen(true)
   }
 
@@ -364,10 +369,24 @@ const PlatformManagementTable = () => {
       coin_user: platform.coin_user,
       kuota_user: platform.kuota_user,
       domain: platform.domain,
-      tgl_mulai: platform.tgl_mulai.split('T')[0],
-      tgl_akhir: platform.tgl_akhir.split('T')[0]
+      tgl_mulai: new Date(platform.tgl_mulai),
+      tgl_akhir: new Date(platform.tgl_akhir)
     })
     setFormErrors({})
+
+    // Set preview for existing images
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    if (platform.logo) {
+      setLogoPreview(`${apiUrl}/storage/${platform.logo}`)
+    } else {
+      setLogoPreview(null)
+    }
+    if (platform.logo_footer) {
+      setLogoFooterPreview(`${apiUrl}/storage/${platform.logo_footer}`)
+    } else {
+      setLogoFooterPreview(null)
+    }
+
     setDialogOpen(true)
   }
 
@@ -409,7 +428,7 @@ const PlatformManagementTable = () => {
     }
     if (!formData.tgl_akhir) {
       errors.tgl_akhir = 'Tgl Akhir is required'
-    } else if (formData.tgl_mulai && formData.tgl_akhir <= formData.tgl_mulai) {
+    } else if (formData.tgl_mulai && formData.tgl_akhir && formData.tgl_akhir <= formData.tgl_mulai) {
       errors.tgl_akhir = 'Tgl Akhir must be after Tgl Mulai'
     }
 
@@ -456,8 +475,16 @@ const PlatformManagementTable = () => {
       formDataToSend.append('coin_user', String(formData.coin_user))
       formDataToSend.append('kuota_user', String(formData.kuota_user))
       formDataToSend.append('domain', formData.domain)
-      formDataToSend.append('tgl_mulai', formData.tgl_mulai)
-      formDataToSend.append('tgl_akhir', formData.tgl_akhir)
+
+      // Format dates to YYYY-MM-DD
+      if (formData.tgl_mulai) {
+        const tglMulai = new Date(formData.tgl_mulai)
+        formDataToSend.append('tgl_mulai', tglMulai.toISOString().split('T')[0])
+      }
+      if (formData.tgl_akhir) {
+        const tglAkhir = new Date(formData.tgl_akhir)
+        formDataToSend.append('tgl_akhir', tglAkhir.toISOString().split('T')[0])
+      }
 
       if (formData.file) {
         formDataToSend.append('file', formData.file)
@@ -999,30 +1026,40 @@ const PlatformManagementTable = () => {
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label="Tgl Mulai"
-                required
-                type="date"
-                value={formData.tgl_mulai}
-                onChange={e => setFormData(prev => ({ ...prev, tgl_mulai: e.target.value }))}
-                error={!!formErrors.tgl_mulai}
-                helperText={formErrors.tgl_mulai}
-                InputLabelProps={{ shrink: true }}
+              <AppReactDatepicker
+                showMonthDropdown
+                showYearDropdown
+                selected={formData.tgl_mulai}
+                id='tgl-mulai'
+                placeholderText='MM/DD/YYYY'
+                onChange={(date: Date | null) => setFormData(prev => ({ ...prev, tgl_mulai: date }))}
+                customInput={
+                  <CustomTextField
+                    label='Tgl Mulai *'
+                    fullWidth
+                    error={!!formErrors.tgl_mulai}
+                    helperText={formErrors.tgl_mulai}
+                  />
+                }
               />
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label="Tgl Akhir"
-                required
-                type="date"
-                value={formData.tgl_akhir}
-                onChange={e => setFormData(prev => ({ ...prev, tgl_akhir: e.target.value }))}
-                error={!!formErrors.tgl_akhir}
-                helperText={formErrors.tgl_akhir}
-                InputLabelProps={{ shrink: true }}
+              <AppReactDatepicker
+                showMonthDropdown
+                showYearDropdown
+                selected={formData.tgl_akhir}
+                id='tgl-akhir'
+                placeholderText='MM/DD/YYYY'
+                onChange={(date: Date | null) => setFormData(prev => ({ ...prev, tgl_akhir: date }))}
+                customInput={
+                  <CustomTextField
+                    label='Tgl Akhir *'
+                    fullWidth
+                    error={!!formErrors.tgl_akhir}
+                    helperText={formErrors.tgl_akhir}
+                  />
+                }
               />
             </Grid>
 
@@ -1030,102 +1067,157 @@ const PlatformManagementTable = () => {
               <Typography variant="subtitle2" className="mb-2">
                 File Kontrak (PDF/DOC)
               </Typography>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<i className='tabler-upload' />}
-              >
-                Upload File
-                <input
-                  type="file"
-                  hidden
-                  accept=".pdf,.doc,.docx"
-                  onChange={e => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      setFormData(prev => ({ ...prev, file }))
-                    }
-                  }}
-                />
-              </Button>
-              {formData.file && (
-                <Typography variant="caption" className="ml-2">
-                  {formData.file.name}
-                </Typography>
-              )}
-              {platformToEdit?.file && !formData.file && (
-                <Typography variant="caption" className="ml-2 text-success">
-                  Current file exists
-                </Typography>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<i className='tabler-upload' />}
+                >
+                  Upload File
+                  <input
+                    type="file"
+                    hidden
+                    accept=".pdf,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setFormData(prev => ({ ...prev, file }))
+                      }
+                    }}
+                  />
+                </Button>
+                {formData.file && (
+                  <Typography variant="caption" className="text-success">
+                    {formData.file.name}
+                  </Typography>
+                )}
+                {platformToEdit?.file && !formData.file && (
+                  <Button
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    startIcon={<i className='tabler-file-text' />}
+                    onClick={() => {
+                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+                      window.open(`${apiUrl}/storage/${platformToEdit.file}`, '_blank')
+                    }}
+                  >
+                    View Document
+                  </Button>
+                )}
+              </div>
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="subtitle2" className="mb-2">
                 Logo (PNG/JPG)
               </Typography>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<i className='tabler-upload' />}
-              >
-                Upload Logo
-                <input
-                  type="file"
-                  hidden
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={e => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      setFormData(prev => ({ ...prev, logo: file }))
-                    }
-                  }}
-                />
-              </Button>
-              {formData.logo && (
-                <Typography variant="caption" className="ml-2">
-                  {formData.logo.name}
-                </Typography>
-              )}
-              {platformToEdit?.logo && !formData.logo && (
-                <Typography variant="caption" className="ml-2 text-success">
-                  Current logo exists
-                </Typography>
-              )}
+              <div className="flex flex-col gap-2">
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<i className='tabler-upload' />}
+                >
+                  Upload Logo
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setFormData(prev => ({ ...prev, logo: file }))
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                          setLogoPreview(reader.result as string)
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    }}
+                  />
+                </Button>
+                {formData.logo && (
+                  <Typography variant="caption" className="text-success">
+                    {formData.logo.name}
+                  </Typography>
+                )}
+                {logoPreview && (
+                  <div className="relative inline-block w-32 h-32">
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      className="w-full h-full object-contain border rounded"
+                    />
+                    <IconButton
+                      size="small"
+                      color="error"
+                      className="absolute -top-2 -right-2 bg-white"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, logo: null }))
+                        setLogoPreview(null)
+                      }}
+                    >
+                      <i className='tabler-x' />
+                    </IconButton>
+                  </div>
+                )}
+              </div>
             </Grid>
 
             <Grid size={{ xs: 12, sm: 6 }}>
               <Typography variant="subtitle2" className="mb-2">
                 Logo Footer (PNG/JPG)
               </Typography>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<i className='tabler-upload' />}
-              >
-                Upload Logo Footer
-                <input
-                  type="file"
-                  hidden
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={e => {
-                    const file = e.target.files?.[0]
-                    if (file) {
-                      setFormData(prev => ({ ...prev, logo_footer: file }))
-                    }
-                  }}
-                />
-              </Button>
-              {formData.logo_footer && (
-                <Typography variant="caption" className="ml-2">
-                  {formData.logo_footer.name}
-                </Typography>
-              )}
-              {platformToEdit?.logo_footer && !formData.logo_footer && (
-                <Typography variant="caption" className="ml-2 text-success">
-                  Current logo footer exists
-                </Typography>
-              )}
+              <div className="flex flex-col gap-2">
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<i className='tabler-upload' />}
+                >
+                  Upload Logo Footer
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={e => {
+                      const file = e.target.files?.[0]
+                      if (file) {
+                        setFormData(prev => ({ ...prev, logo_footer: file }))
+                        const reader = new FileReader()
+                        reader.onloadend = () => {
+                          setLogoFooterPreview(reader.result as string)
+                        }
+                        reader.readAsDataURL(file)
+                      }
+                    }}
+                  />
+                </Button>
+                {formData.logo_footer && (
+                  <Typography variant="caption" className="text-success">
+                    {formData.logo_footer.name}
+                  </Typography>
+                )}
+                {logoFooterPreview && (
+                  <div className="relative inline-block w-32 h-32">
+                    <img
+                      src={logoFooterPreview}
+                      alt="Logo footer preview"
+                      className="w-full h-full object-contain border rounded"
+                    />
+                    <IconButton
+                      size="small"
+                      color="error"
+                      className="absolute -top-2 -right-2 bg-white"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, logo_footer: null }))
+                        setLogoFooterPreview(null)
+                      }}
+                    >
+                      <i className='tabler-x' />
+                    </IconButton>
+                  </div>
+                )}
+              </div>
             </Grid>
           </Grid>
         </DialogContent>

@@ -213,6 +213,9 @@ const HorizontalMenu = () => {
               <MenuItem href="/apps/master-data/user-management" icon={<i className='tabler-user-screen' />}>
                 User Management
               </MenuItem>
+              <MenuItem href="/apps/master-data/platform-management" icon={<i className='tabler-building-store' />}>
+                Platform Management
+              </MenuItem>
               <MenuItem href="#" icon={<i className='tabler-building-store' />}>
                 Toko Management
               </MenuItem>
