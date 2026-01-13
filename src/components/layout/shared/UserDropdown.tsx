@@ -270,18 +270,25 @@ const UserDropdown = () => {
                             objectFit: 'contain'
                           }}
                           onError={(e: any) => {
+                            // Hide broken image and show fallback chip
                             e.target.style.display = 'none'
+                            const fallback = e.target.nextSibling
+                            if (fallback) fallback.style.display = 'inline-flex'
                           }}
                         />
-                      ) : (
-                        <Chip
-                          label={user?.paket || 'Free'}
-                          size='small'
-                          color='success'
-                          variant='tonal'
-                          sx={{ ml: 2, height: '20px', fontSize: '0.75rem' }}
-                        />
-                      )}
+                      ) : null}
+                      <Chip
+                        label={user?.paket || 'Free'}
+                        size='small'
+                        color='success'
+                        variant='tonal'
+                        sx={{ 
+                          ml: 2, 
+                          height: '20px', 
+                          fontSize: '0.75rem',
+                          display: platformpreneur?.logo ? 'none' : 'inline-flex'
+                        }}
+                      />
                     </div>
                   </MenuItem>
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/pricing')}>
