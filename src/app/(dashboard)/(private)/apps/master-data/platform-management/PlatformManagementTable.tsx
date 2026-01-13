@@ -254,7 +254,6 @@ const PlatformManagementTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch platforms')
-      console.error('Error fetching platforms:', err)
     } finally {
       setLoading(false)
     }
@@ -323,7 +322,6 @@ const PlatformManagementTable = () => {
 
       XLSX.writeFile(wb, filename)
     } catch (err) {
-      console.error('Error exporting to Excel:', err)
       setError('Failed to export data to Excel')
     }
   }
@@ -533,7 +531,6 @@ const PlatformManagementTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save platform')
-      console.error('Error saving platform:', err)
     } finally {
       setSaving(false)
     }
@@ -596,7 +593,6 @@ const PlatformManagementTable = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete platform')
-      console.error('Error deleting platform:', err)
     } finally {
       setDeleting(false)
     }

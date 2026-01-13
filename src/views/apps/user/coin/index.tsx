@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, forwardRef } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -10,6 +10,7 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
+import type { TextFieldProps } from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Alert from '@mui/material/Alert'
@@ -19,18 +20,28 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Pagination from '@mui/material/Pagination'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
-import Popover from '@mui/material/Popover'
+
+// Third-party Imports
+import { format } from 'date-fns'
 
 // Component Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 import CustomTextField from '@core/components/mui/TextField'
 import TopUpModal from '@/components/TopUpModal'
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Icon Imports
 import { Icon } from '@iconify/react'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
+
+// Custom Input Props Type
+type CustomInputProps = TextFieldProps & {
+  label: string
+  end: Date | number
+  start: Date | number
+}
 
 // Type Imports
 interface CoinTransaction {
@@ -55,6 +66,18 @@ interface PaginationData {
   total: number
 }
 
+// Custom Input Component
+const CustomInput = forwardRef((props: CustomInputProps, ref) => {
+  const { label, start, end, ...rest } = props
+
+  const startDate = start ? format(start, 'MM/dd/yyyy') : ''
+  const endDate = end !== null && end ? ` - ${format(end, 'MM/dd/yyyy')}` : null
+
+  const value = startDate ? `${startDate}${endDate !== null ? endDate : ''}` : 'Pilih Range Tanggal'
+
+  return <CustomTextField fullWidth inputRef={ref} {...rest} label={label} value={value} size='small' />
+})
+
 const CoinAiDareU = () => {
   // States
   const [transactions, setTransactions] = useState<CoinTransaction[]>([])
@@ -66,8 +89,8 @@ const CoinAiDareU = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
-  const [dateRangeAnchor, setDateRangeAnchor] = useState<null | HTMLElement>(null)
+  const [startDate, setStartDate] = useState<Date | null | undefined>(null)
+  const [endDate, setEndDate] = useState<Date | null | undefined>(null)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [pagination, setPagination] = useState<PaginationData>({
@@ -90,6 +113,13 @@ const CoinAiDareU = () => {
     return `${year}-${month}-${day}`
   }
 
+  // Handle date range change
+  const handleOnChangeRange = (dates: any) => {
+    const [start, end] = dates
+    setStartDate(start)
+    setEndDate(end)
+  }
+
   // Fetch summary data
   const fetchSummary = async () => {
     try {
@@ -101,11 +131,11 @@ const CoinAiDareU = () => {
 
       const params = new URLSearchParams()
 
-      const startDate = formatDateForAPI(dateRange[0])
-      const endDate = formatDateForAPI(dateRange[1])
+      const startDateStr = formatDateForAPI(startDate as Date | null)
+      const endDateStr = formatDateForAPI(endDate as Date | null)
 
-      if (startDate) params.append('start_date', startDate)
-      if (endDate) params.append('end_date', endDate)
+      if (startDateStr) params.append('start_date', startDateStr)
+      if (endDateStr) params.append('end_date', endDateStr)
 
       const response = await fetch(`${backendUrl}/api/coins/summary?${params.toString()}`, {
         method: 'GET',
@@ -151,11 +181,11 @@ const CoinAiDareU = () => {
 
       if (search) params.append('search', search)
 
-      const startDate = formatDateForAPI(dateRange[0])
-      const endDate = formatDateForAPI(dateRange[1])
+      const startDateStr = formatDateForAPI(startDate as Date | null)
+      const endDateStr = formatDateForAPI(endDate as Date | null)
 
-      if (startDate) params.append('start_date', startDate)
-      if (endDate) params.append('end_date', endDate)
+      if (startDateStr) params.append('start_date', startDateStr)
+      if (endDateStr) params.append('end_date', endDateStr)
 
       const response = await fetch(`${backendUrl}/api/coins?${params.toString()}`, {
         method: 'GET',
@@ -207,29 +237,13 @@ const CoinAiDareU = () => {
   // Handle filter reset
   const handleResetFilter = () => {
     setSearch('')
-    setDateRange([null, null])
+    setStartDate(null)
+    setEndDate(null)
     setPage(0)
     setTimeout(() => {
       fetchTransactions()
       fetchSummary()
     }, 100)
-  }
-
-  // Format date range display
-  const formatDateRangeDisplay = () => {
-    const [start, end] = dateRange
-    if (!start && !end) return 'Pilih Range Tanggal'
-
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-    }
-
-    if (start && end) {
-      return `${formatDate(start)} - ${formatDate(end)}`
-    } else if (start) {
-      return `${formatDate(start)} - ...`
-    }
-    return 'Pilih Range Tanggal'
   }
 
   // Handle export
@@ -244,11 +258,11 @@ const CoinAiDareU = () => {
 
       const params = new URLSearchParams()
 
-      const startDate = formatDateForAPI(dateRange[0])
-      const endDate = formatDateForAPI(dateRange[1])
+      const startDateStr = formatDateForAPI(startDate as Date | null)
+      const endDateStr = formatDateForAPI(endDate as Date | null)
 
-      if (startDate) params.append('start_date', startDate)
-      if (endDate) params.append('end_date', endDate)
+      if (startDateStr) params.append('start_date', startDateStr)
+      if (endDateStr) params.append('end_date', endDateStr)
 
       // Create a temporary link and trigger download
       const response = await fetch(`${backendUrl}/api/coins/export?${params.toString()}`, {
@@ -448,122 +462,29 @@ const CoinAiDareU = () => {
                 />
 
                 {/* Date Range Picker */}
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={e => setDateRangeAnchor(e.currentTarget)}
-                  startIcon={<Icon icon='mdi:calendar' fontSize={18} />}
-                  sx={{
-                    minWidth: 200,
-                    height: '40px',
-                    px: 1.5,
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  {formatDateRangeDisplay()}
-                </Button>
-
-                <Popover
-                  open={Boolean(dateRangeAnchor)}
-                  anchorEl={dateRangeAnchor}
-                  onClose={() => setDateRangeAnchor(null)}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-                >
-                  <Box sx={{ p: 2.5, minWidth: 340 }}>
-                    <Typography variant='subtitle2' sx={{ mb: 2, fontSize: '0.875rem', fontWeight: 600 }}>
-                      Pilih Range Tanggal
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                      <TextField
-                        fullWidth
-                        type='date'
-                        label='Dari Tanggal'
-                        value={dateRange[0] ? formatDateForAPI(dateRange[0]) : ''}
-                        onChange={e => {
-                          const newDate = e.target.value ? new Date(e.target.value) : null
-                          setDateRange([newDate, dateRange[1]])
-                        }}
-                        InputLabelProps={{ shrink: true }}
-                        size='small'
-                        sx={{
-                          '& .MuiInputBase-root': {
-                            height: '40px'
-                          },
-                          '& .MuiInputBase-input': {
-                            fontSize: '0.875rem',
-                            py: 1,
-                            height: '40px',
-                            boxSizing: 'border-box'
-                          },
-                          '& .MuiInputLabel-root': {
-                            fontSize: '0.875rem'
-                          }
-                        }}
+                <Box sx={{ minWidth: 300 }}>
+                  <AppReactDatepicker
+                    selectsRange
+                    monthsShown={2}
+                    showMonthDropdown
+                    showYearDropdown
+                    dropdownMode="select"
+                    endDate={endDate as Date}
+                    selected={startDate}
+                    startDate={startDate as Date}
+                    shouldCloseOnSelect={false}
+                    id='date-range-picker'
+                    dateFormat='MM/dd/yyyy'
+                    onChange={handleOnChangeRange}
+                    customInput={
+                      <CustomInput
+                        label='Pilih Range Tanggal'
+                        end={endDate as Date | number}
+                        start={startDate as Date | number}
                       />
-                      <TextField
-                        fullWidth
-                        type='date'
-                        label='Sampai Tanggal'
-                        value={dateRange[1] ? formatDateForAPI(dateRange[1]) : ''}
-                        onChange={e => {
-                          const newDate = e.target.value ? new Date(e.target.value) : null
-                          setDateRange([dateRange[0], newDate])
-                        }}
-                        InputLabelProps={{ shrink: true }}
-                        size='small'
-                        sx={{
-                          '& .MuiInputBase-root': {
-                            height: '40px'
-                          },
-                          '& .MuiInputBase-input': {
-                            fontSize: '0.875rem',
-                            py: 1,
-                            height: '40px',
-                            boxSizing: 'border-box'
-                          },
-                          '& .MuiInputLabel-root': {
-                            fontSize: '0.875rem'
-                          }
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 1.5, mt: 3, justifyContent: 'flex-end' }}>
-                      <Button
-                        size='small'
-                        onClick={() => {
-                          setDateRange([null, null])
-                          setDateRangeAnchor(null)
-                        }}
-                        sx={{
-                          fontSize: '0.8125rem',
-                          px: 2.5,
-                          py: 0.75,
-                          minWidth: 80,
-                          textTransform: 'none'
-                        }}
-                      >
-                        Clear
-                      </Button>
-                      <Button
-                        size='small'
-                        variant='contained'
-                        onClick={() => {
-                          setDateRangeAnchor(null)
-                          handleSearchSubmit()
-                        }}
-                        sx={{
-                          fontSize: '0.8125rem',
-                          px: 2.5,
-                          py: 0.75,
-                          minWidth: 80,
-                          textTransform: 'none'
-                        }}
-                      >
-                        Apply
-                      </Button>
-                    </Box>
-                  </Box>
-                </Popover>
+                    }
+                  />
+                </Box>
 
                 {/* Filter & Reset Buttons */}
                 <Button

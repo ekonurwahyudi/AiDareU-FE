@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from 'react'
 import type { MouseEvent } from 'react'
 
 // Next Imports
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
 import { styled } from '@mui/material/styles'
@@ -21,6 +21,7 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
+import Box from '@mui/material/Box'
 
 // Third-party Imports
 
@@ -46,6 +47,13 @@ const UserDropdown = () => {
   const [open, setOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [coinBalance, setCoinBalance] = useState<number>(0)
+  const [platformpreneur, setPlatformpreneur] = useState<{
+    username: string
+    judul: string
+    perusahaan: string
+    logo: string | null
+    logo_footer: string | null
+  } | null>(null)
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -83,6 +91,11 @@ const UserDropdown = () => {
           setUser(result.user)
           // Update localStorage with fresh data
           localStorage.setItem('user_data', JSON.stringify(result.user))
+          
+          // Set platformpreneur data if available
+          if (result.user.platformpreneur) {
+            setPlatformpreneur(result.user.platformpreneur)
+          }
         }
       }
     } catch (error) {
@@ -245,13 +258,30 @@ const UserDropdown = () => {
                     <i className='tabler-package' />
                     <div className='flex items-center justify-between flex-grow'>
                       <Typography color='text.primary'>Paket</Typography>
-                      <Chip
-                        label={user?.paket || 'Free'}
-                        size='small'
-                        color='success'
-                        variant='tonal'
-                        sx={{ ml: 2, height: '20px', fontSize: '0.75rem' }}
-                      />
+                      {platformpreneur?.logo ? (
+                        <Box
+                          component='img'
+                          src={`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${platformpreneur.logo}`}
+                          alt={platformpreneur.perusahaan || 'Partner'}
+                          sx={{
+                            ml: 2,
+                            height: '24px',
+                            maxWidth: '80px',
+                            objectFit: 'contain'
+                          }}
+                          onError={(e: any) => {
+                            e.target.style.display = 'none'
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={user?.paket || 'Free'}
+                          size='small'
+                          color='success'
+                          variant='tonal'
+                          sx={{ ml: 2, height: '20px', fontSize: '0.75rem' }}
+                        />
+                      )}
                     </div>
                   </MenuItem>
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/pages/pricing')}>
