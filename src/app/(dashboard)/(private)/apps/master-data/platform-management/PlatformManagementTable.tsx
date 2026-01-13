@@ -375,14 +375,14 @@ const PlatformManagementTable = () => {
     setFormErrors({})
 
     // Set preview for existing images
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
     if (platform.logo) {
-      setLogoPreview(`${apiUrl}/storage/${platform.logo}`)
+      setLogoPreview(`${backendUrl}/storage/${platform.logo}`)
     } else {
       setLogoPreview(null)
     }
     if (platform.logo_footer) {
-      setLogoFooterPreview(`${apiUrl}/storage/${platform.logo_footer}`)
+      setLogoFooterPreview(`${backendUrl}/storage/${platform.logo_footer}`)
     } else {
       setLogoFooterPreview(null)
     }
@@ -1029,9 +1029,11 @@ const PlatformManagementTable = () => {
               <AppReactDatepicker
                 showMonthDropdown
                 showYearDropdown
+                dropdownMode="select"
                 selected={formData.tgl_mulai}
                 id='tgl-mulai'
                 placeholderText='MM/DD/YYYY'
+                dateFormat='MM/dd/yyyy'
                 onChange={(date: Date | null) => setFormData(prev => ({ ...prev, tgl_mulai: date }))}
                 customInput={
                   <CustomTextField
@@ -1048,9 +1050,11 @@ const PlatformManagementTable = () => {
               <AppReactDatepicker
                 showMonthDropdown
                 showYearDropdown
+                dropdownMode="select"
                 selected={formData.tgl_akhir}
                 id='tgl-akhir'
                 placeholderText='MM/DD/YYYY'
+                dateFormat='MM/dd/yyyy'
                 onChange={(date: Date | null) => setFormData(prev => ({ ...prev, tgl_akhir: date }))}
                 customInput={
                   <CustomTextField
@@ -1098,8 +1102,8 @@ const PlatformManagementTable = () => {
                     color="primary"
                     startIcon={<i className='tabler-file-text' />}
                     onClick={() => {
-                      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-                      window.open(`${apiUrl}/storage/${platformToEdit.file}`, '_blank')
+                      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+                      window.open(`${backendUrl}/storage/${platformToEdit.file}`, '_blank')
                     }}
                   >
                     View Document

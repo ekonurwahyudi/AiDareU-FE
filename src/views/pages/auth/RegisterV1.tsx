@@ -1,10 +1,11 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Next Imports
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -55,20 +56,32 @@ const infoFromOptions = [
   { value: 'iklan', label: 'Iklan' },
   { value: 'google', label: 'Google' },
   { value: 'teman_saudara', label: 'Teman/Saudara' },
+  { value: 'umkdigital.id', label: 'UMKDigital.id' },
   { value: 'lainnya', label: 'Lainnya' }
 ]
+
+// Referral mapping
+const referralMapping: Record<string, string> = {
+  'umkdigital.id': 'umkdigital.id'
+}
 
 const RegisterV1 = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isInfoDariLocked, setIsInfoDariLocked] = useState(false)
+
+  // Get search params for referral
+  const searchParams = useSearchParams()
+  const referalParam = searchParams.get('referal')
 
   // Form
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors }
   } = useForm<RegisterFormData>({
     defaultValues: {
@@ -82,6 +95,17 @@ const RegisterV1 = () => {
       agreeToTerms: false
     }
   })
+
+  // Handle referral parameter
+  useEffect(() => {
+    if (referalParam) {
+      const referralValue = referralMapping[referalParam.toLowerCase()]
+      if (referralValue) {
+        setValue('infoDari', referralValue)
+        setIsInfoDariLocked(true)
+      }
+    }
+  }, [referalParam, setValue])
 
   const watchedPassword = watch('password')
   
@@ -425,7 +449,13 @@ const RegisterV1 = () => {
                   label='Info Dari'
                   placeholder='Pilih dari mana Anda mengetahui kami'
                   error={!!errors.infoDari}
-                  helperText={errors.infoDari?.message}
+                  helperText={isInfoDariLocked ? 'Diisi otomatis dari link referral' : errors.infoDari?.message}
+                  disabled={isInfoDariLocked}
+                  sx={isInfoDariLocked ? {
+                    '& .MuiInputBase-root': {
+                      backgroundColor: 'action.disabledBackground'
+                    }
+                  } : undefined}
                 >
                   {infoFromOptions.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
