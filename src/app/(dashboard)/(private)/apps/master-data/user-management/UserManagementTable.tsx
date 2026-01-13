@@ -201,6 +201,9 @@ const UserManagementTable = () => {
         queryParams.append('search', debouncedSearch)
       }
 
+      // Add cache-busting parameter to prevent browser caching
+      queryParams.append('_t', String(Date.now()))
+
       // Get auth headers
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -225,6 +228,7 @@ const UserManagementTable = () => {
 
       const response = await fetch(`${apiUrl}/management/users?${queryParams.toString()}`, {
         credentials: 'include',
+        cache: 'no-store',
         headers
       })
 
@@ -1010,11 +1014,21 @@ const UserManagementTable = () => {
             />
 
             <CustomTextField
+              select
               fullWidth
               label="Info Dari"
               value={formData.info_dari}
               onChange={e => setFormData(prev => ({ ...prev, info_dari: e.target.value }))}
-            />
+            >
+              <MenuItem value="">Pilih Info Dari</MenuItem>
+              <MenuItem value="sosial_media">Sosial Media</MenuItem>
+              <MenuItem value="grup_komunitas">Grup Komunitas</MenuItem>
+              <MenuItem value="iklan">Iklan</MenuItem>
+              <MenuItem value="google">Google</MenuItem>
+              <MenuItem value="teman_saudara">Teman/Saudara</MenuItem>
+              <MenuItem value="umkdigital.id">umkdigital.id</MenuItem>
+              <MenuItem value="lainnya">Lainnya</MenuItem>
+            </CustomTextField>
 
             <CustomTextField
               fullWidth

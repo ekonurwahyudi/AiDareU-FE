@@ -210,6 +210,9 @@ const PlatformManagementTable = () => {
         queryParams.append('search', debouncedSearch)
       }
 
+      // Add cache-busting parameter to prevent browser caching
+      queryParams.append('_t', String(Date.now()))
+
       // Get auth headers
       const storedUserData = localStorage.getItem('user_data')
       const authToken = localStorage.getItem('auth_token')
@@ -233,6 +236,7 @@ const PlatformManagementTable = () => {
 
       const response = await fetch(`${apiUrl}/management/platforms?${queryParams.toString()}`, {
         credentials: 'include',
+        cache: 'no-store',
         headers
       })
 
