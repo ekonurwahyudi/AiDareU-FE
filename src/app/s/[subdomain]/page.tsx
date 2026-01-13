@@ -2137,7 +2137,7 @@ const DynamicStorePage = () => {
 
       
 
-      <LazyStoreFooter />
+      <LazyStoreFooter platformpreneur={storeData?.platformpreneur} />
 
       <LazyCartDrawer
         open={cartDrawerOpen}

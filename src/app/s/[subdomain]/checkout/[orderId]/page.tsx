@@ -1051,7 +1051,7 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
         </Container>
       </Box>
 
-      <StoreFooter />
+      <StoreFooter platformpreneur={storeData?.platformpreneur} />
 
       <CartDrawer
         open={cartDrawerOpen}

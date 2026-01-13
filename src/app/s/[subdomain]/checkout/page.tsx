@@ -235,7 +235,7 @@ const CheckoutPage = () => {
         </Container>
       </Box>
 
-      <StoreFooter />
+      <StoreFooter platformpreneur={storeData?.platformpreneur} />
 
       <CartDrawer
         open={cartDrawerOpen}

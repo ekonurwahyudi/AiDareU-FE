@@ -10,11 +10,19 @@ const LoadingBox = ({ height = 400 }: { height?: number }) => (
   </Box>
 )
 
-// Lazy load StoreFooter
+// Lazy load StoreFooter with props support
 export const LazyStoreFooter = dynamic(() => import('@/components/store/StoreFooter'), {
   loading: () => <LoadingBox height={200} />,
   ssr: true
-})
+}) as React.ComponentType<{
+  platformpreneur?: {
+    username: string
+    judul: string
+    perusahaan: string
+    logo: string | null
+    logo_footer: string | null
+  } | null
+}>
 
 // Lazy load CartDrawer
 export const LazyCartDrawer = dynamic(() => import('@/components/store/CartDrawer'), {

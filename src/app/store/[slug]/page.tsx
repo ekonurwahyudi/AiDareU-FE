@@ -753,7 +753,7 @@ function ProductDetailPage() {
         <Container maxWidth="lg" sx={{ py: 8, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
           <CircularProgress size={60} sx={{ color: '#E91E63' }} />
         </Container>
-        <StoreFooter />
+        <StoreFooter platformpreneur={storeData?.platformpreneur} />
       </Box>
     )
   }
@@ -774,7 +774,7 @@ function ProductDetailPage() {
             Kembali ke Toko
           </Button>
         </Container>
-        <StoreFooter />
+        <StoreFooter platformpreneur={storeData?.platformpreneur} />
       </Box>
     )
   }
@@ -1053,7 +1053,7 @@ function ProductDetailPage() {
 
       {/* Hide footer on mobile for cleaner sticky footer experience */}
       <div ref={footerRef} style={{ display: isMobile ? 'none' : 'block' }}>
-        <StoreFooter />
+        <StoreFooter platformpreneur={storeData?.platformpreneur} />
       </div>
 
       <CartDrawer

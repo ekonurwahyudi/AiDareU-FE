@@ -1463,7 +1463,7 @@ const StorePage = () => {
 
       
 
-      <StoreFooter />
+      <StoreFooter platformpreneur={storeData?.platformpreneur} />
 
       <CartDrawer
         open={cartDrawerOpen}

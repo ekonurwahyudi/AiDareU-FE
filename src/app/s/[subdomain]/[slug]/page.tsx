@@ -1148,7 +1148,7 @@ ${currentUrl}`
             Kembali ke Toko
           </Button>
         </Container>
-        <StoreFooter />
+        <StoreFooter platformpreneur={storeData?.platformpreneur} />
       </Box>
     )
   }
@@ -1715,7 +1715,7 @@ ${currentUrl}`
 
       {/* Hide footer on mobile for cleaner sticky footer experience */}
       <div ref={footerRef} style={{ display: isMobile ? 'none' : 'block' }}>
-        <StoreFooter />
+        <StoreFooter platformpreneur={storeData?.platformpreneur} />
       </div>
 
       <CartDrawer
