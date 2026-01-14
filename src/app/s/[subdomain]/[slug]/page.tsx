@@ -1931,39 +1931,87 @@ ${currentUrl}`
               )}
 
               {storeData?.social_media?.shopee_url && (
-                <IconButton
+                <Button
                   onClick={() => window.open(storeData.social_media.shopee_url, '_blank')}
+                  variant="outlined"
                   sx={{
-                    bgcolor: '#EE4D2D',
-                    color: 'white',
-                    width: 44,
-                    height: 44,
+                    bgcolor: 'white',
+                    minWidth: { xs: 44, md: 120 },
+                    width: { xs: 44, md: 'auto' },
+                    height: { xs: 44, md: 44 },
+                    px: { xs: 0, md: 2 },
                     borderRadius: '12px',
+                    border: '1px solid #E2E8F0',
+                    textTransform: 'none',
+                    '& .MuiButton-startIcon': { m: 0, mr: { xs: 0, md: 1 } },
                     '&:hover': {
-                      bgcolor: '#D73211'
+                      bgcolor: '#FFF5F5',
+                      border: '1px solid #EE4D2D',
+                      '& img': {
+                        transform: 'scale(1.05)'
+                      }
                     }
                   }}
+                  startIcon={
+                    <Box
+                      component="img"
+                      src="/images/store/Shopee.png"
+                      alt="Shopee"
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        objectFit: 'contain',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  }
                 >
-                  <Box component="span" sx={{ fontSize: '14px', fontWeight: 'bold' }}>S</Box>
-                </IconButton>
+                  <Box sx={{ display: { xs: 'none', md: 'block' }, fontSize: '0.875rem', fontWeight: 600, color: '#EE4D2D' }}>
+                    Shopee
+                  </Box>
+                </Button>
               )}
 
               {storeData?.social_media?.tokopedia_url && (
-                <IconButton
+                <Button
                   onClick={() => window.open(storeData.social_media.tokopedia_url, '_blank')}
+                  variant="outlined"
                   sx={{
-                    bgcolor: '#42B549',
-                    color: 'white',
-                    width: 44,
-                    height: 44,
+                    bgcolor: 'white',
+                    minWidth: { xs: 44, md: 130 },
+                    width: { xs: 44, md: 'auto' },
+                    height: { xs: 44, md: 44 },
+                    px: { xs: 0, md: 2 },
                     borderRadius: '12px',
+                    border: '1px solid #E2E8F0',
+                    textTransform: 'none',
+                    '& .MuiButton-startIcon': { m: 0, mr: { xs: 0, md: 1 } },
                     '&:hover': {
-                      bgcolor: '#2E8B57'
+                      bgcolor: '#F0FDF4',
+                      border: '1px solid #42B549',
+                      '& img': {
+                        transform: 'scale(1.05)'
+                      }
                     }
                   }}
+                  startIcon={
+                    <Box
+                      component="img"
+                      src="/images/store/Tokopedia.png"
+                      alt="Tokopedia"
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        objectFit: 'contain',
+                        transition: 'transform 0.2s'
+                      }}
+                    />
+                  }
                 >
-                  <Box component="span" sx={{ fontSize: '14px', fontWeight: 'bold' }}>T</Box>
-                </IconButton>
+                  <Box sx={{ display: { xs: 'none', md: 'block' }, fontSize: '0.875rem', fontWeight: 600, color: '#42B549' }}>
+                    Tokopedia
+                  </Box>
+                </Button>
               )}
 
               {/* Cart and Buy Now buttons - Only show if cart enabled */}

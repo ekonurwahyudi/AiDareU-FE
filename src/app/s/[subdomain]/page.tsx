@@ -113,16 +113,16 @@ interface Product {
   brand?: string | null
   price: number
   salePrice?: number | null
-  rating: number
-  reviews: number
+  rating?: number
+  reviews?: number
   image: string
   colors?: Array<{ name: string; value: string }> | null
-  isNew: boolean
-  inStock: boolean
+  isNew?: boolean
+  inStock?: boolean
   slug?: string
   uuid?: string
   storeUuid?: string // tambahkan UUID Store di product
-  jenis_produk?: 'digital' | 'fisik' | 'affiliate' | 'jasa' // Tipe produk
+  jenis_produk?: string // Tipe produk
   url_produk?: string // URL produk untuk digital dan affiliate
 }
 
