@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 
 // Next.js Imports
 import Link from 'next/link'
@@ -16,9 +16,6 @@ import {
   Box,
   Container,
   IconButton,
-  Menu,
-  MenuItem,
-  Badge,
   Drawer,
   List,
   ListItem,
@@ -28,8 +25,7 @@ import {
   TextField,
   InputAdornment,
   Paper,
-  ClickAwayListener,
-  Popper
+  ClickAwayListener
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
@@ -74,18 +70,6 @@ const NavButton = styled(Button)(({ theme }) => ({
   }
 }))
 
-const CartButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#E91E63',
-  color: 'white',
-  fontWeight: 'bold',
-  textTransform: 'none',
-  borderRadius: '8px',
-  padding: '8px 20px',
-  '&:hover': {
-    backgroundColor: '#C2185B'
-  }
-}))
-
 interface CartItem {
   id: string
   name: string
@@ -97,12 +81,21 @@ interface CartItem {
 
 interface Product {
   id: string
-  uuid: string
+  uuid?: string
   name: string
   price: number
   salePrice?: number | null
   image: string
   jenis_produk?: string
+  brand?: string | null
+  rating?: number
+  reviews?: number
+  isNew?: boolean
+  inStock?: boolean
+  slug?: string
+  storeUuid?: string
+  url_produk?: string
+  colors?: Array<{ name: string; value: string }> | null
 }
 
 interface StoreHeaderProps {
@@ -135,7 +128,6 @@ const StoreHeader = ({
   products = [],
   onProductClick,
   cartEnabled = true,
-  storePhone,
   onWhatsAppClick
 }: StoreHeaderProps) => {
   const theme = useTheme()
@@ -478,14 +470,16 @@ const StoreHeader = ({
                     fontWeight: 'bold',
                     textTransform: 'none',
                     borderRadius: '8px',
-                    padding: '8px 20px',
+                    padding: '8px 16px',
                     minWidth: 'auto',
+                    gap: 1,
                     '&:hover': {
                       backgroundColor: '#128C7E'
                     }
                   }}
                 >
                   <WhatsAppIcon />
+                  <Box sx={{ display: { xs: 'none', sm: 'block' } }}>WhatsApp</Box>
                 </Button>
               )}
             </Box>

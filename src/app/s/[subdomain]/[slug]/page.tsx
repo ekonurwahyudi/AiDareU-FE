@@ -1893,36 +1893,78 @@ ${currentUrl}`
             )}
 
             {/* Action Buttons */}
-            <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, width: { xs: '100%', md: 'auto' } }}>
-              {/* WhatsApp Button - Always show, full width if cart disabled */}
-              <Button
-                variant={cartEnabled ? "outlined" : "contained"}
+            <Box sx={{ display: 'flex', gap: { xs: 1, md: 1.5 }, width: { xs: '100%', md: 'auto' }, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-end' } }}>
+              {/* WhatsApp Button - Icon only */}
+              <IconButton
                 onClick={handleWhatsAppClick}
                 sx={{
-                  ...(cartEnabled ? {
-                    border: `1px solid ${primaryColor}`,
-                    color: primaryColor,
-                    minWidth: { xs: 44, md: 44 },
-                    width: { xs: 44, md: 'auto' },
-                  } : {
-                    bgcolor: '#25D366',
-                    color: 'white',
-                    flexGrow: 1,
-                    '&:hover': {
-                      bgcolor: '#128C7E'
-                    }
-                  }),
-                  height: { xs: 44, md: 44 },
+                  bgcolor: '#25D366',
+                  color: 'white',
+                  width: 44,
+                  height: 44,
                   borderRadius: '12px',
-                  '&:hover': cartEnabled ? {
-                    bgcolor: '#F8FAFC',
-                    borderColor: primaryColor
-                  } : undefined
+                  '&:hover': {
+                    bgcolor: '#128C7E'
+                  }
                 }}
               >
                 <WhatsAppIcon fontSize="small" />
-                {!cartEnabled && <Box sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>Hubungi via WhatsApp</Box>}
-              </Button>
+              </IconButton>
+
+              {/* Social Media Buttons - Only show if URL exists */}
+              {storeData?.social_media?.instagram_url && (
+                <IconButton
+                  onClick={() => window.open(storeData.social_media.instagram_url, '_blank')}
+                  sx={{
+                    bgcolor: '#E4405F',
+                    color: 'white',
+                    width: 44,
+                    height: 44,
+                    borderRadius: '12px',
+                    '&:hover': {
+                      bgcolor: '#C13584'
+                    }
+                  }}
+                >
+                  <i className="tabler-brand-instagram" style={{ fontSize: '20px' }} />
+                </IconButton>
+              )}
+
+              {storeData?.social_media?.shopee_url && (
+                <IconButton
+                  onClick={() => window.open(storeData.social_media.shopee_url, '_blank')}
+                  sx={{
+                    bgcolor: '#EE4D2D',
+                    color: 'white',
+                    width: 44,
+                    height: 44,
+                    borderRadius: '12px',
+                    '&:hover': {
+                      bgcolor: '#D73211'
+                    }
+                  }}
+                >
+                  <Box component="span" sx={{ fontSize: '14px', fontWeight: 'bold' }}>S</Box>
+                </IconButton>
+              )}
+
+              {storeData?.social_media?.tokopedia_url && (
+                <IconButton
+                  onClick={() => window.open(storeData.social_media.tokopedia_url, '_blank')}
+                  sx={{
+                    bgcolor: '#42B549',
+                    color: 'white',
+                    width: 44,
+                    height: 44,
+                    borderRadius: '12px',
+                    '&:hover': {
+                      bgcolor: '#2E8B57'
+                    }
+                  }}
+                >
+                  <Box component="span" sx={{ fontSize: '14px', fontWeight: 'bold' }}>T</Box>
+                </IconButton>
+              )}
 
               {/* Cart and Buy Now buttons - Only show if cart enabled */}
               {cartEnabled && (
