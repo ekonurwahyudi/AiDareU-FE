@@ -1911,97 +1911,101 @@ ${currentUrl}`
                 <WhatsAppIcon fontSize="small" />
               </IconButton>
 
-              {/* Social Media Buttons - Only show if URL exists */}
-              {storeData?.social_media?.instagram_url && (
-                <IconButton
-                  onClick={() => window.open(storeData.social_media.instagram_url, '_blank')}
-                  sx={{
-                    bgcolor: '#E4405F',
-                    color: 'white',
-                    width: 44,
-                    height: 44,
-                    borderRadius: '12px',
-                    '&:hover': {
-                      bgcolor: '#C13584'
-                    }
-                  }}
-                >
-                  <i className="tabler-brand-instagram" style={{ fontSize: '20px' }} />
-                </IconButton>
-              )}
+              {/* Social Media Buttons - Only show if cart is disabled */}
+              {!cartEnabled && (
+                <>
+                  {storeData?.social_media?.instagram_url && (
+                    <IconButton
+                      onClick={() => window.open(storeData.social_media.instagram_url, '_blank')}
+                      sx={{
+                        bgcolor: '#E4405F',
+                        color: 'white',
+                        width: 44,
+                        height: 44,
+                        borderRadius: '12px',
+                        '&:hover': {
+                          bgcolor: '#C13584'
+                        }
+                      }}
+                    >
+                      <i className="tabler-brand-instagram" style={{ fontSize: '38px' }} />
+                    </IconButton>
+                  )}
 
-              {storeData?.social_media?.shopee_url && (
-                <Box
-                  onClick={() => window.open(storeData.social_media.shopee_url, '_blank')}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: 'white',
-                    height: 44,
-                    px: 1.5,
-                    borderRadius: '12px',
-                    border: '2px solid #EE4D2D',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      bgcolor: '#FFF5F5',
-                      borderColor: '#EE4D2D',
-                      '& img': {
-                        transform: 'scale(1.1)'
-                      }
-                    }
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src="/images/store/Shopee.png"
-                    alt="Shopee"
-                    sx={{
-                      height: 28,
-                      width: 'auto',
-                      objectFit: 'contain',
-                      transition: 'transform 0.2s'
-                    }}
-                  />
-                </Box>
-              )}
+                  {storeData?.social_media?.shopee_url && (
+                    <Box
+                      onClick={() => window.open(storeData.social_media.shopee_url, '_blank')}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'white',
+                        height: 44,
+                        px: '1rem',
+                        borderRadius: '12px',
+                        border: '2px solid #EE4D2D',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: '#FFF5F5',
+                          borderColor: '#EE4D2D',
+                          '& img': {
+                            transform: 'scale(1.1)'
+                          }
+                        }
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src="/images/store/Shopee.png"
+                        alt="Shopee"
+                        sx={{
+                          height: 23,
+                          width: 'auto',
+                          objectFit: 'contain',
+                          transition: 'transform 0.2s'
+                        }}
+                      />
+                    </Box>
+                  )}
 
-              {storeData?.social_media?.tokopedia_url && (
-                <Box
-                  onClick={() => window.open(storeData.social_media.tokopedia_url, '_blank')}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    bgcolor: 'white',
-                    height: 44,
-                    px: 1.5,
-                    borderRadius: '12px',
-                    border: '2px solid #42B549',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      bgcolor: '#F0FDF4',
-                      borderColor: '#42B549',
-                      '& img': {
-                        transform: 'scale(1.1)'
-                      }
-                    }
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src="/images/store/Tokopedia.png"
-                    alt="Tokopedia"
-                    sx={{
-                      height: 28,
-                      width: 'auto',
-                      objectFit: 'contain',
-                      transition: 'transform 0.2s'
-                    }}
-                  />
-                </Box>
+                  {storeData?.social_media?.tokopedia_url && (
+                    <Box
+                      onClick={() => window.open(storeData.social_media.tokopedia_url, '_blank')}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'white',
+                        height: 44,
+                        px: '1rem',
+                        borderRadius: '12px',
+                        border: '2px solid #42B549',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        '&:hover': {
+                          bgcolor: '#F0FDF4',
+                          borderColor: '#42B549',
+                          '& img': {
+                            transform: 'scale(1.1)'
+                          }
+                        }
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src="/images/store/Tokopedia.png"
+                        alt="Tokopedia"
+                        sx={{
+                          height: 23,
+                          width: 'auto',
+                          objectFit: 'contain',
+                          transition: 'transform 0.2s'
+                        }}
+                      />
+                    </Box>
+                  )}
+                </>
               )}
 
               {/* Cart and Buy Now buttons - Only show if cart enabled */}
