@@ -517,6 +517,10 @@ function ProductDetailPage() {
   const [storeData, setStoreData] = useState<any>(null)
   const [storeLoading, setStoreLoading] = useState(true)
 
+  // Compute cartEnabled based on platformpreneur.cart
+  // If platformpreneur exists and cart is false, disable cart features
+  const cartEnabled = storeData?.platformpreneur?.cart !== false
+
   // Sticky footer state management - simplified and more reliable
   const stickyRef = useRef<HTMLDivElement | null>(null)
   const footerRef = useRef<HTMLDivElement | null>(null)
@@ -1221,6 +1225,9 @@ ${currentUrl}`
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
+        cartEnabled={cartEnabled}
+        storePhone={storeData?.store?.phone}
+        onWhatsAppClick={handleWhatsAppClick}
       />
 
       <Container
@@ -1824,8 +1831,8 @@ ${currentUrl}`
             width: { xs: '100%', md: 'auto' },
             justifyContent: { xs: 'space-between', md: 'flex-end' }
           }}>
-            {/* Quantity Controls */}
-            {product.jenis_produk === 'fisik' && product.inStock && (
+            {/* Quantity Controls - Only show if cart enabled */}
+            {cartEnabled && product.jenis_produk === 'fisik' && product.inStock && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
                 <IconButton
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -1887,76 +1894,94 @@ ${currentUrl}`
 
             {/* Action Buttons */}
             <Box sx={{ display: 'flex', gap: { xs: 1.5, md: 2 }, width: { xs: '100%', md: 'auto' } }}>
-              <IconButton
+              {/* WhatsApp Button - Always show, full width if cart disabled */}
+              <Button
+                variant={cartEnabled ? "outlined" : "contained"}
                 onClick={handleWhatsAppClick}
                 sx={{
-                  border: `1px solid ${primaryColor}`,
-                  color: primaryColor,
-                  width: { xs: 44, md: 44 },
+                  ...(cartEnabled ? {
+                    border: `1px solid ${primaryColor}`,
+                    color: primaryColor,
+                    minWidth: { xs: 44, md: 44 },
+                    width: { xs: 44, md: 'auto' },
+                  } : {
+                    bgcolor: '#25D366',
+                    color: 'white',
+                    flexGrow: 1,
+                    '&:hover': {
+                      bgcolor: '#128C7E'
+                    }
+                  }),
                   height: { xs: 44, md: 44 },
                   borderRadius: '12px',
-                  '&:hover': {
+                  '&:hover': cartEnabled ? {
                     bgcolor: '#F8FAFC',
                     borderColor: primaryColor
-                  }
+                  } : undefined
                 }}
               >
                 <WhatsAppIcon fontSize="small" />
-              </IconButton>
-
-              <Button
-                variant="outlined"
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                sx={{
-                  borderColor: primaryColor,
-                  color: primaryColor,
-                  minWidth: { xs: 44, md: 100 },
-                  width: { xs: 44, md: 'auto' },
-                  height: { xs: 44, md: 44 },
-                  px: { xs: 0, md: 2 },
-                  textTransform: 'none',
-                  fontWeight: '600',
-                  borderRadius: '12px',
-                  fontSize: { xs: '0.8rem', md: '0.95rem' },
-                  '& .MuiButton-startIcon': { m: 0 },
-                  '&:hover': {
-                    bgcolor: '#F8FAFC',
-                    borderColor: primaryColor,
-                    color: primaryColor
-                  }
-                }}
-                startIcon={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <ShoppingCartIcon fontSize="small" />
-                  </Box>
-                }
-              >
-                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Cart</Box>
+                {!cartEnabled && <Box sx={{ ml: 1, display: { xs: 'none', sm: 'block' } }}>Hubungi via WhatsApp</Box>}
               </Button>
 
-              <Button
-                variant="contained"
-                onClick={handleBuyNow}
-                disabled={!product.inStock}
-                sx={{
-                  bgcolor: '#E91E63',
-                  color: 'white',
-                  flexGrow: { xs: 1, md: 0 },
-                  minWidth: { xs: 'unset', md: 140 },
-                  height: { xs: 44, md: 44 },
-                  textTransform: 'none',
-                  fontWeight: '600',
-                  borderRadius: '12px',
-                  fontSize: { xs: '0.9rem', md: '0.95rem' },
-                  boxShadow: '0 4px 12px rgba(233, 30, 99, 0.25)',
-                  '&:hover': {
-                    bgcolor: '#C2185B',
-                  }
-                }}
-              >
-                {isMobile ? 'Beli Sekarang' : 'Beli Sekarang'}
-              </Button>
+              {/* Cart and Buy Now buttons - Only show if cart enabled */}
+              {cartEnabled && (
+                <>
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddToCart}
+                    disabled={!product.inStock}
+                    sx={{
+                      borderColor: primaryColor,
+                      color: primaryColor,
+                      minWidth: { xs: 44, md: 100 },
+                      width: { xs: 44, md: 'auto' },
+                      height: { xs: 44, md: 44 },
+                      px: { xs: 0, md: 2 },
+                      textTransform: 'none',
+                      fontWeight: '600',
+                      borderRadius: '12px',
+                      fontSize: { xs: '0.8rem', md: '0.95rem' },
+                      '& .MuiButton-startIcon': { m: 0 },
+                      '&:hover': {
+                        bgcolor: '#F8FAFC',
+                        borderColor: primaryColor,
+                        color: primaryColor
+                      }
+                    }}
+                    startIcon={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <ShoppingCartIcon fontSize="small" />
+                      </Box>
+                    }
+                  >
+                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Cart</Box>
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    onClick={handleBuyNow}
+                    disabled={!product.inStock}
+                    sx={{
+                      bgcolor: '#E91E63',
+                      color: 'white',
+                      flexGrow: { xs: 1, md: 0 },
+                      minWidth: { xs: 'unset', md: 140 },
+                      height: { xs: 44, md: 44 },
+                      textTransform: 'none',
+                      fontWeight: '600',
+                      borderRadius: '12px',
+                      fontSize: { xs: '0.9rem', md: '0.95rem' },
+                      boxShadow: '0 4px 12px rgba(233, 30, 99, 0.25)',
+                      '&:hover': {
+                        bgcolor: '#C2185B',
+                      }
+                    }}
+                  >
+                    {isMobile ? 'Beli Sekarang' : 'Beli Sekarang'}
+                  </Button>
+                </>
+              )}
             </Box>
           </Box>
         </StickyFooter>

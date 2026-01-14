@@ -38,6 +38,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import CloseIcon from '@mui/icons-material/Close'
 import SearchIcon from '@mui/icons-material/Search'
+import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 
 // Components
 import CartDropdown from './CartDropdown'
@@ -116,6 +117,9 @@ interface StoreHeaderProps {
   primaryColor?: string
   products?: Product[]
   onProductClick?: (product: Product) => void
+  cartEnabled?: boolean
+  storePhone?: string
+  onWhatsAppClick?: () => void
 }
 
 const StoreHeader = ({
@@ -129,7 +133,10 @@ const StoreHeader = ({
   onAddToCart,
   primaryColor = '#E91E63',
   products = [],
-  onProductClick
+  onProductClick,
+  cartEnabled = true,
+  storePhone,
+  onWhatsAppClick
 }: StoreHeaderProps) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -386,7 +393,7 @@ const StoreHeader = ({
               </ClickAwayListener>
             </Box>
 
-            {/* Cart Button */}
+            {/* Cart Button or WhatsApp Button */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {isMobile && (
                 <>
@@ -407,58 +414,79 @@ const StoreHeader = ({
                 </>
               )}
 
-              {/* Desktop: Use CartDropdown, Mobile: Use CartDrawer button */}
-              {!isMobile ? (
-                <CartDropdown
-                  cartItems={cartItems}
-                  onRemoveItem={onRemoveItem || (() => {})}
-                  onUpdateQuantity={onUpdateQuantity || (() => {})}
-                  onAddToCart={onAddToCart || (() => {})}
-                  autoOpen={true}
-                  primaryColor={primaryColor}
-                />
-              ) : (
-                <Box sx={{ position: 'relative' }}>
-                  <Button
-                    onClick={onCartClick}
-                    sx={{
-                      backgroundColor: primaryColor,
-                      color: 'white',
-                      fontWeight: 'bold',
-                      textTransform: 'none',
-                      borderRadius: '8px',
-                      padding: '8px 20px',
-                      minWidth: 'auto',
-                      '&:hover': {
-                        backgroundColor: `${primaryColor}dd`
-                      }
-                    }}
-                  >
-                    <ShoppingCartIcon />
-                  </Button>
-                  {cartItemCount > 0 && (
-                    <Box
+              {cartEnabled ? (
+                /* Show Cart when enabled */
+                !isMobile ? (
+                  <CartDropdown
+                    cartItems={cartItems}
+                    onRemoveItem={onRemoveItem || (() => {})}
+                    onUpdateQuantity={onUpdateQuantity || (() => {})}
+                    onAddToCart={onAddToCart || (() => {})}
+                    autoOpen={true}
+                    primaryColor={primaryColor}
+                  />
+                ) : (
+                  <Box sx={{ position: 'relative' }}>
+                    <Button
+                      onClick={onCartClick}
                       sx={{
-                        position: 'absolute',
-                        top: -8,
-                        right: -8,
                         backgroundColor: primaryColor,
                         color: 'white',
-                        borderRadius: '50%',
-                        minWidth: 20,
-                        height: 20,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '0.75rem',
                         fontWeight: 'bold',
-                        border: '2px solid white'
+                        textTransform: 'none',
+                        borderRadius: '8px',
+                        padding: '8px 20px',
+                        minWidth: 'auto',
+                        '&:hover': {
+                          backgroundColor: `${primaryColor}dd`
+                        }
                       }}
                     >
-                      {cartItemCount}
-                    </Box>
-                  )}
-                </Box>
+                      <ShoppingCartIcon />
+                    </Button>
+                    {cartItemCount > 0 && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: -8,
+                          right: -8,
+                          backgroundColor: primaryColor,
+                          color: 'white',
+                          borderRadius: '50%',
+                          minWidth: 20,
+                          height: 20,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                          border: '2px solid white'
+                        }}
+                      >
+                        {cartItemCount}
+                      </Box>
+                    )}
+                  </Box>
+                )
+              ) : (
+                /* Show WhatsApp when cart disabled */
+                <Button
+                  onClick={onWhatsAppClick}
+                  sx={{
+                    backgroundColor: '#25D366',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    textTransform: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 20px',
+                    minWidth: 'auto',
+                    '&:hover': {
+                      backgroundColor: '#128C7E'
+                    }
+                  }}
+                >
+                  <WhatsAppIcon />
+                </Button>
               )}
             </Box>
           </Toolbar>

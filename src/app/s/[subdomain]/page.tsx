@@ -534,6 +534,10 @@ const DynamicStorePage = () => {
   // Get primary color from store settings
   const primaryColor = storeData?.settings?.primary_color || '#E91E63'
 
+  // Compute cartEnabled based on platformpreneur.cart
+  // If platformpreneur exists and cart is false, disable cart features
+  const cartEnabled = storeData?.platformpreneur?.cart !== false
+
   // Handle WhatsApp contact
   const handleWhatsAppContact = () => {
     if (!storeData?.store) return
@@ -754,6 +758,9 @@ const DynamicStorePage = () => {
         storeName={storeData?.store?.name || 'AiDareU Store'}
         storeLogo={storeData?.settings?.logo ? `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/storage/${storeData.settings.logo}` : undefined}
         primaryColor={primaryColor}
+        cartEnabled={cartEnabled}
+        storePhone={storeData?.store?.phone}
+        onWhatsAppClick={handleWhatsAppContact}
       />
 
       {/* Hero Section */}
