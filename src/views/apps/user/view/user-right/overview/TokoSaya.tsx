@@ -40,7 +40,8 @@ const schema = yup.object().shape({
   description: yup.string().required('Deskripsi toko wajib diisi').min(10, 'Deskripsi minimal 10 karakter'),
   province: yup.string().required('Provinsi wajib dipilih'),
   city: yup.string().required('Kota wajib dipilih'),
-  district: yup.string().required('Kecamatan wajib dipilih')
+  district: yup.string().required('Kecamatan wajib dipilih'),
+  storeAddress: yup.string().optional()
 })
 
 // Category mapping between UI labels and backend enum slugs
@@ -102,6 +103,7 @@ type FormValues = {
   province: string
   city: string
   district: string
+  storeAddress?: string
 }
 
 function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
@@ -141,7 +143,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
       description: '',
       province: '',
       city: '',
-      district: ''
+      district: '',
+      storeAddress: ''
     }
   })
 
@@ -392,6 +395,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             setValue('province', provinceValue)
             setValue('city', cityValue)
             setValue('district', districtValue)
+            setValue('storeAddress', storeFromUser.alamat_toko || '')
 
             if (provinceValue || cityValue || districtValue) {
               window.pendingAddressData = {
@@ -453,6 +457,7 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
             setValue('province', provinceValue)
             setValue('city', cityValue)
             setValue('district', districtValue)
+            setValue('storeAddress', storeFromUser.alamat_toko || '')
 
             if (provinceValue || cityValue || districtValue) {
               window.pendingAddressData = {
@@ -555,7 +560,8 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
         deskripsi_toko: values.description,
         provinsi: values.province,
         kota: values.city,
-        kecamatan: values.district
+        kecamatan: values.district,
+        alamat_toko: values.storeAddress || ''
       }
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080'
@@ -912,6 +918,27 @@ function TokoSaya({ storeUuid }: { storeUuid?: string | null }) {
                       helperText={errors.district?.message as string}
                     />
                   )
+                )}
+              />
+            </Grid>
+
+            {/* Alamat Toko */}
+            <Grid item xs={12}>
+              <Controller
+                name="storeAddress"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    multiline
+                    rows={3}
+                    label="Alamat Toko (Opsional)"
+                    placeholder="Masukkan alamat lengkap toko Anda"
+                    disabled={!isEditing}
+                    error={!!errors.storeAddress}
+                    helperText={errors.storeAddress?.message as string}
+                  />
                 )}
               />
             </Grid>
