@@ -83,8 +83,9 @@ interface ShippingOptionsProps {
   destinationCity: string
   destinationDistrict: string
   weight?: number
-  onShippingSelect?: (option: ShippingOption) => void
+  onShippingSelect?: (option: ShippingOption | null) => void
   selectedShipping?: ShippingOption | null
+  storeAddress?: string
 }
 
 const ShippingOptions = ({
@@ -94,7 +95,8 @@ const ShippingOptions = ({
   destinationDistrict,
   weight = 1000,
   onShippingSelect,
-  selectedShipping
+  selectedShipping,
+  storeAddress
 }: ShippingOptionsProps) => {
   // States
   const [loading, setLoading] = useState<boolean>(false)
@@ -167,10 +169,24 @@ const ShippingOptions = ({
   }, [storeUuid, destinationProvince, destinationCity, destinationDistrict, weight])
 
   // Handle shipping option selection
-  const handleOptionSelect = (option: ShippingOption) => {
+  const handleOptionSelect = (option: ShippingOption | null) => {
     if (onShippingSelect) {
       onShippingSelect(option)
     }
+  }
+
+  // Handle pickup at store selection
+  const handlePickupSelect = () => {
+    const pickupOption: ShippingOption = {
+      courier: 'PICKUP',
+      service: 'STORE',
+      service_name: 'Ambil di Toko',
+      description: storeAddress || 'Ambil langsung di toko',
+      cost: 0,
+      estimated_delivery: new Date().toISOString(),
+      delivery_days: 0
+    }
+    handleOptionSelect(pickupOption)
   }
 
   // Don't render if no destination is provided
@@ -208,6 +224,110 @@ const ShippingOptions = ({
 
         {!loading && !error && shippingOptions.length > 0 && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Pickup at Store Option */}
+            {storeAddress && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  p: 3,
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  bgcolor: selectedShipping?.courier === 'PICKUP'
+                    ? '#FFF1F5'
+                    : 'transparent',
+                  borderColor: selectedShipping?.courier === 'PICKUP'
+                    ? '#E91E63'
+                    : '#E2E8F0',
+                  '&:hover': {
+                    bgcolor: '#F8F9FA',
+                    borderColor: '#E91E63'
+                  }
+                }}
+                onClick={handlePickupSelect}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flex: 1 }}>
+                  {/* Store Icon */}
+                  <Box
+                    sx={{
+                      width: 60,
+                      height: 40,
+                      bgcolor: 'white',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '24px'
+                    }}
+                  >
+                    🏪
+                  </Box>
+
+                  {/* Service Info */}
+                  <Box sx={{ flex: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Typography sx={{ fontWeight: '600', color: '#1E293B', fontSize: '16px' }}>
+                        Ambil di Toko
+                      </Typography>
+                      <Chip
+                        size='small'
+                        label='Gratis'
+                        sx={{
+                          bgcolor: '#D1FAE5',
+                          color: '#065F46',
+                          fontSize: '10px',
+                          height: '20px',
+                          fontWeight: 'bold'
+                        }}
+                      />
+                    </Box>
+                    <Typography variant='body2' sx={{ color: '#64748B', mb: 1 }}>
+                      {storeAddress}
+                    </Typography>
+                    <Typography variant='body2' sx={{ color: '#059669', fontWeight: '500' }}>
+                      Siap diambil hari ini
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Price */}
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography sx={{ fontWeight: 'bold', color: '#059669', fontSize: '18px' }}>
+                    GRATIS
+                  </Typography>
+                  <Typography variant='caption' sx={{ color: '#64748B' }}>
+                    Ambil sendiri
+                  </Typography>
+                </Box>
+
+                {/* Selection Indicator */}
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    border: '2px solid #E91E63',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: selectedShipping?.courier === 'PICKUP'
+                      ? '#E91E63'
+                      : 'transparent',
+                    ml: 2
+                  }}
+                >
+                  {selectedShipping?.courier === 'PICKUP' && (
+                    <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'white' }} />
+                  )}
+                </Box>
+              </Box>
+            )}
+
+            {/* Delivery Options */}
             {shippingOptions.map((option, index) => (
               <Box
                 key={`${option.courier}-${option.service}-${index}`}

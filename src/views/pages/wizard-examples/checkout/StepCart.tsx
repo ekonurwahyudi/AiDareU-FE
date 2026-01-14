@@ -77,6 +77,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   // Shipping State
   const [selectedShipping, setSelectedShipping] = useState<any>(null)
 
+  // Store data state
+  const [storeData, setStoreData] = useState<any>(null)
+
   // Location API States
   const [provinces, setProvinces] = useState<any[]>([])
   const [cities, setCities] = useState<any[]>([])
@@ -98,6 +101,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   useEffect(() => {
     loadProvinces()
     loadRecommendedProducts()
+    loadStoreData()
   }, [])
 
   // Load cities when province changes
@@ -107,6 +111,8 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       setCustomerInfo(prev => ({ ...prev, city: '', district: '' }))
       setCities([])
       setDistricts([])
+      // Reset shipping when address changes
+      setSelectedShipping(null)
     }
   }, [customerInfo.province])
 
@@ -116,8 +122,18 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       loadDistricts(customerInfo.city)
       setCustomerInfo(prev => ({ ...prev, district: '' }))
       setDistricts([])
+      // Reset shipping when address changes
+      setSelectedShipping(null)
     }
   }, [customerInfo.city])
+
+  // Reset shipping when district changes
+  useEffect(() => {
+    if (customerInfo.district) {
+      // Reset shipping when address changes
+      setSelectedShipping(null)
+    }
+  }, [customerInfo.district])
 
   useEffect(() => {
     if (!openFade) {
@@ -230,6 +246,25 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       // Error loading recommended products - silently fail
     } finally {
       setLoadingProducts(false)
+    }
+  }
+
+  const loadStoreData = async () => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const response = await fetch(`${backendUrl}/api/store/${subdomain}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      if (data.success && data.data) {
+        setStoreData(data.data)
+      }
+    } catch (error) {
+      // Error loading store data - silently fail
     }
   }
 
@@ -1134,6 +1169,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             weight={getTotalWeight()}
             onShippingSelect={handleShippingSelect}
             selectedShipping={selectedShipping}
+            storeAddress={storeData?.store?.alamat_toko || ''}
           />
         )}
 
