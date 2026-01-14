@@ -23,6 +23,8 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import Grid from '@mui/material/Grid2'
+import Switch from '@mui/material/Switch'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -82,6 +84,8 @@ type Platform = {
   coin_user: number
   kuota_user: number
   domain: string
+  cart: boolean
+  sisa_kuota?: number
   tgl_mulai: string
   tgl_akhir: string
   created_at: string
@@ -107,6 +111,7 @@ type PlatformFormData = {
   coin_user: number
   kuota_user: number
   domain: string
+  cart: boolean
   tgl_mulai: Date | null
   tgl_akhir: Date | null
 }
@@ -185,6 +190,7 @@ const PlatformManagementTable = () => {
     coin_user: 0,
     kuota_user: 0,
     domain: '',
+    cart: false,
     tgl_mulai: null,
     tgl_akhir: null
   })
@@ -286,7 +292,9 @@ const PlatformManagementTable = () => {
         'Lokasi': platform.lokasi,
         'Coin User': platform.coin_user,
         'Kuota User': platform.kuota_user,
+        'Sisa Kuota': platform.sisa_kuota ?? platform.kuota_user,
         'Domain': platform.domain,
+        'Cart': platform.cart ? 'Yes' : 'No',
         'Tgl Mulai': new Date(platform.tgl_mulai).toLocaleDateString('id-ID'),
         'Tgl Akhir': new Date(platform.tgl_akhir).toLocaleDateString('id-ID'),
         'Created': new Date(platform.created_at).toLocaleDateString('id-ID')
@@ -308,7 +316,9 @@ const PlatformManagementTable = () => {
         { wch: 20 }, // Lokasi
         { wch: 10 }, // Coin User
         { wch: 10 }, // Kuota User
+        { wch: 10 }, // Sisa Kuota
         { wch: 25 }, // Domain
+        { wch: 8 },  // Cart
         { wch: 12 }, // Tgl Mulai
         { wch: 12 }, // Tgl Akhir
         { wch: 12 }  // Created
@@ -344,6 +354,7 @@ const PlatformManagementTable = () => {
       coin_user: 0,
       kuota_user: 0,
       domain: '',
+      cart: false,
       tgl_mulai: null,
       tgl_akhir: null
     })
@@ -371,6 +382,7 @@ const PlatformManagementTable = () => {
       coin_user: platform.coin_user,
       kuota_user: platform.kuota_user,
       domain: platform.domain,
+      cart: platform.cart,
       tgl_mulai: new Date(platform.tgl_mulai),
       tgl_akhir: new Date(platform.tgl_akhir)
     })
@@ -477,6 +489,7 @@ const PlatformManagementTable = () => {
       formDataToSend.append('coin_user', String(formData.coin_user))
       formDataToSend.append('kuota_user', String(formData.kuota_user))
       formDataToSend.append('domain', formData.domain)
+      formDataToSend.append('cart', formData.cart ? '1' : '0')
 
       // Format dates to YYYY-MM-DD
       if (formData.tgl_mulai) {
@@ -626,6 +639,20 @@ const PlatformManagementTable = () => {
       header: 'Perusahaan',
       cell: ({ row }) => (
         <Typography>{row.original.perusahaan}</Typography>
+      )
+    }),
+    columnHelper.accessor('kuota_user', {
+      header: 'Kuota',
+      cell: ({ row }) => (
+        <Typography>{row.original.kuota_user}</Typography>
+      )
+    }),
+    columnHelper.accessor('sisa_kuota', {
+      header: 'Sisa Kuota',
+      cell: ({ row }) => (
+        <Typography color={row.original.sisa_kuota && row.original.sisa_kuota < 10 ? 'error' : 'textPrimary'}>
+          {row.original.sisa_kuota ?? row.original.kuota_user}
+        </Typography>
       )
     }),
     columnHelper.accessor('domain', {
@@ -1064,6 +1091,18 @@ const PlatformManagementTable = () => {
                     helperText={formErrors.tgl_akhir}
                   />
                 }
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={formData.cart}
+                    onChange={e => setFormData(prev => ({ ...prev, cart: e.target.checked }))}
+                  />
+                }
+                label="Enable Cart Feature"
               />
             </Grid>
 
