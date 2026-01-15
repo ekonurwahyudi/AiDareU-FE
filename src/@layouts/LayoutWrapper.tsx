@@ -10,6 +10,9 @@ import type { SystemMode } from '@core/types'
 import { useSettings } from '@core/hooks/useSettings'
 import useLayoutInit from '@core/hooks/useLayoutInit'
 
+// Component Imports
+import SessionWarning from '@components/SessionWarning'
+
 type LayoutWrapperProps = {
   systemMode: SystemMode
   verticalLayout: ReactElement
@@ -28,6 +31,7 @@ const LayoutWrapper = (props: LayoutWrapperProps) => {
   // Return the layout based on the layout context
   return (
     <div className='flex flex-col flex-auto' data-skin={settings.skin}>
+      <SessionWarning />
       {settings.layout === 'horizontal' ? horizontalLayout : verticalLayout}
     </div>
   )
