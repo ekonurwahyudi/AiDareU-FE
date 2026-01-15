@@ -80,6 +80,13 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   // Store data state
   const [storeData, setStoreData] = useState<any>(null)
 
+  // Voucher States
+  const [voucherCode, setVoucherCode] = useState('')
+  const [appliedVoucher, setAppliedVoucher] = useState<any>(null)
+  const [voucherDiscount, setVoucherDiscount] = useState(0)
+  const [voucherError, setVoucherError] = useState('')
+  const [validatingVoucher, setValidatingVoucher] = useState(false)
+
   // Location API States
   const [provinces, setProvinces] = useState<any[]>([])
   const [cities, setCities] = useState<any[]>([])
@@ -394,6 +401,86 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     return baseTotal + shippingCost
   }
 
+  // Get total after discount
+  const getTotalAfterDiscount = () => {
+    const total = getTotalWithShipping()
+    return Math.max(0, total - voucherDiscount)
+  }
+
+  // Validate voucher
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) {
+      setVoucherError('Masukkan kode voucher')
+      return
+    }
+
+    if (!storeData?.store?.uuid) {
+      setVoucherError('Data toko tidak ditemukan')
+      return
+    }
+
+    setValidatingVoucher(true)
+    setVoucherError('')
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+      const response = await fetch(`${backendUrl}/api/tokoku/vouchers/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          uuid_store: storeData.store.uuid,
+          kode_voucher: voucherCode.toUpperCase().trim(),
+          total_belanja: getTotalPrice()
+        })
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        const { voucher, diskon, jenis_voucher, tipe_diskon } = result.data
+
+        // Set voucher info
+        setAppliedVoucher({
+          ...voucher,
+          calculated_discount: diskon
+        })
+        setVoucherDiscount(diskon)
+        setVoucherError('')
+
+        // Show success message
+        const discountText = jenis_voucher === 'ongkir'
+          ? 'Gratis ongkir'
+          : tipe_diskon === 'persen'
+          ? `Diskon ${voucher.nilai_diskon}%`
+          : `Diskon Rp ${Math.round(diskon).toLocaleString('id-ID')}`
+
+        alert(`Voucher berhasil diterapkan! ${discountText}`)
+      } else {
+        setVoucherError(result.message || 'Voucher tidak valid')
+        setAppliedVoucher(null)
+        setVoucherDiscount(0)
+      }
+    } catch (error) {
+      console.error('Error validating voucher:', error)
+      setVoucherError('Gagal memvalidasi voucher. Coba lagi.')
+      setAppliedVoucher(null)
+      setVoucherDiscount(0)
+    } finally {
+      setValidatingVoucher(false)
+    }
+  }
+
+  // Remove voucher
+  const handleRemoveVoucher = () => {
+    setVoucherCode('')
+    setAppliedVoucher(null)
+    setVoucherDiscount(0)
+    setVoucherError('')
+  }
+
   // Handle checkout - save to database
   const handleCheckout = async () => {
     // Validate form with specific error messages
@@ -455,8 +542,17 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
       const estimasi = selectedShipping?.etd || selectedShipping?.duration || null
       const orderData = {
         uuidStore: storeUuid,
-        voucher: null,
-        totalHarga: getTotalWithShipping(),
+        voucher: appliedVoucher ? {
+          uuid: appliedVoucher.uuid,
+          kode_voucher: appliedVoucher.kode_voucher,
+          jenis_voucher: appliedVoucher.jenis_voucher,
+          tipe_diskon: appliedVoucher.tipe_diskon,
+          nilai_diskon: appliedVoucher.nilai_diskon,
+          diskon_terapkan: voucherDiscount
+        } : null,
+        totalHarga: getTotalAfterDiscount(),
+        totalSebelumDiskon: getTotalWithShipping(),
+        diskonVoucher: voucherDiscount,
         ekspedisi: selectedShipping ? `${selectedShipping.courier} - ${selectedShipping.service_name}` : 'Digital Product',
         estimasiTiba: estimasi,
         uuidBankAccount: selectedPayment.uuid
@@ -1200,12 +1296,65 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             <Typography color='text.primary' className='font-medium'>
               Voucher
             </Typography>
-            <div className='flex gap-4'>
-              <CustomTextField fullWidth size='small' placeholder='Masukkan Kode Promo' />
-              <Button variant='tonal' className='normal-case'>
-                Gunakan
-              </Button>
-            </div>
+            {appliedVoucher ? (
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200'>
+                  <div>
+                    <Typography variant='body2' fontWeight={600} color='success.main'>
+                      {appliedVoucher.kode_voucher}
+                    </Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                      {appliedVoucher.keterangan}
+                    </Typography>
+                  </div>
+                  <IconButton size='small' onClick={handleRemoveVoucher}>
+                    <i className='tabler-x' />
+                  </IconButton>
+                </div>
+                {voucherError && (
+                  <Alert severity='error' sx={{ py: 0 }}>
+                    {voucherError}
+                  </Alert>
+                )}
+              </div>
+            ) : (
+              <div className='flex flex-col gap-2'>
+                <div className='flex gap-2'>
+                  <CustomTextField
+                    fullWidth
+                    size='small'
+                    placeholder='Masukkan Kode Voucher'
+                    value={voucherCode}
+                    onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+                    disabled={validatingVoucher}
+                    error={!!voucherError}
+                    onKeyPress={e => e.key === 'Enter' && handleApplyVoucher()}
+                  />
+                  <Button
+                    variant='tonal'
+                    className='normal-case'
+                    onClick={handleApplyVoucher}
+                    disabled={!voucherCode.trim() || validatingVoucher}
+                    sx={{
+                      bgcolor: primaryColor,
+                      color: 'white',
+                      '&:hover': { bgcolor: `${primaryColor}dd` }
+                    }}
+                  >
+                    {validatingVoucher ? (
+                      <CircularProgress size={20} sx={{ color: 'white' }} />
+                    ) : (
+                      'Gunakan'
+                    )}
+                  </Button>
+                </div>
+                {voucherError && (
+                  <Alert severity='error' sx={{ py: 0 }}>
+                    {voucherError}
+                  </Alert>
+                )}
+              </div>
+            )}
           </CardContent>
           <Divider />
           <CardContent className='flex gap-4 flex-col'>
@@ -1217,15 +1366,19 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                 <Typography color='text.primary'>Total Belanja</Typography>
                 <Typography color='text.primary'>{formatRupiah(getTotalPrice())}</Typography>
               </div>
-              <div className='flex items-center flex-wrap justify-between'>
-                <Typography color='text.primary'>Diskon Kupon</Typography>
-                <Typography href='/' component={Link} onClick={e => e.preventDefault()} sx={{ color: primaryColor }}>
-                  0
-                </Typography>
-              </div>
+              {voucherDiscount > 0 && (
+                <div className='flex items-center flex-wrap justify-between'>
+                  <Typography color='success.main'>Diskon Voucher</Typography>
+                  <Typography color='success.main' fontWeight={600}>
+                    - {formatRupiah(voucherDiscount)}
+                  </Typography>
+                </div>
+              )}
               <div className='flex items-center flex-wrap justify-between'>
                 <Typography color='text.primary'>Total Pesanan</Typography>
-                <Typography color='text.primary'>{formatRupiah(getTotalPrice())}</Typography>
+                <Typography color='text.primary'>
+                  {formatRupiah(Math.max(0, getTotalPrice() - voucherDiscount))}
+                </Typography>
               </div>
               {!isAllDigitalProducts() && (
                 <div className='flex items-center flex-wrap justify-between'>
@@ -1255,9 +1408,14 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                 Total
               </Typography>
               <Typography color='text.primary' className='font-medium'>
-                {formatRupiah(getTotalWithShipping())}
+                {formatRupiah(getTotalAfterDiscount())}
               </Typography>
             </div>
+            {voucherDiscount > 0 && (
+              <Typography variant='caption' color='success.main' sx={{ mt: 1 }}>
+                Hemat {formatRupiah(voucherDiscount)} dengan voucher!
+              </Typography>
+            )}
           </CardContent>
         </div>
         <div className='flex justify-normal sm:justify-end xl:justify-normal'>
@@ -1285,7 +1443,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             ) : !selectedPayment ? (
               'Pilih Metode Pembayaran'
             ) : (
-              `Bayar Sekarang - ${formatRupiah(getTotalWithShipping())}`
+              `Bayar Sekarang - ${formatRupiah(getTotalAfterDiscount())}`
             )}
           </Button>
         </div>

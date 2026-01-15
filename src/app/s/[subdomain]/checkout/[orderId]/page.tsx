@@ -223,6 +223,19 @@ export default function OrderConfirmationPage() {
     const accountNumber = bankAccount?.account_number || bankAccount?.accountNumber || 'N/A'
     const accountName = bankAccount?.account_holder_name || bankAccount?.accountHolderName || 'N/A'
 
+    // Parse voucher data
+    let voucherInfo = ''
+    try {
+      if (orderData.voucher) {
+        const voucher = typeof orderData.voucher === 'string' ? JSON.parse(orderData.voucher) : orderData.voucher
+        if (voucher && voucher.diskon_terapkan > 0) {
+          voucherInfo = `\n*Voucher:* ${voucher.kode_voucher} (Diskon ${formatRupiah(voucher.diskon_terapkan)})`
+        }
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+
     // Build product list
     const products = orderData.detailOrders || []
     const productList = products.map((item: any) => {
@@ -237,7 +250,7 @@ export default function OrderConfirmationPage() {
 
 Saya sudah melakukan pemesanan dengan detail:
 
-*Nomor Order:* ${orderNumber}
+*Nomor Order:* ${orderNumber}${voucherInfo}
 *Total Pembayaran:* ${totalHarga}
 
 *Produk yang dipesan:*
@@ -324,11 +337,22 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
   const customer = orderData?.customer
   const detailOrders = orderData?.detailOrders || []
 
+  // Parse voucher data (stored as JSON string)
+  let voucherData = null
+  try {
+    if (orderData?.voucher) {
+      voucherData = typeof orderData.voucher === 'string' ? JSON.parse(orderData.voucher) : orderData.voucher
+    }
+  } catch (e) {
+    console.error('Error parsing voucher data:', e)
+  }
+
   // Calculate subtotal and ongkir
   const subtotalProduk = detailOrders.reduce((sum: number, item: any) => {
     return sum + (item.price * item.quantity)
   }, 0)
-  const ongkir = totalHarga - subtotalProduk
+  const voucherDiscount = voucherData?.diskon_terapkan || 0
+  const ongkir = (totalHarga + voucherDiscount) - subtotalProduk
 
   // Backend URL for images
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
@@ -794,6 +818,22 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         </Typography>
                       </Box>
 
+                      {voucherData && voucherDiscount > 0 && (
+                        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box>
+                            <Typography variant="body1" color="success.main" sx={{ fontWeight: 'medium' }}>
+                              Diskon Voucher
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {voucherData.kode_voucher}
+                            </Typography>
+                          </Box>
+                          <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                            - {formatRupiah(voucherDiscount)}
+                          </Typography>
+                        </Box>
+                      )}
+
                       <Divider sx={{ my: 1 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -996,6 +1036,12 @@ Mohon konfirmasi setelah saya melakukan pembayaran. Terima kasih!`
                         <div class="invoice-total-label">Ongkir:</div>
                         <div class="invoice-total-value">${formatRupiah(ongkir)}</div>
                       </div>
+                      ${voucherData && voucherDiscount > 0 ? `
+                      <div class="invoice-total-row" style="color: #16a34a;">
+                        <div class="invoice-total-label">Diskon Voucher (${escapeHtml(voucherData.kode_voucher)}):</div>
+                        <div class="invoice-total-value">- ${formatRupiah(voucherDiscount)}</div>
+                      </div>
+                      ` : ''}
                       <div class="invoice-total-row invoice-grand-total">
                         <div class="invoice-total-label">TOTAL PEMBAYARAN:</div>
                         <div class="invoice-total-value">${formatRupiah(totalHarga)}</div>

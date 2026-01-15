@@ -204,7 +204,7 @@ const VoucherTable = () => {
         ...(debouncedGlobalFilter && { search: debouncedGlobalFilter })
       })
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tokoku/vouchers?${params}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers?${params}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -254,8 +254,8 @@ const VoucherTable = () => {
       }
 
       const url = editingVoucher
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/tokoku/vouchers/${editingVoucher.uuid}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/tokoku/vouchers`
+        ? `${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers/${editingVoucher.uuid}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers`
 
       const method = editingVoucher ? 'PUT' : 'POST'
 
@@ -294,7 +294,7 @@ const VoucherTable = () => {
       setError(null)
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/tokoku/vouchers/${deletingVoucher.uuid}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers/${deletingVoucher.uuid}`,
         {
           method: 'DELETE',
           headers: {
