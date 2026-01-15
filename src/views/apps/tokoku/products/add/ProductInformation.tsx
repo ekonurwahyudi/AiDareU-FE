@@ -776,7 +776,8 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
 }
 
 const ProductInformation = () => {
-  const { formData, setFormData, errors, setErrors, setEditor } = useProductForm()
+  const { formData, setFormData, errors, setErrors, setEditor, isLoading } = useProductForm()
+  const hasLoadedContent = useRef(false)
 
   const editor = useEditor({
     extensions: [
@@ -839,17 +840,21 @@ const ProductInformation = () => {
     }
   }, [editor, setEditor])
 
-  // Load existing content only on initial mount (for edit mode)
+  // Load existing content from database (for cases where formData is pre-populated)
   useEffect(() => {
-    if (editor && formData.deskripsi && formData.deskripsi.trim() !== '') {
-      // Only set content if editor is empty or different from formData
-      const currentContent = editor.getHTML()
-      if (currentContent !== formData.deskripsi && (!currentContent || currentContent.trim() === '' || currentContent === '<p></p>')) {
+    // Only load content once when both editor is ready and data is available
+    if (editor && formData.deskripsi && formData.deskripsi.trim() !== '' && !hasLoadedContent.current && !isLoading) {
+      // Check if current content is different from formData (avoid overwriting user's edits)
+      const currentContent = editor.getHTML().trim()
+      const defaultContent = '<p>Deskripsi produk singkat dan jelas tentang produk yang dijual.</p>'.trim()
+
+      // Only set if current content is still default placeholder
+      if (currentContent === defaultContent || currentContent === '<p></p>' || currentContent === '') {
         editor.commands.setContent(formData.deskripsi)
+        hasLoadedContent.current = true
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]) // Only run when editor is initialized, not when formData changes
+  }, [editor, formData.deskripsi, isLoading])
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ nama_produk: e.target.value })

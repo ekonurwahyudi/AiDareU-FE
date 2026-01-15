@@ -783,7 +783,8 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
 }
 
 const ProductInformation = () => {
-  const { formData, setFormData, errors, setEditor } = useProductForm()
+  const { formData, setFormData, errors, setEditor, isLoading } = useProductForm()
+  const hasLoadedContent = useRef(false)
 
   const editor = useEditor({
     extensions: [
@@ -842,17 +843,14 @@ const ProductInformation = () => {
     }
   }, [editor, setEditor])
 
-  // Load existing content only on initial mount (for edit mode)
+  // Load existing content from database (for edit mode)
   useEffect(() => {
-    if (editor && formData.deskripsi && formData.deskripsi.trim() !== '') {
-      // Only set content if editor is empty or different from formData
-      const currentContent = editor.getHTML()
-      if (currentContent !== formData.deskripsi && (!currentContent || currentContent.trim() === '' || currentContent === '<p></p>')) {
-        editor.commands.setContent(formData.deskripsi)
-      }
+    // Only load content once when both editor is ready and data is loaded from DB
+    if (editor && formData.deskripsi && formData.deskripsi.trim() !== '' && !hasLoadedContent.current && !isLoading) {
+      editor.commands.setContent(formData.deskripsi)
+      hasLoadedContent.current = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]) // Only run when editor is initialized, not when formData changes
+  }, [editor, formData.deskripsi, isLoading]) // Trigger when deskripsi loads from DB
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ nama_produk: e.target.value })
