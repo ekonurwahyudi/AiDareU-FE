@@ -236,7 +236,8 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
       // Process initially
       processImages()
 
-      // Optimized observer that only processes when new img elements are added
+      // Optimized observer with debounce to prevent excessive processing
+      let observerTimeout: NodeJS.Timeout | null = null
       const observer = new MutationObserver((mutations) => {
         if (isProcessing) return
 
@@ -258,7 +259,11 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
         })
 
         if (hasNewImages) {
-          processImages()
+          // Debounce image processing to prevent performance issues
+          if (observerTimeout) clearTimeout(observerTimeout)
+          observerTimeout = setTimeout(() => {
+            processImages()
+          }, 100)
         }
       })
 
@@ -285,6 +290,9 @@ const EditorToolbar = ({ editor }: { editor: Editor | null }) => {
       editor.view.dom.addEventListener('click', handleClickOutside)
 
       return () => {
+        // Clear debounce timeout
+        if (observerTimeout) clearTimeout(observerTimeout)
+
         observer.disconnect()
         editor.view.dom.removeEventListener('click', handleClickOutside)
 
@@ -824,15 +832,24 @@ const ProductInformation = () => {
     }
   })
 
+  // Load initial content only once when editor is ready
   useEffect(() => {
     if (editor) {
       setEditor(editor)
-      // Load existing content when editor is ready (useful for edit mode)
-      if (formData.deskripsi && formData.deskripsi.trim() !== '') {
+    }
+  }, [editor, setEditor])
+
+  // Load existing content only on initial mount (for edit mode)
+  useEffect(() => {
+    if (editor && formData.deskripsi && formData.deskripsi.trim() !== '') {
+      // Only set content if editor is empty or different from formData
+      const currentContent = editor.getHTML()
+      if (currentContent !== formData.deskripsi && (!currentContent || currentContent.trim() === '' || currentContent === '<p></p>')) {
         editor.commands.setContent(formData.deskripsi)
       }
     }
-  }, [editor, setEditor, formData.deskripsi])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]) // Only run when editor is initialized, not when formData changes
 
   const handleProductNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ nama_produk: e.target.value })
