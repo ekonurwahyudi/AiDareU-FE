@@ -53,6 +53,9 @@ import TablePaginationComponent from '@components/TablePaginationComponent'
 // Hook Imports
 import { useDebounce } from '@/hooks/useDebounce'
 
+// Context Imports
+import { useRBAC } from '@/contexts/rbacContext'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
@@ -142,6 +145,12 @@ const DebouncedInput = ({
 const columnHelper = createColumnHelper<VoucherWithActionsType>()
 
 const VoucherTable = () => {
+  // RBAC Context - get current store
+  const { currentStore, isLoading: rbacLoading } = useRBAC()
+
+  // Get store UUID from RBAC context
+  const currentStoreUUID = currentStore?.uuid || currentStore?.id || ''
+
   // States
   const [data, setData] = useState<Voucher[]>([])
   const [globalFilter, setGlobalFilter] = useState('')
@@ -159,17 +168,6 @@ const VoucherTable = () => {
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null)
   const [deletingVoucher, setDeletingVoucher] = useState<Voucher | null>(null)
   const [submitting, setSubmitting] = useState(false)
-
-  // Get current store UUID from localStorage
-  const [currentStoreUUID, setCurrentStoreUUID] = useState<string>('')
-
-  useEffect(() => {
-    const storeData = localStorage.getItem('selected_store')
-    if (storeData) {
-      const store = JSON.parse(storeData)
-      setCurrentStoreUUID(store.uuid)
-    }
-  }, [])
 
   // Form data
   const [formData, setFormData] = useState<VoucherFormData>({
@@ -239,6 +237,11 @@ const VoucherTable = () => {
 
   // Handle form submit
   const handleSubmit = async () => {
+    if (!currentStoreUUID) {
+      setError('Store belum dipilih. Silakan pilih store terlebih dahulu.')
+      return
+    }
+
     if (!formData.kode_voucher || !formData.keterangan || !formData.tgl_mulai || !formData.tgl_berakhir) {
       setError('Mohon lengkapi semua field yang diperlukan')
       return
@@ -542,6 +545,36 @@ const VoucherTable = () => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel()
   })
+
+  // Show loading while RBAC is loading
+  if (rbacLoading) {
+    return (
+      <Card>
+        <CardHeader title='Manajemen Voucher' />
+        <Divider />
+        <CardContent>
+          <div className='flex justify-center items-center p-8'>
+            <CircularProgress />
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Show message if no store selected
+  if (!currentStoreUUID) {
+    return (
+      <Card>
+        <CardHeader title='Manajemen Voucher' />
+        <Divider />
+        <CardContent>
+          <Alert severity='warning'>
+            Store belum tersedia. Pastikan Anda sudah memiliki toko yang aktif.
+          </Alert>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <>
