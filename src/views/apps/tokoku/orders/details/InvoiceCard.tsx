@@ -12,6 +12,16 @@ import Divider from '@mui/material/Divider'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 
+// Voucher Type
+type VoucherData = {
+  uuid?: string
+  kode_voucher?: string
+  jenis_voucher?: 'ongkir' | 'potongan_harga'
+  tipe_diskon?: 'persen' | 'nominal'
+  nilai_diskon?: number
+  diskon_terapkan?: number
+}
+
 // Order Type
 type Order = {
   uuid: string
@@ -21,6 +31,7 @@ type Order = {
   status: string
   ekspedisi: string
   estimasi_tiba?: string
+  voucher?: string | VoucherData | null
   customer?: {
     uuid: string
     nama: string
@@ -64,6 +75,21 @@ type Order = {
   }>
 }
 
+// Parse voucher data from JSON string or object
+const parseVoucherData = (voucher: string | VoucherData | null | undefined): VoucherData | null => {
+  if (!voucher) return null
+
+  if (typeof voucher === 'string') {
+    try {
+      return JSON.parse(voucher)
+    } catch {
+      return null
+    }
+  }
+
+  return voucher
+}
+
 const formatRupiah = (amount: number): string => {
   return `Rp ${Math.round(amount).toLocaleString('id-ID')}`
 }
@@ -92,11 +118,16 @@ const InvoiceCard = ({ order }: { order: Order }) => {
   const accountNumber = bankInfo?.account_number || bankInfo?.nomor_rekening
   const accountHolderName = bankInfo?.account_holder_name || bankInfo?.atas_nama
 
+  // Parse voucher data
+  const voucherData = parseVoucherData(order.voucher)
+  const voucherDiscount = voucherData?.diskon_terapkan || 0
+
   const subtotal = order.detailOrders?.reduce(
     (sum, item) => sum + (item.price * item.quantity),
     0
   ) || 0
-  const ongkir = order.total_harga - subtotal
+  // Calculate ongkir: total_harga + voucher_discount - subtotal
+  const ongkir = (order.total_harga + voucherDiscount) - subtotal
 
   return (
     <Card>
@@ -262,6 +293,21 @@ const InvoiceCard = ({ order }: { order: Order }) => {
               <Typography variant="body2">Ongkir:</Typography>
               <Typography variant="body2">{formatRupiah(ongkir)}</Typography>
             </Box>
+            {voucherData && voucherDiscount > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
+                <Box>
+                  <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+                    {voucherData.jenis_voucher === 'ongkir' ? 'Diskon Ongkir' : 'Diskon Voucher'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {voucherData.kode_voucher}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 500 }}>
+                  - {formatRupiah(voucherDiscount)}
+                </Typography>
+              </Box>
+            )}
             <Divider sx={{ my: 1 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>

@@ -16,10 +16,21 @@ import TableRow from '@mui/material/TableRow'
 // Component Imports
 import { ProductPlaceholder } from '@/components/ProductPlaceholder'
 
+// Voucher Type
+type VoucherData = {
+  uuid?: string
+  kode_voucher?: string
+  jenis_voucher?: 'ongkir' | 'potongan_harga'
+  tipe_diskon?: 'persen' | 'nominal'
+  nilai_diskon?: number
+  diskon_terapkan?: number
+}
+
 // Order Type
 type Order = {
   total_harga: number
   ekspedisi: string
+  voucher?: string | VoucherData | null
   detailOrders?: Array<{
     uuid: string
     quantity: number
@@ -58,14 +69,34 @@ const getProductImages = (imageData: any): string[] => {
   return Array.isArray(imageData) ? imageData : []
 }
 
+// Parse voucher data from JSON string or object
+const parseVoucherData = (voucher: string | VoucherData | null | undefined): VoucherData | null => {
+  if (!voucher) return null
+
+  if (typeof voucher === 'string') {
+    try {
+      return JSON.parse(voucher)
+    } catch {
+      return null
+    }
+  }
+
+  return voucher
+}
+
 const OrderDetailsCard = ({ order }: { order: Order }) => {
+  // Parse voucher data
+  const voucherData = parseVoucherData(order.voucher)
+  const voucherDiscount = voucherData?.diskon_terapkan || 0
+
   // Calculate subtotal from products
   const subtotal = order.detailOrders?.reduce((sum, item) => {
     return sum + (item.price * item.quantity)
   }, 0) || 0
 
-  // Calculate ongkir: total_harga - subtotal
-  const ongkir = order.total_harga - subtotal
+  // Calculate ongkir: total_harga + voucher_discount - subtotal
+  // Because total_harga already has discount applied
+  const ongkir = (order.total_harga + voucherDiscount) - subtotal
 
   return (
     <Card>
@@ -168,6 +199,21 @@ const OrderDetailsCard = ({ order }: { order: Order }) => {
                 Rp {new Intl.NumberFormat('id-ID').format(ongkir)}
               </Typography>
             </div>
+            {voucherData && voucherDiscount > 0 && (
+              <div className='flex justify-between items-center mb-2'>
+                <div className='flex flex-col'>
+                  <Typography color='success.main' className='font-medium'>
+                    {voucherData.jenis_voucher === 'ongkir' ? 'Diskon Ongkir' : 'Diskon Voucher'}
+                  </Typography>
+                  <Typography variant='caption' color='text.secondary'>
+                    {voucherData.kode_voucher}
+                  </Typography>
+                </div>
+                <Typography color='success.main' className='font-medium'>
+                  - Rp {new Intl.NumberFormat('id-ID').format(voucherDiscount)}
+                </Typography>
+              </div>
+            )}
             <Divider className="my-2" />
             <div className='flex justify-between items-center'>
               <Typography color='text.primary' className='font-medium text-lg'>

@@ -83,11 +83,24 @@ export default function InvoicePage({ params }: { params: Promise<{ uuid: string
     )
   }
 
+  // Parse voucher data
+  let voucherData = null
+  let voucherDiscount = 0
+  try {
+    if (orderData.voucher) {
+      voucherData = typeof orderData.voucher === 'string' ? JSON.parse(orderData.voucher) : orderData.voucher
+      voucherDiscount = voucherData?.diskon_terapkan || 0
+    }
+  } catch (e) {
+    // Ignore parsing errors
+  }
+
   const subtotal = orderData.detailOrders?.reduce(
     (sum: number, item: any) => sum + (item.price * item.quantity),
     0
   ) || 0
-  const ongkir = orderData.total_harga - subtotal
+  // Calculate ongkir: total_harga + voucher_discount - subtotal
+  const ongkir = (orderData.total_harga + voucherDiscount) - subtotal
   const bankInfo = orderData.bank_account || orderData.bankAccount
 
   return (
@@ -248,6 +261,21 @@ export default function InvoicePage({ params }: { params: Promise<{ uuid: string
               <Typography variant="body2">Ongkir:</Typography>
               <Typography variant="body2">{formatRupiah(ongkir)}</Typography>
             </Box>
+            {voucherData && voucherDiscount > 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, alignItems: 'center' }}>
+                <Box>
+                  <Typography variant="body2" sx={{ color: '#16a34a', fontWeight: 500 }}>
+                    {voucherData.jenis_voucher === 'ongkir' ? 'Diskon Ongkir' : 'Diskon Voucher'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {voucherData.kode_voucher}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: '#16a34a', fontWeight: 500 }}>
+                  - {formatRupiah(voucherDiscount)}
+                </Typography>
+              </Box>
+            )}
             <Divider sx={{ my: 1 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total:</Typography>
