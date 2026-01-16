@@ -84,6 +84,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
   const [voucherCode, setVoucherCode] = useState('')
   const [appliedVoucher, setAppliedVoucher] = useState<any>(null)
   const [voucherDiscount, setVoucherDiscount] = useState(0)
+  const [voucherType, setVoucherType] = useState<'ongkir' | 'potongan_harga' | null>(null)
   const [voucherError, setVoucherError] = useState('')
   const [validatingVoucher, setValidatingVoucher] = useState(false)
 
@@ -401,10 +402,29 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     return baseTotal + shippingCost
   }
 
+  // Get shipping cost after discount (for ongkir voucher)
+  const getShippingCostAfterDiscount = () => {
+    const shippingCost = selectedShipping ? selectedShipping.cost : 0
+    if (voucherType === 'ongkir' && voucherDiscount > 0) {
+      return Math.max(0, shippingCost - voucherDiscount)
+    }
+    return shippingCost
+  }
+
+  // Get product total after discount (for potongan_harga voucher)
+  const getProductTotalAfterDiscount = () => {
+    const baseTotal = getTotalPrice()
+    if (voucherType === 'potongan_harga' && voucherDiscount > 0) {
+      return Math.max(0, baseTotal - voucherDiscount)
+    }
+    return baseTotal
+  }
+
   // Get total after discount
   const getTotalAfterDiscount = () => {
-    const total = getTotalWithShipping()
-    return Math.max(0, total - voucherDiscount)
+    const productTotal = getProductTotalAfterDiscount()
+    const shippingCost = getShippingCostAfterDiscount()
+    return productTotal + shippingCost
   }
 
   // Validate voucher
@@ -448,11 +468,12 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
           calculated_discount: diskon
         })
         setVoucherDiscount(diskon)
+        setVoucherType(jenis_voucher as 'ongkir' | 'potongan_harga')
         setVoucherError('')
 
         // Show success message
         const discountText = jenis_voucher === 'ongkir'
-          ? 'Gratis ongkir'
+          ? `Diskon ongkir Rp ${Math.round(diskon).toLocaleString('id-ID')}`
           : tipe_diskon === 'persen'
           ? `Diskon ${voucher.nilai_diskon}%`
           : `Diskon Rp ${Math.round(diskon).toLocaleString('id-ID')}`
@@ -478,6 +499,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
     setVoucherCode('')
     setAppliedVoucher(null)
     setVoucherDiscount(0)
+    setVoucherType(null)
     setVoucherError('')
   }
 
@@ -548,7 +570,9 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
           jenis_voucher: appliedVoucher.jenis_voucher,
           tipe_diskon: appliedVoucher.tipe_diskon,
           nilai_diskon: appliedVoucher.nilai_diskon,
-          diskon_terapkan: voucherDiscount
+          diskon_terapkan: voucherType === 'ongkir' && selectedShipping
+            ? Math.min(voucherDiscount, selectedShipping.cost)
+            : voucherDiscount
         } : null,
         totalHarga: getTotalAfterDiscount(),
         totalSebelumDiskon: getTotalWithShipping(),
@@ -1366,7 +1390,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
                 <Typography color='text.primary'>Total Belanja</Typography>
                 <Typography color='text.primary'>{formatRupiah(getTotalPrice())}</Typography>
               </div>
-              {voucherDiscount > 0 && (
+              {voucherDiscount > 0 && voucherType === 'potongan_harga' && (
                 <div className='flex items-center flex-wrap justify-between'>
                   <Typography color='success.main'>Diskon Voucher</Typography>
                   <Typography color='success.main' fontWeight={600}>
@@ -1377,27 +1401,37 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
               <div className='flex items-center flex-wrap justify-between'>
                 <Typography color='text.primary'>Total Pesanan</Typography>
                 <Typography color='text.primary'>
-                  {formatRupiah(Math.max(0, getTotalPrice() - voucherDiscount))}
+                  {formatRupiah(getProductTotalAfterDiscount())}
                 </Typography>
               </div>
               {!isAllDigitalProducts() && (
-                <div className='flex items-center flex-wrap justify-between'>
-                  <Typography color='text.primary'>Biaya Pengiriman</Typography>
-                  {selectedShipping ? (
-                    <div className='flex flex-col items-end'>
-                      <Typography color='text.primary'>
-                        {formatRupiah(selectedShipping.cost)}
+                <>
+                  <div className='flex items-center flex-wrap justify-between'>
+                    <Typography color='text.primary'>Biaya Pengiriman</Typography>
+                    {selectedShipping ? (
+                      <div className='flex flex-col items-end'>
+                        <Typography color='text.primary'>
+                          {formatRupiah(selectedShipping.cost)}
+                        </Typography>
+                        <Typography variant='caption' color='text.secondary'>
+                          {selectedShipping.courier} - {selectedShipping.service_name}
+                        </Typography>
+                      </div>
+                    ) : (
+                      <Typography color='text.secondary'>
+                        Pilih pengiriman
                       </Typography>
-                      <Typography variant='caption' color='text.secondary'>
-                        {selectedShipping.courier} - {selectedShipping.service_name}
+                    )}
+                  </div>
+                  {voucherDiscount > 0 && voucherType === 'ongkir' && selectedShipping && (
+                    <div className='flex items-center flex-wrap justify-between'>
+                      <Typography color='success.main'>Diskon Ongkir</Typography>
+                      <Typography color='success.main' fontWeight={600}>
+                        - {formatRupiah(Math.min(voucherDiscount, selectedShipping.cost))}
                       </Typography>
                     </div>
-                  ) : (
-                    <Typography color='text.secondary'>
-                      Pilih pengiriman
-                    </Typography>
                   )}
-                </div>
+                </>
               )}
             </div>
           </CardContent>
@@ -1413,7 +1447,7 @@ const StepCart = ({ handleNext, setCheckoutData, primaryColor = '#E91E63' }: Ste
             </div>
             {voucherDiscount > 0 && (
               <Typography variant='caption' color='success.main' sx={{ mt: 1 }}>
-                Hemat {formatRupiah(voucherDiscount)} dengan voucher!
+                Hemat {formatRupiah(voucherType === 'ongkir' && selectedShipping ? Math.min(voucherDiscount, selectedShipping.cost) : voucherDiscount)} dengan voucher {voucherType === 'ongkir' ? 'ongkir' : ''}!
               </Typography>
             )}
           </CardContent>
