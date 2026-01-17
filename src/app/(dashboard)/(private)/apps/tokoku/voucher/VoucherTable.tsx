@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -10,7 +10,6 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
-import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
@@ -35,9 +34,6 @@ import * as XLSX from 'xlsx'
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 import CustomAvatar from '@core/components/mui/Avatar'
-
-// Hook Imports
-import { useDebounce } from '@/hooks/useDebounce'
 
 // Context Imports
 import { useRBAC } from '@/contexts/rbacContext'
@@ -99,14 +95,9 @@ const VoucherTable = () => {
   const currentStoreUUID = currentStore?.uuid || currentStore?.id || ''
 
   // States
-  const [data, setData] = useState<Voucher[]>([])
-  const [loading, setLoading] = useState(false)
+  const [allVouchers, setAllVouchers] = useState<Voucher[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalRecords, setTotalRecords] = useState(0)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Summary states
   const [summary, setSummary] = useState<VoucherSummary>({
@@ -117,8 +108,9 @@ const VoucherTable = () => {
     total_terpakai: 0
   })
 
-  // Filter states
-  const [search, setSearch] = useState('')
+  // Pagination states (client-side like helpdesk)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // Dialog states
   const [openDialog, setOpenDialog] = useState(false)
@@ -144,16 +136,27 @@ const VoucherTable = () => {
     maksimal_diskon: undefined
   })
 
-  const debouncedSearch = useDebounce(search, 500)
-
-  // Format number
+  // Format number with thousand separator (no decimal)
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('id-ID').format(num)
+    return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(num)
   }
 
-  // Format currency
+  // Format currency with thousand separator (no decimal)
   const formatRupiah = (num: number) => {
-    return `Rp ${new Intl.NumberFormat('id-ID').format(num)}`
+    return `Rp ${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(num)}`
+  }
+
+  // Format number for input display (with thousand separator)
+  const formatInputNumber = (value: number | undefined): string => {
+    if (value === undefined || value === null || isNaN(value)) return ''
+    return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(value)
+  }
+
+  // Parse formatted number string to number
+  const parseInputNumber = (value: string): number => {
+    const cleanValue = value.replace(/[^\d-]/g, '')
+    const parsed = parseInt(cleanValue, 10)
+    return isNaN(parsed) ? 0 : parsed
   }
 
   // Format date
@@ -166,29 +169,25 @@ const VoucherTable = () => {
     })
   }
 
-  // Fetch vouchers
-  const fetchVouchers = useCallback(async () => {
+  // Fetch all vouchers (client-side pagination like helpdesk)
+  const fetchVouchers = async () => {
     if (!currentStoreUUID) return
 
     try {
       setLoading(true)
       setError(null)
 
-      const params = new URLSearchParams({
-        per_page: perPage.toString(),
-        page: currentPage.toString(),
-        uuid_store: currentStoreUUID
-      })
-
-      if (debouncedSearch) params.append('search', debouncedSearch)
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers?${params}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      })
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers?uuid_store=${currentStoreUUID}&per_page=1000&_t=${Date.now()}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          cache: 'no-store'
+        }
+      )
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -197,30 +196,27 @@ const VoucherTable = () => {
       const result = await response.json()
 
       if (result.success) {
-        setData(result.data.data || [])
-        setTotalPages(result.data.last_page || 0)
-        setTotalRecords(result.data.total || 0)
+        const vouchers = result.data.data || result.data || []
+        setAllVouchers(vouchers)
 
-        // Calculate summary from data
-        const allVouchers = result.data.data || []
+        // Calculate summary from all vouchers
         const today = new Date()
         today.setHours(0, 0, 0, 0)
 
-        const aktif = allVouchers.filter((v: Voucher) => v.status === 'active').length
-        const expired = allVouchers.filter((v: Voucher) => {
-          const endDate = new Date(v.tgl_berakhir)
-          return v.status === 'expired' || endDate < today
-        }).length
-        const totalKuota = allVouchers.reduce((sum: number, v: Voucher) => sum + v.kuota, 0)
-        const totalTerpakai = allVouchers.reduce((sum: number, v: Voucher) => sum + v.kuota_terpakai, 0)
+        const voucherStats = vouchers.reduce(
+          (acc: VoucherSummary, v: Voucher) => {
+            acc.total_voucher++
+            if (v.status === 'active') acc.voucher_aktif++
+            const endDate = new Date(v.tgl_berakhir)
+            if (v.status === 'expired' || endDate < today) acc.voucher_expired++
+            acc.total_kuota += v.kuota
+            acc.total_terpakai += v.kuota_terpakai
+            return acc
+          },
+          { total_voucher: 0, voucher_aktif: 0, voucher_expired: 0, total_kuota: 0, total_terpakai: 0 }
+        )
 
-        setSummary({
-          total_voucher: result.data.total || allVouchers.length,
-          voucher_aktif: aktif,
-          voucher_expired: expired,
-          total_kuota: totalKuota,
-          total_terpakai: totalTerpakai
-        })
+        setSummary(voucherStats)
       } else {
         throw new Error(result.message || 'Failed to fetch vouchers')
       }
@@ -230,11 +226,17 @@ const VoucherTable = () => {
     } finally {
       setLoading(false)
     }
-  }, [currentPage, perPage, debouncedSearch, refreshTrigger, currentStoreUUID])
+  }
 
   useEffect(() => {
-    fetchVouchers()
-  }, [fetchVouchers])
+    if (currentStoreUUID) {
+      fetchVouchers()
+    }
+  }, [currentStoreUUID])
+
+  // Client-side paginated vouchers
+  const paginatedVouchers = allVouchers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  const totalPages = Math.ceil(allVouchers.length / rowsPerPage)
 
   // Handle form submit
   const handleSubmit = async () => {
@@ -279,8 +281,8 @@ const VoucherTable = () => {
       }
 
       setOpenDialog(false)
-      setRefreshTrigger(prev => prev + 1)
       resetForm()
+      fetchVouchers() // Refresh data
     } catch (err) {
       console.error('Error saving voucher:', err)
       setFormError(err instanceof Error ? err.message : 'An error occurred while saving voucher')
@@ -316,7 +318,7 @@ const VoucherTable = () => {
 
       setOpenDeleteDialog(false)
       setDeletingVoucher(null)
-      setRefreshTrigger(prev => prev + 1)
+      fetchVouchers() // Refresh data
     } catch (err) {
       console.error('Error deleting voucher:', err)
       setError(err instanceof Error ? err.message : 'An error occurred while deleting voucher')
@@ -380,7 +382,7 @@ const VoucherTable = () => {
 
   // Export to Excel
   const exportToExcel = () => {
-    const exportData = data.map((item, index) => ({
+    const exportData = allVouchers.map((item, index) => ({
       No: index + 1,
       'Kode Voucher': item.kode_voucher,
       Keterangan: item.keterangan,
@@ -524,7 +526,7 @@ const VoucherTable = () => {
         </Card>
       </Grid>
 
-      {/* Table with Filters */}
+      {/* Table */}
       <Grid size={{ xs: 12 }}>
         <Card>
           <CardHeader
@@ -535,7 +537,7 @@ const VoucherTable = () => {
                   variant='outlined'
                   onClick={exportToExcel}
                   startIcon={<Icon icon='tabler:file-export' />}
-                  disabled={data.length === 0}
+                  disabled={allVouchers.length === 0}
                 >
                   Export Excel
                 </Button>
@@ -553,15 +555,14 @@ const VoucherTable = () => {
           <Divider />
 
           <CardContent>
-            {/* Filter Row - Simplified */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-              {/* Left Side - Rows Per Page */}
+            {/* Show dropdown */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <CustomTextField
                 select
-                value={perPage}
+                value={rowsPerPage}
                 onChange={e => {
-                  setPerPage(Number(e.target.value))
-                  setCurrentPage(1)
+                  setRowsPerPage(Number(e.target.value))
+                  setPage(0)
                 }}
                 sx={{ minWidth: 120 }}
                 size='small'
@@ -571,22 +572,6 @@ const VoucherTable = () => {
                 <MenuItem value={50}>Show 50</MenuItem>
                 <MenuItem value={100}>Show 100</MenuItem>
               </CustomTextField>
-
-              {/* Right Side - Search Only */}
-              <TextField
-                size='small'
-                placeholder='Cari voucher...'
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                sx={{ minWidth: 250 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
-                      <Icon icon='tabler:search' fontSize={18} />
-                    </InputAdornment>
-                  )
-                }}
-              />
             </Box>
 
             {error && (
@@ -598,6 +583,15 @@ const VoucherTable = () => {
             {loading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
                 <CircularProgress />
+              </Box>
+            ) : allVouchers.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 8 }}>
+                <Typography color='text.secondary' sx={{ mb: 3 }}>
+                  Belum ada voucher
+                </Typography>
+                <Button variant='contained' onClick={handleAdd}>
+                  Buat Voucher Pertama
+                </Button>
               </Box>
             ) : (
               <>
@@ -613,130 +607,118 @@ const VoucherTable = () => {
                         <th>KUOTA</th>
                         <th>PERIODE</th>
                         <th>STATUS</th>
-                        <th>AKSI</th>
+                        <th className='text-center'>AKSI</th>
                       </tr>
                     </thead>
-                    {data.length === 0 ? (
-                      <tbody>
-                        <tr>
-                          <td colSpan={9} className='text-center'>
-                            <Typography variant='body2' color='text.secondary' sx={{ py: 4 }}>
-                              Tidak ada data voucher
-                            </Typography>
-                          </td>
-                        </tr>
-                      </tbody>
-                    ) : (
-                      <tbody>
-                        {data.map((voucher, index) => {
-                          const sisaKuota = voucher.kuota - voucher.kuota_terpakai
+                    <tbody>
+                      {paginatedVouchers.map((voucher, index) => {
+                        const sisaKuota = voucher.kuota - voucher.kuota_terpakai
 
-                          return (
-                            <tr key={voucher.id}>
-                              <td>{(currentPage - 1) * perPage + index + 1}</td>
-                              <td>
-                                <Typography fontWeight={600} color='text.primary'>
-                                  {voucher.kode_voucher}
+                        return (
+                          <tr key={voucher.uuid}>
+                            <td>{page * rowsPerPage + index + 1}</td>
+                            <td>
+                              <Typography fontWeight={600} color='text.primary'>
+                                {voucher.kode_voucher}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Typography variant='body2' className='line-clamp-2' sx={{ maxWidth: 200 }}>
+                                {voucher.keterangan}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Chip
+                                label={voucher.jenis_voucher === 'ongkir' ? 'Diskon Ongkir' : 'Potongan Harga'}
+                                color={voucher.jenis_voucher === 'ongkir' ? 'info' : 'success'}
+                                size='small'
+                                variant='tonal'
+                              />
+                            </td>
+                            <td>
+                              {voucher.jenis_voucher === 'ongkir' ? (
+                                <Typography color='text.primary' fontWeight={600}>
+                                  {formatRupiah(voucher.nilai_diskon)}
                                 </Typography>
-                              </td>
-                              <td>
-                                <Typography variant='body2' className='line-clamp-2'>
-                                  {voucher.keterangan}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Chip
-                                  label={voucher.jenis_voucher === 'ongkir' ? 'Diskon Ongkir' : 'Potongan Harga'}
-                                  color={voucher.jenis_voucher === 'ongkir' ? 'info' : 'success'}
-                                  size='small'
-                                  variant='tonal'
-                                />
-                              </td>
-                              <td>
-                                {voucher.jenis_voucher === 'ongkir' ? (
+                              ) : (
+                                <Box>
                                   <Typography color='text.primary' fontWeight={600}>
-                                    {formatRupiah(voucher.nilai_diskon)}
+                                    {voucher.tipe_diskon === 'persen'
+                                      ? `${voucher.nilai_diskon}%`
+                                      : formatRupiah(voucher.nilai_diskon)}
                                   </Typography>
-                                ) : (
-                                  <Box>
-                                    <Typography color='text.primary' fontWeight={600}>
-                                      {voucher.tipe_diskon === 'persen'
-                                        ? `${voucher.nilai_diskon}%`
-                                        : formatRupiah(voucher.nilai_diskon)}
+                                  {voucher.tipe_diskon === 'persen' && voucher.maksimal_diskon && (
+                                    <Typography variant='caption' color='text.secondary'>
+                                      Max: {formatRupiah(voucher.maksimal_diskon)}
                                     </Typography>
-                                    {voucher.tipe_diskon === 'persen' && voucher.maksimal_diskon && (
-                                      <Typography variant='caption' color='text.secondary'>
-                                        Max: {formatRupiah(voucher.maksimal_diskon)}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                )}
-                              </td>
-                              <td>
-                                <Typography variant='body2'>
-                                  Sisa: <strong>{sisaKuota}</strong> / {voucher.kuota}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Typography variant='body2'>
-                                  {formatDate(voucher.tgl_mulai)}
-                                </Typography>
-                                <Typography variant='caption' color='text.secondary'>
-                                  s/d {formatDate(voucher.tgl_berakhir)}
-                                </Typography>
-                              </td>
-                              <td>
-                                <Chip
-                                  label={
-                                    voucher.status === 'active' ? 'Aktif' :
-                                    voucher.status === 'inactive' ? 'Nonaktif' : 'Expired'
-                                  }
-                                  color={getStatusColor(voucher.status)}
-                                  size='small'
-                                  variant='tonal'
-                                />
-                              </td>
-                              <td>
-                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                  <IconButton
-                                    size='small'
-                                    color='primary'
-                                    onClick={() => handleEdit(voucher)}
-                                  >
-                                    <Icon icon='tabler:edit' />
-                                  </IconButton>
-                                  <IconButton
-                                    size='small'
-                                    color='error'
-                                    onClick={() => handleDeleteClick(voucher)}
-                                  >
-                                    <Icon icon='tabler:trash' />
-                                  </IconButton>
+                                  )}
                                 </Box>
-                              </td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    )}
+                              )}
+                            </td>
+                            <td>
+                              <Typography variant='body2'>
+                                Sisa: <strong>{sisaKuota}</strong> / {voucher.kuota}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Typography variant='body2'>
+                                {formatDate(voucher.tgl_mulai)}
+                              </Typography>
+                              <Typography variant='caption' color='text.secondary'>
+                                s/d {formatDate(voucher.tgl_berakhir)}
+                              </Typography>
+                            </td>
+                            <td>
+                              <Chip
+                                label={
+                                  voucher.status === 'active' ? 'Aktif' :
+                                  voucher.status === 'inactive' ? 'Nonaktif' : 'Expired'
+                                }
+                                color={getStatusColor(voucher.status)}
+                                size='small'
+                                variant='tonal'
+                              />
+                            </td>
+                            <td className='text-center'>
+                              <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                <IconButton
+                                  size='small'
+                                  color='primary'
+                                  onClick={() => handleEdit(voucher)}
+                                >
+                                  <Icon icon='tabler:edit' />
+                                </IconButton>
+                                <IconButton
+                                  size='small'
+                                  color='error'
+                                  onClick={() => handleDeleteClick(voucher)}
+                                >
+                                  <Icon icon='tabler:trash' />
+                                </IconButton>
+                              </Box>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
                   </table>
                 </div>
 
-                {/* Custom Pagination */}
-                <Box className='flex justify-between items-center flex-wrap pli-6 border-bs bs-auto plb-[12.5px] gap-2'>
+                {/* Pagination */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', mt: 4, gap: 2 }}>
                   <Typography color='text.disabled' sx={{ fontSize: '0.8125rem' }}>
-                    {`Showing ${totalRecords === 0 ? 0 : (currentPage - 1) * perPage + 1} to ${Math.min(
-                      currentPage * perPage,
-                      totalRecords
-                    )} of ${totalRecords} entries`}
+                    {`Showing ${allVouchers.length === 0 ? 0 : page * rowsPerPage + 1} to ${Math.min(
+                      (page + 1) * rowsPerPage,
+                      allVouchers.length
+                    )} of ${allVouchers.length} entries`}
                   </Typography>
                   <Pagination
                     shape='rounded'
                     color='primary'
                     variant='tonal'
                     count={totalPages}
-                    page={currentPage}
-                    onChange={(_, newPage) => setCurrentPage(newPage)}
+                    page={page + 1}
+                    onChange={(_, newPage) => setPage(newPage - 1)}
                     showFirstButton
                     showLastButton
                   />
@@ -747,7 +729,7 @@ const VoucherTable = () => {
         </Card>
       </Grid>
 
-      {/* Add/Edit Dialog - Improved UI */}
+      {/* Add/Edit Dialog */}
       <Dialog
         open={openDialog}
         onClose={() => !submitting && setOpenDialog(false)}
@@ -866,72 +848,76 @@ const VoucherTable = () => {
                   </Grid>
                 )}
                 <Grid size={{ xs: 12, sm: formData.jenis_voucher === 'potongan_harga' ? 6 : 12 }}>
-                  <CustomTextField
-                    fullWidth
-                    type='number'
-                    label={
-                      formData.jenis_voucher === 'ongkir'
-                        ? 'Nilai Diskon Ongkir'
-                        : formData.tipe_diskon === 'persen'
-                        ? 'Nilai Diskon'
-                        : 'Nilai Diskon'
-                    }
-                    value={formData.nilai_diskon}
-                    onChange={e => setFormData({ ...formData, nilai_diskon: Number(e.target.value) })}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          {formData.jenis_voucher === 'ongkir' || formData.tipe_diskon === 'nominal' ? 'Rp' : ''}
-                        </InputAdornment>
-                      ),
-                      endAdornment: formData.tipe_diskon === 'persen' && formData.jenis_voucher !== 'ongkir' ? (
-                        <InputAdornment position='end'>%</InputAdornment>
-                      ) : null
-                    }}
-                    inputProps={{
-                      min: 0,
-                      max: formData.tipe_diskon === 'persen' && formData.jenis_voucher !== 'ongkir' ? 100 : undefined
-                    }}
-                    required
-                  />
+                  {formData.tipe_diskon === 'persen' && formData.jenis_voucher !== 'ongkir' ? (
+                    <CustomTextField
+                      fullWidth
+                      type='number'
+                      label='Nilai Diskon'
+                      value={formData.nilai_diskon}
+                      onChange={e => setFormData({ ...formData, nilai_diskon: Number(e.target.value) })}
+                      InputProps={{
+                        endAdornment: <InputAdornment position='end'>%</InputAdornment>
+                      }}
+                      inputProps={{ min: 0, max: 100 }}
+                      required
+                    />
+                  ) : (
+                    <CustomTextField
+                      fullWidth
+                      label={formData.jenis_voucher === 'ongkir' ? 'Nilai Diskon Ongkir' : 'Nilai Diskon'}
+                      value={formatInputNumber(formData.nilai_diskon)}
+                      onChange={e => setFormData({ ...formData, nilai_diskon: parseInputNumber(e.target.value) })}
+                      InputProps={{
+                        startAdornment: <InputAdornment position='start'>Rp</InputAdornment>
+                      }}
+                      required
+                      placeholder='0'
+                    />
+                  )}
                 </Grid>
                 {formData.jenis_voucher === 'potongan_harga' && formData.tipe_diskon === 'persen' && (
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <CustomTextField
                       fullWidth
-                      type='number'
                       label='Maksimal Diskon'
-                      value={formData.maksimal_diskon || ''}
-                      onChange={e => setFormData({ ...formData, maksimal_diskon: e.target.value ? Number(e.target.value) : undefined })}
+                      value={formData.maksimal_diskon ? formatInputNumber(formData.maksimal_diskon) : ''}
+                      onChange={e => {
+                        const val = e.target.value
+                        setFormData({ ...formData, maksimal_diskon: val ? parseInputNumber(val) : undefined })
+                      }}
                       InputProps={{
                         startAdornment: <InputAdornment position='start'>Rp</InputAdornment>
                       }}
-                      inputProps={{ min: 0 }}
                       helperText='Opsional - Batas maksimal potongan'
+                      placeholder='0'
                     />
                   </Grid>
                 )}
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <CustomTextField
                     fullWidth
-                    type='number'
                     label='Minimum Pembelian'
-                    value={formData.minimum_pembelian || ''}
-                    onChange={e => setFormData({ ...formData, minimum_pembelian: e.target.value ? Number(e.target.value) : undefined })}
+                    value={formData.minimum_pembelian ? formatInputNumber(formData.minimum_pembelian) : ''}
+                    onChange={e => {
+                      const val = e.target.value
+                      setFormData({ ...formData, minimum_pembelian: val ? parseInputNumber(val) : undefined })
+                    }}
                     InputProps={{
                       startAdornment: <InputAdornment position='start'>Rp</InputAdornment>
                     }}
-                    inputProps={{ min: 0 }}
                     helperText='Opsional - Minimal belanja'
+                    placeholder='0'
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
                   <CustomTextField
                     fullWidth
-                    type='number'
                     label='Kuota Voucher'
-                    value={formData.kuota}
-                    onChange={e => setFormData({ ...formData, kuota: Number(e.target.value) })}
+                    value={formatInputNumber(formData.kuota)}
+                    onChange={e => {
+                      const val = parseInputNumber(e.target.value)
+                      setFormData({ ...formData, kuota: val > 0 ? val : 1 })
+                    }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position='start'>
@@ -939,9 +925,9 @@ const VoucherTable = () => {
                         </InputAdornment>
                       )
                     }}
-                    inputProps={{ min: 1 }}
                     required
                     helperText='Jumlah penggunaan voucher'
+                    placeholder='1'
                   />
                 </Grid>
               </Grid>
