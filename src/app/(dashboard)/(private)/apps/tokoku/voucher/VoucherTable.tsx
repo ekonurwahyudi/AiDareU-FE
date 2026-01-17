@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useEffect, useState, useCallback, forwardRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -10,7 +10,6 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
-import type { TextFieldProps } from '@mui/material/TextField'
 import TextField from '@mui/material/TextField'
 import MenuItem from '@mui/material/MenuItem'
 import Divider from '@mui/material/Divider'
@@ -30,16 +29,12 @@ import Box from '@mui/material/Box'
 import Pagination from '@mui/material/Pagination'
 import InputAdornment from '@mui/material/InputAdornment'
 
-// Third-party Imports
-import { format } from 'date-fns'
-
 // Excel Export
 import * as XLSX from 'xlsx'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
 import CustomAvatar from '@core/components/mui/Avatar'
-import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Hook Imports
 import { useDebounce } from '@/hooks/useDebounce'
@@ -96,25 +91,6 @@ type VoucherSummary = {
   total_terpakai: number
 }
 
-// Custom Input Props Type
-type CustomInputProps = TextFieldProps & {
-  label: string
-  end: Date | number
-  start: Date | number
-}
-
-// Custom Input Component for Date Range
-const CustomInput = forwardRef((props: CustomInputProps, ref) => {
-  const { label, start, end, ...rest } = props
-
-  const startDate = start ? format(start, 'dd/MM/yyyy') : ''
-  const endDate = end !== null && end ? ` - ${format(end, 'dd/MM/yyyy')}` : null
-
-  const value = startDate ? `${startDate}${endDate !== null ? endDate : ''}` : 'Pilih Range Tanggal'
-
-  return <CustomTextField fullWidth inputRef={ref} {...rest} label={label} value={value} size='small' />
-})
-
 const VoucherTable = () => {
   // RBAC Context - get current store
   const { currentStore, isLoading: rbacLoading } = useRBAC()
@@ -143,8 +119,6 @@ const VoucherTable = () => {
 
   // Filter states
   const [search, setSearch] = useState('')
-  const [startDate, setStartDate] = useState<Date | null | undefined>(null)
-  const [endDate, setEndDate] = useState<Date | null | undefined>(null)
 
   // Dialog states
   const [openDialog, setOpenDialog] = useState(false)
@@ -152,6 +126,7 @@ const VoucherTable = () => {
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null)
   const [deletingVoucher, setDeletingVoucher] = useState<Voucher | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   // Form data
   const [formData, setFormData] = useState<VoucherFormData>({
@@ -170,22 +145,6 @@ const VoucherTable = () => {
   })
 
   const debouncedSearch = useDebounce(search, 500)
-
-  // Convert Date to string format for API
-  const formatDateForAPI = (date: Date | null): string => {
-    if (!date) return ''
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
-
-  // Handle date range change
-  const handleOnChangeRange = (dates: any) => {
-    const [start, end] = dates
-    setStartDate(start)
-    setEndDate(end)
-  }
 
   // Format number
   const formatNumber = (num: number) => {
@@ -222,11 +181,6 @@ const VoucherTable = () => {
       })
 
       if (debouncedSearch) params.append('search', debouncedSearch)
-
-      const startDateStr = formatDateForAPI(startDate as Date | null)
-      const endDateStr = formatDateForAPI(endDate as Date | null)
-      if (startDateStr) params.append('start_date', startDateStr)
-      if (endDateStr) params.append('end_date', endDateStr)
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tokoku/vouchers?${params}`, {
         method: 'GET',
@@ -276,44 +230,27 @@ const VoucherTable = () => {
     } finally {
       setLoading(false)
     }
-  }, [currentPage, perPage, debouncedSearch, refreshTrigger, currentStoreUUID, startDate, endDate])
+  }, [currentPage, perPage, debouncedSearch, refreshTrigger, currentStoreUUID])
 
   useEffect(() => {
     fetchVouchers()
   }, [fetchVouchers])
 
-  // Handle search submit
-  const handleSearchSubmit = () => {
-    setCurrentPage(1)
-    fetchVouchers()
-  }
-
-  // Handle filter reset
-  const handleResetFilter = () => {
-    setSearch('')
-    setStartDate(null)
-    setEndDate(null)
-    setCurrentPage(1)
-    setTimeout(() => {
-      fetchVouchers()
-    }, 100)
-  }
-
   // Handle form submit
   const handleSubmit = async () => {
     if (!currentStoreUUID) {
-      setError('Store belum dipilih. Silakan pilih store terlebih dahulu.')
+      setFormError('Store belum dipilih. Silakan pilih store terlebih dahulu.')
       return
     }
 
     if (!formData.kode_voucher || !formData.keterangan || !formData.tgl_mulai || !formData.tgl_berakhir) {
-      setError('Mohon lengkapi semua field yang diperlukan')
+      setFormError('Mohon lengkapi semua field yang diperlukan')
       return
     }
 
     try {
       setSubmitting(true)
-      setError(null)
+      setFormError(null)
 
       const submitData = {
         ...formData,
@@ -346,7 +283,7 @@ const VoucherTable = () => {
       resetForm()
     } catch (err) {
       console.error('Error saving voucher:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred while saving voucher')
+      setFormError(err instanceof Error ? err.message : 'An error occurred while saving voucher')
     } finally {
       setSubmitting(false)
     }
@@ -405,7 +342,7 @@ const VoucherTable = () => {
       maksimal_diskon: undefined
     })
     setEditingVoucher(null)
-    setError(null)
+    setFormError(null)
   }
 
   // Handle add
@@ -431,6 +368,7 @@ const VoucherTable = () => {
       minimum_pembelian: voucher.minimum_pembelian,
       maksimal_diskon: voucher.maksimal_diskon
     })
+    setFormError(null)
     setOpenDialog(true)
   }
 
@@ -615,8 +553,8 @@ const VoucherTable = () => {
           <Divider />
 
           <CardContent>
-            {/* Filter Row */}
-            <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+            {/* Filter Row - Simplified */}
+            <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
               {/* Left Side - Rows Per Page */}
               <CustomTextField
                 select
@@ -625,7 +563,7 @@ const VoucherTable = () => {
                   setPerPage(Number(e.target.value))
                   setCurrentPage(1)
                 }}
-                sx={{ minWidth: 100 }}
+                sx={{ minWidth: 120 }}
                 size='small'
               >
                 <MenuItem value={10}>Show 10</MenuItem>
@@ -634,74 +572,21 @@ const VoucherTable = () => {
                 <MenuItem value={100}>Show 100</MenuItem>
               </CustomTextField>
 
-              {/* Right Side - Search and Filters */}
-              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
-                {/* Search */}
-                <TextField
-                  size='small'
-                  placeholder='Cari voucher...'
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      handleSearchSubmit()
-                    }
-                  }}
-                  sx={{ minWidth: 200 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position='start'>
-                        <Icon icon='tabler:search' fontSize={18} />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-
-                {/* Date Range Picker */}
-                <Box sx={{ minWidth: 280 }}>
-                  <AppReactDatepicker
-                    selectsRange
-                    monthsShown={2}
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                    endDate={endDate as Date}
-                    selected={startDate}
-                    startDate={startDate as Date}
-                    shouldCloseOnSelect={false}
-                    id='voucher-date-range'
-                    dateFormat='dd/MM/yyyy'
-                    onChange={handleOnChangeRange}
-                    customInput={
-                      <CustomInput
-                        label='Filter Tanggal'
-                        end={endDate as Date | number}
-                        start={startDate as Date | number}
-                      />
-                    }
-                  />
-                </Box>
-
-                {/* Filter & Reset Buttons */}
-                <Button
-                  size='small'
-                  variant='contained'
-                  onClick={handleSearchSubmit}
-                  startIcon={<Icon icon='tabler:filter' fontSize={18} />}
-                  sx={{ height: '40px', px: 2.5 }}
-                >
-                  Filter
-                </Button>
-                <Button
-                  size='small'
-                  variant='outlined'
-                  onClick={handleResetFilter}
-                  startIcon={<Icon icon='tabler:refresh' fontSize={18} />}
-                  sx={{ height: '40px', px: 2.5 }}
-                >
-                  Reset
-                </Button>
-              </Box>
+              {/* Right Side - Search Only */}
+              <TextField
+                size='small'
+                placeholder='Cari voucher...'
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                sx={{ minWidth: 250 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position='start'>
+                      <Icon icon='tabler:search' fontSize={18} />
+                    </InputAdornment>
+                  )
+                }}
+              />
             </Box>
 
             {error && (
@@ -862,194 +747,319 @@ const VoucherTable = () => {
         </Card>
       </Grid>
 
-      {/* Add/Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => !submitting && setOpenDialog(false)} maxWidth='md' fullWidth>
-        <DialogTitle>{editingVoucher ? 'Edit Voucher' : 'Tambah Voucher'}</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={4} sx={{ mt: 1 }}>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                label='Kode Voucher'
-                value={formData.kode_voucher}
-                onChange={e => setFormData({ ...formData, kode_voucher: e.target.value.toUpperCase() })}
-                placeholder='Contoh: DISKON50'
-                required
-              />
-            </Grid>
+      {/* Add/Edit Dialog - Improved UI */}
+      <Dialog
+        open={openDialog}
+        onClose={() => !submitting && setOpenDialog(false)}
+        maxWidth='sm'
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 }
+        }}
+      >
+        <DialogTitle sx={{ pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <CustomAvatar skin='light' variant='rounded' color='primary' sx={{ width: 40, height: 40 }}>
+              <Icon icon={editingVoucher ? 'tabler:edit' : 'tabler:ticket-plus'} fontSize={24} />
+            </CustomAvatar>
+            <Box>
+              <Typography variant='h6' sx={{ fontWeight: 600 }}>
+                {editingVoucher ? 'Edit Voucher' : 'Tambah Voucher Baru'}
+              </Typography>
+              <Typography variant='caption' color='text.secondary'>
+                {editingVoucher ? 'Ubah informasi voucher' : 'Buat voucher diskon untuk pelanggan Anda'}
+              </Typography>
+            </Box>
+          </Box>
+        </DialogTitle>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormControl fullWidth>
-                <InputLabel>Jenis Voucher</InputLabel>
-                <Select
-                  value={formData.jenis_voucher}
-                  label='Jenis Voucher'
-                  onChange={e => setFormData({ ...formData, jenis_voucher: e.target.value as 'ongkir' | 'potongan_harga' })}
-                >
-                  <MenuItem value='potongan_harga'>Potongan Harga</MenuItem>
-                  <MenuItem value='ongkir'>Diskon Ongkir</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
+        <DialogContent sx={{ pt: 4 }}>
+          {formError && (
+            <Alert severity='error' sx={{ mb: 3 }} onClose={() => setFormError(null)}>
+              {formError}
+            </Alert>
+          )}
 
-            <Grid size={{ xs: 12 }}>
-              <CustomTextField
-                fullWidth
-                label='Keterangan'
-                value={formData.keterangan}
-                onChange={e => setFormData({ ...formData, keterangan: e.target.value })}
-                multiline
-                rows={3}
-                placeholder='Deskripsi voucher...'
-                required
-              />
-            </Grid>
-
-            {formData.jenis_voucher === 'potongan_harga' && (
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel>Tipe Diskon</InputLabel>
-                  <Select
-                    value={formData.tipe_diskon}
-                    label='Tipe Diskon'
-                    onChange={e => setFormData({ ...formData, tipe_diskon: e.target.value as 'persen' | 'nominal' })}
-                  >
-                    <MenuItem value='nominal'>Nominal (Rp)</MenuItem>
-                    <MenuItem value='persen'>Persentase (%)</MenuItem>
-                  </Select>
-                </FormControl>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Basic Info Section */}
+            <Box>
+              <Typography variant='subtitle2' sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
+                Informasi Dasar
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <CustomTextField
+                    fullWidth
+                    label='Kode Voucher'
+                    value={formData.kode_voucher}
+                    onChange={e => setFormData({ ...formData, kode_voucher: e.target.value.toUpperCase() })}
+                    placeholder='Contoh: DISKON50'
+                    required
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <Icon icon='tabler:ticket' fontSize={18} />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <FormControl fullWidth size='small'>
+                    <InputLabel>Jenis Voucher</InputLabel>
+                    <Select
+                      value={formData.jenis_voucher}
+                      label='Jenis Voucher'
+                      onChange={e => setFormData({ ...formData, jenis_voucher: e.target.value as 'ongkir' | 'potongan_harga' })}
+                    >
+                      <MenuItem value='potongan_harga'>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Icon icon='tabler:discount-2' fontSize={18} />
+                          Potongan Harga
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value='ongkir'>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Icon icon='tabler:truck-delivery' fontSize={18} />
+                          Diskon Ongkir
+                        </Box>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <CustomTextField
+                    fullWidth
+                    label='Keterangan'
+                    value={formData.keterangan}
+                    onChange={e => setFormData({ ...formData, keterangan: e.target.value })}
+                    multiline
+                    rows={2}
+                    placeholder='Deskripsi voucher untuk pelanggan...'
+                    required
+                  />
+                </Grid>
               </Grid>
-            )}
+            </Box>
 
-            <Grid size={{ xs: 12, sm: formData.jenis_voucher === 'potongan_harga' ? 6 : 12 }}>
-              <CustomTextField
-                fullWidth
-                type='number'
-                label={
-                  formData.jenis_voucher === 'ongkir'
-                    ? 'Nilai Diskon Ongkir (Rp)'
-                    : formData.tipe_diskon === 'persen'
-                    ? 'Nilai Diskon (%)'
-                    : 'Nilai Diskon (Rp)'
-                }
-                value={formData.nilai_diskon}
-                onChange={e => setFormData({ ...formData, nilai_diskon: Number(e.target.value) })}
-                inputProps={{
-                  min: 0,
-                  max: formData.tipe_diskon === 'persen' ? 100 : undefined
-                }}
-                required
-                helperText={
-                  formData.jenis_voucher === 'ongkir'
-                    ? 'Nilai maksimal diskon ongkir dalam Rupiah'
-                    : formData.tipe_diskon === 'persen'
-                    ? 'Masukkan nilai 1-100 untuk persentase diskon'
-                    : undefined
-                }
-              />
-            </Grid>
+            <Divider />
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                type='number'
-                label='Kuota'
-                value={formData.kuota}
-                onChange={e => setFormData({ ...formData, kuota: Number(e.target.value) })}
-                inputProps={{ min: 1 }}
-                required
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                type='number'
-                label='Minimum Pembelian (Opsional)'
-                value={formData.minimum_pembelian || ''}
-                onChange={e => setFormData({ ...formData, minimum_pembelian: e.target.value ? Number(e.target.value) : undefined })}
-                inputProps={{ min: 0 }}
-              />
-            </Grid>
-
-            {formData.jenis_voucher === 'potongan_harga' && formData.tipe_diskon === 'persen' && (
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <CustomTextField
-                  fullWidth
-                  type='number'
-                  label='Maksimal Diskon (Opsional)'
-                  value={formData.maksimal_diskon || ''}
-                  onChange={e => setFormData({ ...formData, maksimal_diskon: e.target.value ? Number(e.target.value) : undefined })}
-                  inputProps={{ min: 0 }}
-                  helperText='Batasan maksimal potongan harga dalam Rupiah'
-                />
+            {/* Discount Section */}
+            <Box>
+              <Typography variant='subtitle2' sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
+                Pengaturan Diskon
+              </Typography>
+              <Grid container spacing={3}>
+                {formData.jenis_voucher === 'potongan_harga' && (
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormControl fullWidth size='small'>
+                      <InputLabel>Tipe Diskon</InputLabel>
+                      <Select
+                        value={formData.tipe_diskon}
+                        label='Tipe Diskon'
+                        onChange={e => setFormData({ ...formData, tipe_diskon: e.target.value as 'persen' | 'nominal' })}
+                      >
+                        <MenuItem value='nominal'>Nominal (Rp)</MenuItem>
+                        <MenuItem value='persen'>Persentase (%)</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                )}
+                <Grid size={{ xs: 12, sm: formData.jenis_voucher === 'potongan_harga' ? 6 : 12 }}>
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    label={
+                      formData.jenis_voucher === 'ongkir'
+                        ? 'Nilai Diskon Ongkir'
+                        : formData.tipe_diskon === 'persen'
+                        ? 'Nilai Diskon'
+                        : 'Nilai Diskon'
+                    }
+                    value={formData.nilai_diskon}
+                    onChange={e => setFormData({ ...formData, nilai_diskon: Number(e.target.value) })}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          {formData.jenis_voucher === 'ongkir' || formData.tipe_diskon === 'nominal' ? 'Rp' : ''}
+                        </InputAdornment>
+                      ),
+                      endAdornment: formData.tipe_diskon === 'persen' && formData.jenis_voucher !== 'ongkir' ? (
+                        <InputAdornment position='end'>%</InputAdornment>
+                      ) : null
+                    }}
+                    inputProps={{
+                      min: 0,
+                      max: formData.tipe_diskon === 'persen' && formData.jenis_voucher !== 'ongkir' ? 100 : undefined
+                    }}
+                    required
+                  />
+                </Grid>
+                {formData.jenis_voucher === 'potongan_harga' && formData.tipe_diskon === 'persen' && (
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <CustomTextField
+                      fullWidth
+                      type='number'
+                      label='Maksimal Diskon'
+                      value={formData.maksimal_diskon || ''}
+                      onChange={e => setFormData({ ...formData, maksimal_diskon: e.target.value ? Number(e.target.value) : undefined })}
+                      InputProps={{
+                        startAdornment: <InputAdornment position='start'>Rp</InputAdornment>
+                      }}
+                      inputProps={{ min: 0 }}
+                      helperText='Opsional - Batas maksimal potongan'
+                    />
+                  </Grid>
+                )}
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    label='Minimum Pembelian'
+                    value={formData.minimum_pembelian || ''}
+                    onChange={e => setFormData({ ...formData, minimum_pembelian: e.target.value ? Number(e.target.value) : undefined })}
+                    InputProps={{
+                      startAdornment: <InputAdornment position='start'>Rp</InputAdornment>
+                    }}
+                    inputProps={{ min: 0 }}
+                    helperText='Opsional - Minimal belanja'
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <CustomTextField
+                    fullWidth
+                    type='number'
+                    label='Kuota Voucher'
+                    value={formData.kuota}
+                    onChange={e => setFormData({ ...formData, kuota: Number(e.target.value) })}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <Icon icon='tabler:users' fontSize={18} />
+                        </InputAdornment>
+                      )
+                    }}
+                    inputProps={{ min: 1 }}
+                    required
+                    helperText='Jumlah penggunaan voucher'
+                  />
+                </Grid>
               </Grid>
-            )}
+            </Box>
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                type='date'
-                label='Tanggal Mulai'
-                value={formData.tgl_mulai}
-                onChange={e => setFormData({ ...formData, tgl_mulai: e.target.value })}
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
+            <Divider />
 
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <CustomTextField
-                fullWidth
-                type='date'
-                label='Tanggal Berakhir'
-                value={formData.tgl_berakhir}
-                onChange={e => setFormData({ ...formData, tgl_berakhir: e.target.value })}
-                InputLabelProps={{ shrink: true }}
-                required
-              />
-            </Grid>
-
-            <Grid size={{ xs: 12 }}>
-              <FormControl fullWidth>
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={formData.status}
-                  label='Status'
-                  onChange={e => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'expired' })}
-                >
-                  <MenuItem value='active'>Aktif</MenuItem>
-                  <MenuItem value='inactive'>Nonaktif</MenuItem>
-                  <MenuItem value='expired'>Expired</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
+            {/* Period & Status Section */}
+            <Box>
+              <Typography variant='subtitle2' sx={{ mb: 2, fontWeight: 600, color: 'primary.main' }}>
+                Periode & Status
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <CustomTextField
+                    fullWidth
+                    type='date'
+                    label='Tanggal Mulai'
+                    value={formData.tgl_mulai}
+                    onChange={e => setFormData({ ...formData, tgl_mulai: e.target.value })}
+                    InputLabelProps={{ shrink: true }}
+                    required
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                  <CustomTextField
+                    fullWidth
+                    type='date'
+                    label='Tanggal Berakhir'
+                    value={formData.tgl_berakhir}
+                    onChange={e => setFormData({ ...formData, tgl_berakhir: e.target.value })}
+                    InputLabelProps={{ shrink: true }}
+                    required
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <FormControl fullWidth size='small'>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                      value={formData.status}
+                      label='Status'
+                      onChange={e => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' | 'expired' })}
+                    >
+                      <MenuItem value='active'>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip label='Aktif' color='success' size='small' />
+                        </Box>
+                      </MenuItem>
+                      <MenuItem value='inactive'>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip label='Nonaktif' color='warning' size='small' />
+                        </Box>
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} disabled={submitting}>
+
+        <DialogActions sx={{ px: 3, py: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Button
+            onClick={() => setOpenDialog(false)}
+            disabled={submitting}
+            variant='outlined'
+            color='secondary'
+          >
             Batal
           </Button>
-          <Button onClick={handleSubmit} variant='contained' disabled={submitting}>
-            {submitting ? <CircularProgress size={20} /> : editingVoucher ? 'Update' : 'Simpan'}
+          <Button
+            onClick={handleSubmit}
+            variant='contained'
+            disabled={submitting}
+            startIcon={submitting ? <CircularProgress size={16} color='inherit' /> : <Icon icon='tabler:check' />}
+          >
+            {submitting ? 'Menyimpan...' : editingVoucher ? 'Update Voucher' : 'Simpan Voucher'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={openDeleteDialog} onClose={() => !submitting && setOpenDeleteDialog(false)}>
-        <DialogTitle>Konfirmasi Hapus</DialogTitle>
-        <DialogContent>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => !submitting && setOpenDeleteDialog(false)}
+        PaperProps={{
+          sx: { borderRadius: 2, maxWidth: 400 }
+        }}
+      >
+        <DialogTitle sx={{ textAlign: 'center', pt: 4 }}>
+          <CustomAvatar skin='light' variant='rounded' color='error' sx={{ width: 56, height: 56, mx: 'auto', mb: 2 }}>
+            <Icon icon='tabler:trash' fontSize={32} />
+          </CustomAvatar>
+          <Typography variant='h6'>Hapus Voucher?</Typography>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: 'center', pb: 2 }}>
           <DialogContentText>
-            Apakah Anda yakin ingin menghapus voucher <strong>{deletingVoucher?.kode_voucher}</strong>?
+            Voucher <strong>{deletingVoucher?.kode_voucher}</strong> akan dihapus secara permanen.
+            Tindakan ini tidak dapat dibatalkan.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)} disabled={submitting}>
+        <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
+          <Button
+            onClick={() => setOpenDeleteDialog(false)}
+            disabled={submitting}
+            variant='outlined'
+            color='secondary'
+          >
             Batal
           </Button>
-          <Button onClick={handleDelete} color='error' variant='contained' disabled={submitting}>
-            {submitting ? <CircularProgress size={20} /> : 'Hapus'}
+          <Button
+            onClick={handleDelete}
+            color='error'
+            variant='contained'
+            disabled={submitting}
+            startIcon={submitting ? <CircularProgress size={16} color='inherit' /> : <Icon icon='tabler:trash' />}
+          >
+            {submitting ? 'Menghapus...' : 'Hapus'}
           </Button>
         </DialogActions>
       </Dialog>
